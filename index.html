@@ -1,559 +1,425 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="es" data-theme="auto" data-lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EC0249 Estándar de Competencia / Competence Standard</title>
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #333333;
-            --header-color: #000000;
-            --border-color: #dddddd;
-            --table-header-bg: #f2f2f2;
-            --link-color: #007bff;
-            --button-bg: #f0f0f0;
-            --button-text: #000000;
-            --button-active-bg: #007bff;
-            --button-active-text: #ffffff;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EC0249 · Proporcionar servicios de consultoría general — Bilingual (ES/EN) · Tri‑Mode</title>
+  <meta name="description" content="Estándar de Competencia EC0249 — versión bilingüe (español/inglés) con tema automático, claro u oscuro." />
+  <style>
+    :root{
+      --bg: #ffffff;
+      --fg: #0f172a; /* slate-900 */
+      --muted: #475569; /* slate-600 */
+      --card: #f8fafc; /* slate-50 */
+      --border: #e2e8f0; /* slate-200 */
+      --accent: #2563eb; /* blue-600 */
+      --accent-fg: #ffffff;
+      --shadow: 0 10px 25px rgba(2,6,23,.08);
+      --radius: 14px;
+      --code: #111827;
+      --kbd-bg:#e5e7eb; --kbd-fg:#111827; --kbd-border:#d1d5db;
+      --link: #1d4ed8; --link-visited:#6d28d9;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1220; /* slate-950-ish */
+        --fg: #e5e7eb; /* slate-200 */
+        --muted: #9ca3af; /* slate-400 */
+        --card: #0f172a; /* slate-900 */
+        --border: #1f2937; /* slate-800 */
+        --accent: #60a5fa; /* blue-400 */
+        --accent-fg: #0b1220;
+        --shadow: 0 10px 30px rgba(0,0,0,.35);
+        --code: #e5e7eb;
+        --kbd-bg:#111827; --kbd-fg:#e5e7eb; --kbd-border:#374151;
+        --link:#93c5fd; --link-visited:#c4b5fd;
+      }
+    }
+    /* Manual overrides for tri‑mode */
+    html[data-theme="light"]{
+      --bg: #ffffff; --fg:#0f172a; --muted:#475569; --card:#f8fafc; --border:#e2e8f0;
+      --accent:#2563eb; --accent-fg:#ffffff; --shadow:0 10px 25px rgba(2,6,23,.08);
+      --code:#111827; --kbd-bg:#e5e7eb; --kbd-fg:#111827; --kbd-border:#d1d5db; --link:#1d4ed8; --link-visited:#6d28d9;
+    }
+    html[data-theme="dark"]{
+      --bg:#0b1220; --fg:#e5e7eb; --muted:#9ca3af; --card:#0f172a; --border:#1f2937;
+      --accent:#60a5fa; --accent-fg:#0b1220; --shadow:0 10px 30px rgba(0,0,0,.35);
+      --code:#e5e7eb; --kbd-bg:#111827; --kbd-fg:#e5e7eb; --kbd-border:#374151; --link:#93c5fd; --link-visited:#c4b5fd;
+    }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #121212;
-                --text-color: #e0e0e0;
-                --header-color: #ffffff;
-                --border-color: #444444;
-                --table-header-bg: #2c2c2c;
-                --link-color: #64b5f6;
-                --button-bg: #333333;
-                --button-text: #e0e0e0;
-                --button-active-bg: #64b5f6;
-                --button-active-text: #000000;
-            }
-        }
+    /* Base */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";}
+    a{color:var(--link)} a:visited{color:var(--link-visited)}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header.site{position:sticky;top:0;z-index:50;background:linear-gradient(to bottom,var(--bg) 70%,color-mix(in oklab,var(--bg),transparent 100%) 100%);backdrop-filter:saturate(1.2) blur(6px);border-bottom:1px solid var(--border)}
+    .bar{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 24px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),color-mix(in oklab,var(--accent),var(--accent-fg) 30%));box-shadow:var(--shadow)}
+    h1{font-size:clamp(1.25rem,2.2vw,1.8rem);margin:0}
+    .sub{color:var(--muted);font-size:.95rem}
+    .controls{display:flex;gap:10px;align-items:center}
+    .segmented{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--card)}
+    .segmented button{border:0;background:transparent;padding:8px 12px;color:var(--muted);cursor:pointer}
+    .segmented button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+    .chip{padding:.25rem .6rem;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--muted);font-size:.85rem}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
+    /* Layout */
+    .grid{display:grid;grid-template-columns:280px 1fr;gap:24px}
+    @media (max-width: 900px){.grid{grid-template-columns:1fr}}
+    nav.toc{position:sticky;top:82px;align-self:start;border:1px solid var(--border);background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+    nav.toc h3{margin:.2rem 0 .5rem;font-size:1rem}
+    nav.toc a{display:block;padding:.35rem .4rem;border-radius:8px;text-decoration:none;color:var(--fg)}
+    nav.toc a:hover{background:color-mix(in oklab,var(--accent),transparent 85%)}
+    main{min-width:0}
 
-        h1, h2, h3, h4, h5 {
-            color: var(--header-color);
-        }
+    /* Cards & content */
+    section.card{border:1px solid var(--border);background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:18px}
+    section.card h2{margin-top:.2rem}
+    .meta{display:flex;flex-wrap:wrap;gap:10px;margin:.5rem 0 1rem}
+    .badge{background:color-mix(in oklab,var(--accent),transparent 85%);color:var(--fg);border:1px solid var(--border);padding:.25rem .5rem;border-radius:8px;font-size:.8rem}
 
-        hr {
-            border: none;
-            border-top: 1px solid var(--border-color);
-            margin: 2em 0;
-        }
-        
-        ul, ol {
-            padding-left: 20px;
-        }
+    details{border:1px solid var(--border);border-radius:12px;background:transparent}
+    details summary{list-style:none;cursor:pointer;padding:12px 14px;font-weight:600}
+    details[open]{background:color-mix(in oklab,var(--card),transparent 0%)}
+    details > div{padding:0 14px 14px}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
+    .lang-es{display:revert}
+    .lang-en{display:none}
+    html[data-lang="en"] .lang-es{display:none}
+    html[data-lang="en"] .lang-en{display:revert}
 
-        th, td {
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            text-align: left;
-        }
+    .glossary dt{font-weight:700}
+    .glossary dd{margin:0 0 10px 0}
 
-        th {
-            background-color: var(--table-header-bg);
-        }
-        
-        .lang-switcher {
-            text-align: center;
-            margin-bottom: 2em;
-        }
-        
-        .lang-switcher button {
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-            padding: 10px 20px;
-            margin: 0 5px;
-            border-radius: 5px;
-            background-color: var(--button-bg);
-            color: var(--button-text);
-            font-size: 1rem;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        
-        .lang-switcher button.active {
-            background-color: var(--button-active-bg);
-            color: var(--button-active-text);
-            font-weight: bold;
-        }
+    .kbd{border:1px solid var(--kbd-border);border-bottom-width:3px;border-radius:6px;background:var(--kbd-bg);color:var(--kbd-fg);padding:2px 6px;font:600 .85rem ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
 
-        .hidden {
-            display: none;
-        }
-
-        section, article {
-            margin-bottom: 2em;
-        }
-
-    </style>
+    @media print{
+      header.site, nav.toc, .controls{display:none}
+      body{background:#fff;color:#000}
+      section.card{break-inside:avoid}
+    }
+  </style>
 </head>
 <body>
-
-    <div class="lang-switcher">
-        <button id="btn-es" class="active">Español</button>
-        <button id="btn-en">English</button>
+  <header class="site">
+    <div class="bar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>EC0249 · Proporcionar servicios de consultoría general</h1>
+          <div class="sub">Versión bilingüe (Español / English) · Tema: Auto / Claro / Oscuro</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="segmented" role="group" aria-label="Selector de idioma / Language">
+          <button id="btn-es" data-lang="es" aria-pressed="true">ES</button>
+          <button id="btn-en" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <div class="segmented" role="group" aria-label="Tema">
+          <button id="theme-auto" data-theme="auto" aria-pressed="true" title="Respeta el sistema"><span class="lang-es">Auto</span><span class="lang-en">Auto</span></button>
+          <button id="theme-light" data-theme="light" aria-pressed="false" title="Claro"><span class="lang-es">Claro</span><span class="lang-en">Light</span></button>
+          <button id="theme-dark" data-theme="dark" aria-pressed="false" title="Oscuro"><span class="lang-es">Oscuro</span><span class="lang-en">Dark</span></button>
+        </div>
+      </div>
     </div>
+  </header>
 
-    <main id="spanish-content" lang="es">
-        <h1>Estándar de Competencia EC0249: Proporcionar Servicios de Consultoría General</h1>
+  <div class="container grid">
+    <nav class="toc" aria-label="Tabla de contenido / Table of contents">
+      <h3><span class="lang-es">Contenido</span><span class="lang-en">Contents</span></h3>
+      <a href="#datos"><span class="lang-es">I. Datos Generales</span><span class="lang-en">I. General Data</span></a>
+      <a href="#perfil"><span class="lang-es">II. Perfil del EC</span><span class="lang-en">II. Standard Profile</span></a>
+      <a href="#elementos"><span class="lang-es">III. Elementos y Criterios</span><span class="lang-en">III. Elements & Criteria</span></a>
+      <a href="#glosario"><span class="lang-es">Glosario</span><span class="lang-en">Glossary</span></a>
+      <a href="#referencias"><span class="lang-es">Referencias</span><span class="lang-en">References</span></a>
+    </nav>
 
-        <section id="datos-generales">
-            <h2>I. Datos Generales</h2>
-            [cite_start]<p><strong>Código:</strong> EC0249 [cite: 5, 7]</p>
-            [cite_start]<p><strong>Título:</strong> Proporcionar servicios de consultoría general [cite: 8]</p>
-            [cite_start]<p><strong>Propósito del Estándar de Competencia:</strong> Servir como referente para la evaluación y certificación de las personas que llevan a cabo funciones de consultoría, sin importar la especialidad. [cite: 10] [cite_start]Esto incluye identificar la situación o el problema planteado, desarrollar alternativas de solución y presentar una solución al consultante. [cite: 10] [cite_start]También puede ser un referente para el desarrollo de programas de capacitación. [cite: 11]</p>
-            <p><strong>Descripción del Estándar de Competencia:</strong> Este estándar describe las funciones críticas y sustantivas que un consultor debe demostrar. Estas funciones son:
-                <ol>
-                    [cite_start]<li>Identificar la situación/problema planteado mediante entrevistas y la elaboración de documentos. [cite: 15, 16]</li>
-                    [cite_start]<li>Desarrollar opciones de solución a la situación/problema planteado, elaborando un reporte de afectaciones, diseñando alternativas y presentando la elegida. [cite: 17, 18]</li>
-                    [cite_start]<li>Presentar la propuesta de solución al consultante, elaborando la propuesta de trabajo, registrando acuerdos y describiendo el plan a desarrollar. [cite: 19]</li>
-                </ol>
-            </p>
-            [cite_start]<p>Este estándar también establece los conocimientos teóricos, básicos y prácticos, así como las actitudes relevantes en el desempeño. [cite: 21, 22] [cite_start]Se fundamenta en criterios de legalidad, competitividad, libre acceso, respeto, trabajo digno y responsabilidad social. [cite: 23] [cite_start]No se requiere la posesión de un título profesional para la certificación. [cite: 12, 13]</p>
-            [cite_start]<p><strong>Nivel en el Sistema Nacional de Competencias:</strong> Cinco [cite: 30]</p>
-            [cite_start]<p><strong>Fecha de aprobación por el Comité Técnico del CONOCER:</strong> 17 de julio de 2012 [cite: 36]</p>
-            [cite_start]<p><strong>Fecha de publicación en el D.O.F.:</strong> 16 de octubre de 2012 [cite: 39]</p>
-            [cite_start]<p><strong>Tiempo de Vigencia del Certificado:</strong> 4 años [cite: 42]</p>
-        </section>
+    <main>
+      <section class="card" id="intro">
+        <div class="meta">
+          <span class="chip">N-FO-02 · v6.0</span>
+          <span class="chip"><span class="lang-es">Nivel en SNC: Cinco</span><span class="lang-en">National Skills Level: Five</span></span>
+          <span class="chip"><span class="lang-es">Aprob.: 17/Jul/2012 · D.O.F.: 16/Oct/2012</span><span class="lang-en">Approved: Jul 17, 2012 · Gazette: Oct 16, 2012</span></span>
+          <span class="chip"><span class="lang-es">Vigencia Cert.: 4 años</span><span class="lang-en">Certificate Validity: 4 years</span></span>
+        </div>
+        <p class="lang-es"><strong>Propósito.</strong> Servir como referente para evaluar y certificar a personas que realizan funciones de consultoría —sin importar la especialidad— y para diseñar programas de capacitación basados en EC. No requiere título profesional para certificarse.</p>
+        <p class="lang-en"><strong>Purpose.</strong> Serves as a benchmark to evaluate and certify individuals who perform consulting functions—regardless of specialty—and to design training programs based on the standard. A professional degree is not required for certification.</p>
+        <p class="lang-es"><strong>Descripción.</strong> El estándar define funciones mínimas: (1) Identificar la situación/problema; (2) Desarrollar opciones de solución; (3) Presentar la propuesta de solución al consultante. Incluye conocimientos, actitudes y evidencias requeridas.</p>
+        <p class="lang-en"><strong>Description.</strong> The standard defines minimum functions: (1) Identify the situation/problem; (2) Develop solution options; (3) Present the proposed solution to the client. It includes required knowledge, attitudes, and evidence.</p>
+      </section>
 
-        <hr>
-
-        <section id="perfil-ec">
-            <h2>II. Perfil del Estándar de Competencia</h2>
-            [cite_start]<p><strong>Estándar de Competencia:</strong> Proporcionar servicios de consultoría general [cite: 94]</p>
-            <ul>
-                [cite_start]<li><strong>Elemento 1 de 3:</strong> Identificar la situación / problema planteado [cite: 96]</li>
-                [cite_start]<li><strong>Elemento 2 de 3:</strong> Desarrollar opciones de solución a la situación / problema planteado [cite: 98, 99]</li>
-                [cite_start]<li><strong>Elemento 3 de 3:</strong> Presentar la propuesta de solución [cite: 101]</li>
+      <section class="card" id="datos">
+        <h2><span class="lang-es">I. Datos Generales</span><span class="lang-en">I. General Data</span></h2>
+        <details open>
+          <summary><span class="lang-es">Clasificaciones y Alcance</span><span class="lang-en">Classifications & Scope</span></summary>
+          <div>
+            <ul class="lang-es">
+              <li><strong>Código / Título:</strong> EC0249 · Proporcionar servicios de consultoría general</li>
+              <li><strong>Nivel:</strong> Cinco (planifica, programa y es responsable de resultados de equipos).</li>
+              <li><strong>SCIAN:</strong> 54, 541, 5416, 54161, 54169; clases 541610 (MÉX), 541690.</li>
+              <li><strong>Ocupaciones relacionadas (CNO):</strong> 0825-01 Consultores de sistemas administrativos; p. ej., consultor de análisis organizacional.</li>
             </ul>
-        </section>
-
-        <hr>
-
-        <section id="elementos-ec">
-            <h2>III. Elementos que conforman el Estándar de Competencia</h2>
-
-            <article id="elemento1">
-                <h3>Elemento 1 de 3: Identificar la situación / problema planteado</h3>
-                <h4>Criterios de Evaluación</h4>
-                <h5>Desempeños</h5>
-                <p><strong>1. Entrevista a las partes involucradas en la consultoría:</strong></p>
-                <ul>
-                    [cite_start]<li>Dando su nombre al inicio de la entrevista. [cite: 107]</li>
-                    [cite_start]<li>Indicando que la razón de la entrevista es obtener datos relativos al problema en estudio. [cite: 108]</li>
-                    [cite_start]<li>Solicitando que la información requerida se proporcione verbalmente / por escrito. [cite: 108]</li>
-                    [cite_start]<li>Solicitando que las evidencias que soporten sus respuestas sean proporcionadas. [cite: 109]</li>
-                    [cite_start]<li>Registrando las respuestas obtenidas de la entrevista. [cite: 111]</li>
-                    [cite_start]<li>Cerrando la entrevista agradeciendo la participación y cooperación recibida. [cite: 112]</li>
-                </ul>
-
-                <h5>Productos</h5>
-                <p><strong>1. El documento elaborado que describe el problema planteado:</strong></p>
-                <ul>
-                    [cite_start]<li>Incluye la afectación de la situación actual. [cite: 115]</li>
-                    [cite_start]<li>Establece el alcance. [cite: 116]</li>
-                    [cite_start]<li>Incluye la integración de la información obtenida. [cite: 117]</li>
-                    [cite_start]<li>Contiene la interpretación del problema y sus afectaciones. [cite: 118]</li>
-                </ul>
-
-                <h5>Conocimientos</h5>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Área de Conocimiento</th>
-                            <th>Nivel</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            [cite_start]<td>Tipos de entrevistas y cuestionarios [cite: 163, 165]</td>
-                            [cite_start]<td>Comprensión [cite: 170, 171]</td>
-                        </tr>
-                        <tr>
-                            [cite_start]<td>Indicadores: Concepto y Usos [cite: 177]</td>
-                            [cite_start]<td>Comprensión [cite: 172]</td>
-                        </tr>
-                        <tr>
-                            [cite_start]<td>Fuentes de información y características de las muestras [cite: 181, 182]</td>
-                            [cite_start]<td>Comprensión [cite: 190]</td>
-                        </tr>
-                        <tr>
-                            [cite_start]<td>Metodología de investigación de problemas [cite: 183]</td>
-                            [cite_start]<td>Comprensión [cite: 191]</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h5>Actitudes/Hábitos/Valores</h5>
-                <ul>
-                    [cite_start]<li><strong>Limpieza:</strong> La manera en que presenta la información, sin tachaduras y enmendaduras. [cite: 188]</li>
-                    [cite_start]<li><strong>Orden:</strong> La manera en que presenta la información apegada a la secuencia metodológica propuesta. [cite: 188]</li>
-                </ul>
-            </article>
-
-            <hr>
-
-            <article id="elemento2">
-                <h3>Elemento 2 de 3: Desarrollar opciones de solución a la situación / problema planteado</h3>
-                <h4>Criterios de Evaluación</h4>
-                <h5>Productos</h5>
-                <p><strong>1. El reporte de las afectaciones encontradas:</strong></p>
-                <ul>
-                    [cite_start]<li>Describe la metodología aplicada. [cite: 206]</li>
-                    [cite_start]<li>Define las afectaciones encontradas. [cite: 207]</li>
-                    [cite_start]<li>Incluye la definición detallada de la situación a resolver. [cite: 208]</li>
-                </ul>
-                <p><strong>2. La solución diseñada:</strong></p>
-                <ul>
-                    [cite_start]<li>Es congruente con la situación a resolver. [cite: 210]</li>
-                    [cite_start]<li>Menciona los beneficios y desventajas de la solución. [cite: 211, 212]</li>
-                    [cite_start]<li>Cuenta con una justificación detallada e incluye las implicaciones de costo/beneficio. [cite: 220]</li>
-                </ul>
-                <h5>Actitudes/Hábitos/Valores</h5>
-                <ul>
-                    [cite_start]<li><strong>Responsabilidad:</strong> La manera en que acepta y firma lo estipulado en los códigos de ética, confidencialidad y aviso de privacidad. [cite: 223, 224]</li>
-                </ul>
-            </article>
-            
-            <hr>
-
-            <article id="elemento3">
-                <h3>Elemento 3 de 3: Presentar la propuesta de solución</h3>
-                <h4>Criterios de Evaluación</h4>
-                <h5>Desempeños</h5>
-                <p><strong>1. Presenta la propuesta desarrollada al consultante:</strong></p>
-                <ul>
-                    [cite_start]<li>Describiendo la propuesta sugerida y su alcance. [cite: 229, 230]</li>
-                    [cite_start]<li>Exponiendo las ventajas, desventajas e implicaciones de la implantación. [cite: 231, 233]</li>
-                    [cite_start]<li>Mencionando responsables, etapas y entregables. [cite: 231, 232]</li>
-                    [cite_start]<li>Respondiendo preguntas y explicando la relación costo/beneficio. [cite: 235]</li>
-                </ul>
-
-                <h5>Productos</h5>
-                <p><strong>1. La propuesta de trabajo elaborada:</strong></p>
-                <ul>
-                    [cite_start]<li>Incluye antecedentes, diagnóstico y descripción de la solución. [cite: 239, 240, 241]</li>
-                    [cite_start]<li>Incluye un plan de trabajo, entregables, riesgos, responsabilidades y costo estimado. [cite: 242, 243, 244, 245]</li>
-                </ul>
-
-                <h5>Actitudes/Hábitos/Valores</h5>
-                <ul>
-                    [cite_start]<li><strong>Limpieza:</strong> La manera en que presenta la información sin tachaduras y enmendaduras. [cite: 266, 268]</li>
-                    [cite_start]<li><strong>Orden:</strong> La manera en que presenta la información apegada a la secuencia metodológica propuesta. [cite: 267, 269]</li>
-                </ul>
-            </article>
-        </section>
-        
-        <hr>
-
-        <section id="aspectos-evaluacion">
-            <h2>Aspectos Relevantes de la Evaluación</h2>
-            <p><strong>Detalles de la práctica:</strong></p>
-            <ul>
-                [cite_start]<li>Los candidatos deberán entregar al evaluador los documentos (evidencias por producto) en formato electrónico. [cite: 76] [cite_start]El evaluador tendrá 5 días hábiles para su revisión. [cite: 76]</li>
-                [cite_start]<li>Las evidencias por desempeño y conocimiento se evaluarán después de la revisión de los productos, ya sea en el lugar de trabajo o en una simulación. [cite: 77]</li>
+            <ul class="lang-en">
+              <li><strong>Code / Title:</strong> EC0249 · Provide general consulting services</li>
+              <li><strong>Level:</strong> Five (plans, schedules, and is accountable for team outcomes).</li>
+              <li><strong>NAICS (SCIAN):</strong> 54, 541, 5416, 54161, 54169; classes 541610 (MEX), 541690.</li>
+              <li><strong>Related occupations (CNO):</strong> 0825-01 Administrative systems consultants; e.g., organizational analysis consultant.</li>
             </ul>
-            <p><strong>Apoyos/Requerimientos:</strong></p>
-            <ul>
-                [cite_start]<li>Los documentos que forman las evidencias por producto. [cite: 79]</li>
-                [cite_start]<li>Las facilidades que requiera el candidato para la presentación (computadora, cañón, pantalla, etc.). [cite: 79]</li>
+          </div>
+        </details>
+        <details>
+          <summary><span class="lang-es">Participantes y Fechas</span><span class="lang-en">Participants & Dates</span></summary>
+          <div>
+            <p class="lang-es"><strong>Comité de Gestión por Competencias:</strong> Sector de Consultoría. <strong>Empresas/Instituciones:</strong> Cámara Nacional de Empresas de Consultoría; Cencade, S.A. de C.V.; Compite; Instituto de Ingeniería de la UNAM; Secretaría de Economía; UNIVA; UVM.</p>
+            <p class="lang-en"><strong>Sector Skills Committee:</strong> Consulting Sector. <strong>Organizations involved:</strong> National Chamber of Consulting Firms; Cencade, S.A. de C.V.; Compite; UNAM Institute of Engineering; Ministry of Economy; UNIVA; UVM.</p>
+            <p class="lang-es"><strong>Aprobación:</strong> 17 de julio de 2012 · <strong>Publicación en D.O.F.:</strong> 16 de octubre de 2012.</p>
+            <p class="lang-en"><strong>Approval:</strong> July 17, 2012 · <strong>Official Gazette:</strong> October 16, 2012.</p>
+            <p class="lang-es"><strong>Revisión/Actualización del EC:</strong> cada 2 años. <strong>Vigencia del certificado:</strong> 4 años.</p>
+            <p class="lang-en"><strong>Review/Update cycle:</strong> every 2 years. <strong>Certificate validity:</strong> 4 years.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span class="lang-es">Aspectos de Evaluación</span><span class="lang-en">Assessment Aspects</span></summary>
+          <div>
+            <ul class="lang-es">
+              <li><strong>Entrega de evidencias por producto:</strong> formato electrónico; revisión en 5 días hábiles por el evaluador.</li>
+              <li><strong>Evidencias de desempeño y conocimiento:</strong> en sitio o simulación (evaluador actúa como cliente/entrevistado).</li>
+              <li><strong>Apoyos:</strong> equipo para presentación (computadora, proyector, pantalla, rotafolio, etc.).</li>
+              <li><strong>Duración estimada:</strong> 4 h gabinete + 2 h campo = 6 h.</li>
             </ul>
-            [cite_start]<p><strong>Duración estimada de la evaluación:</strong> 4 horas en gabinete y 2 horas en campo, totalizando 6 horas. [cite: 82]</p>
-        </section>
-        
-        <hr>
+            <ul class="lang-en">
+              <li><strong>Product evidence submission:</strong> electronic format; reviewed within 5 business days.</li>
+              <li><strong>Performance & knowledge evidence:</strong> on-site or simulated (evaluator acts as client/interviewee).</li>
+              <li><strong>Supports:</strong> presentation equipment (computer, projector, screen, flipchart, etc.).</li>
+              <li><strong>Estimated duration:</strong> 4 h office + 2 h field = 6 h.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
 
-        <section id="glosario">
-            <h2>Glosario</h2>
-            <dl>
-                <dt><strong>Afectación de la situación actual:</strong></dt>
-                [cite_start]<dd>Diferencia entre la situación deseada y la situación actual. [cite: 192]</dd>
-                <dt><strong>Información externa:</strong></dt>
-                [cite_start]<dd>Información de dominio público o propia del consultor. [cite: 194, 197]</dd>
-                <dt><strong>Información interna:</strong></dt>
-                [cite_start]<dd>Información propia del consultante. [cite: 195, 198]</dd>
+      <section class="card" id="perfil">
+        <h2><span class="lang-es">II. Perfil del Estándar de Competencia</span><span class="lang-en">II. Standard Profile</span></h2>
+        <div class="meta">
+          <span class="badge"><span class="lang-es">Elemento 1:</span><span class="lang-en">Element 1:</span> E0875</span>
+          <span class="badge"><span class="lang-es">Elemento 2:</span><span class="lang-en">Element 2:</span> E0876</span>
+          <span class="badge"><span class="lang-es">Elemento 3:</span><span class="lang-en">Element 3:</span> E0877</span>
+        </div>
+        <p class="lang-es">Funciones mínimas: Identificar la situación/problema; Desarrollar opciones de solución; Presentar la propuesta de solución.</p>
+        <p class="lang-en">Minimum functions: Identify the situation/problem; Develop solution options; Present the proposed solution.</p>
+      </section>
+
+      <section class="card" id="elementos">
+        <h2><span class="lang-es">III. Elementos y Criterios de Evaluación</span><span class="lang-en">III. Elements & Evaluation Criteria</span></h2>
+
+        <!-- Element 1 -->
+        <details open>
+          <summary><strong>E0875</strong> · <span class="lang-es">Identificar la situación / problema planteado</span><span class="lang-en">Identify the stated situation / problem</span></summary>
+          <div>
+            <h3><span class="lang-es">Desempeños</span><span class="lang-en">Performances</span></h3>
+            <ul class="lang-es">
+              <li>Entrevista a las partes: se presenta, explica el propósito, solicita información y evidencias (verbal/escrita), registra respuestas y cierra agradeciendo.</li>
+            </ul>
+            <ul class="lang-en">
+              <li>Interviews stakeholders: introduces self, explains purpose, requests information and evidence (oral/written), records responses, and closes with thanks.</li>
+            </ul>
+
+            <h3><span class="lang-es">Productos</span><span class="lang-en">Products</span></h3>
+            <ul class="lang-es">
+              <li>Documento que describe el problema (alcance, integración de información, interpretación y afectaciones).</li>
+              <li>Afectación detectada congruente con la información integrada.</li>
+              <li>Integración de la información (recopilada, congruente con el problema, e interpretación).</li>
+              <li>Reporte de metodología: definición del problema; programa de entrevistas; áreas involucradas; estudios/pruebas; requerimientos de información; programa de observaciones; búsqueda documental; método de evaluación.</li>
+              <li>Guía de entrevista: propósito; actividades/responsabilidades; información/doc. a solicitar; cierre.</li>
+              <li>Cuestionario: propósito; datos generales; confidencialidad; instrucciones; preguntas alineadas; documentación de soporte; comentarios; agradecimiento.</li>
+              <li>Programa de búsqueda documental: información interna y externa relevante.</li>
+              <li>Reporte de visita de campo: objetivo, alcance, observaciones y resultados.</li>
+            </ul>
+            <ul class="lang-en">
+              <li>Problem description document (scope, information integration, interpretation and impacts).</li>
+              <li>Detected impacts consistent with integrated information.</li>
+              <li>Information integration (collected data, alignment with problem, and interpretation).</li>
+              <li>Methodology report: problem definition; interview program; involved areas; studies/tests; information requirements; field observations plan; documentary research; evaluation method.</li>
+              <li>Interview guide: purpose; activities/responsibilities; info/documents to request; closing.</li>
+              <li>Questionnaire: purpose; respondent data; confidentiality; instructions; aligned questions; supporting documents; comments; thanks.</li>
+              <li>Documentary search plan: internal and external information.</li>
+              <li>Field visit report: objective, scope, observations and results.</li>
+            </ul>
+
+            <h3><span class="lang-es">Conocimientos</span><span class="lang-en">Knowledge</span></h3>
+            <ul class="lang-es">
+              <li>Entrevistas: tipos.</li>
+              <li>Cuestionarios: tipos.</li>
+              <li>Indicadores: concepto y usos.</li>
+              <li>Fuentes de información: tipos y características de muestras.</li>
+              <li>Metodología de investigación de problemas: definición, requerimientos y evaluación de información.</li>
+            </ul>
+            <ul class="lang-en">
+              <li>Interviews: types.</li>
+              <li>Questionnaires: types.</li>
+              <li>Indicators: concept and uses.</li>
+              <li>Information sources: types and sample characteristics.</li>
+              <li>Problem-research methodology: definition, requirements and information assessment.</li>
+            </ul>
+
+            <h3><span class="lang-es">Actitudes / Hábitos / Valores</span><span class="lang-en">Attitudes / Habits / Values</span></h3>
+            <ul class="lang-es"><li>Limpieza; Orden.</li></ul>
+            <ul class="lang-en"><li>Neatness; Order.</li></ul>
+          </div>
+        </details>
+
+        <!-- Element 2 -->
+        <details>
+          <summary><strong>E0876</strong> · <span class="lang-es">Desarrollar opciones de solución a la situación / problema planteado</span><span class="lang-en">Develop solution options for the stated situation / problem</span></summary>
+          <div>
+            <h3><span class="lang-es">Productos</span><span class="lang-en">Products</span></h3>
+            <ul class="lang-es">
+              <li>Reporte de afectaciones: metodología aplicada, afectaciones definidas y situación a resolver detallada.</li>
+              <li>Solución diseñada: congruente con la situación; beneficios; desventajas; justificación detallada; implicaciones costo/beneficio.</li>
+            </ul>
+            <ul class="lang-en">
+              <li>Report of impacts: applied methodology, defined impacts, and detailed situation to be solved.</li>
+              <li>Designed solution: consistent with the situation; benefits; drawbacks; detailed justification; cost/benefit implications.</li>
+            </ul>
+
+            <h3><span class="lang-es">Actitudes / Hábitos / Valores</span><span class="lang-en">Attitudes / Habits / Values</span></h3>
+            <ul class="lang-es"><li>Responsabilidad: aceptación y firma de códigos de ética, confidencialidad y aviso de privacidad.</li></ul>
+            <ul class="lang-en"><li>Responsibility: acceptance and signature of codes of ethics, confidentiality and privacy notice.</li></ul>
+          </div>
+        </details>
+
+        <!-- Element 3 -->
+        <details>
+          <summary><strong>E0877</strong> · <span class="lang-es">Presentar la propuesta de solución</span><span class="lang-en">Present the proposed solution</span></summary>
+          <div>
+            <h3><span class="lang-es">Desempeños</span><span class="lang-en">Performances</span></h3>
+            <ul class="lang-es">
+              <li>Presenta la propuesta al consultante: descripción; alcance; ventajas/desventajas; responsables (consultante/consultor); etapas e indicadores; entregables; implicaciones de implantación y costo/beneficio; respuesta a dudas; recursos a emplear.</li>
+            </ul>
+            <ul class="lang-en">
+              <li>Presents the proposal to the client: description; scope; pros/cons; responsible parties (client/consultant); stages and indicators; deliverables; implementation and cost/benefit implications; Q&A; resources to be used.</li>
+            </ul>
+
+            <h3><span class="lang-es">Productos</span><span class="lang-en">Products</span></h3>
+            <ul class="lang-es">
+              <li>Propuesta de trabajo: antecedentes/diagnóstico; síntesis descriptiva; alcance; solución detallada; plan de trabajo; entregables; riesgos; responsabilidades; costo estimado.</li>
+              <li>Descripción detallada: etapas; resultados esperados; indicadores; mecanismos de control; recursos del consultor y del consultante.</li>
+              <li>Plan de trabajo: resultados esperados; actividades; recursos.</li>
+              <li>Actividades: calendarización; responsables; indicadores; mecanismos de control y seguimiento.</li>
+              <li>Registro de acuerdos: propuesta autorizada; alcance; resultados; tiempos; responsabilidades; costos y condiciones de pago; cláusulas de confidencialidad y propiedad intelectual.</li>
+            </ul>
+            <ul class="lang-en">
+              <li>Work proposal: background/diagnosis; descriptive summary; scope; detailed solution; work plan; deliverables; risks; responsibilities; estimated cost.</li>
+              <li>Detailed description: stages; expected results; indicators; control mechanisms; consultant and client resources.</li>
+              <li>Work plan: expected results; activities; resources.</li>
+              <li>Activities: schedule; owners; indicators; control and follow-up mechanisms.</li>
+              <li>Record of agreements: approved proposal; scope; expected results; implementation time; responsibilities; cost and payment terms; confidentiality and IP clauses.</li>
+            </ul>
+
+            <h3 id="glosario"><span class="lang-es">Glosario</span><span class="lang-en">Glossary</span></h3>
+            <dl class="glossary">
+              <dt class="lang-es">Afectación de la situación actual</dt>
+              <dt class="lang-en">Impact of the current situation</dt>
+              <dd class="lang-es">Diferencia entre la situación deseada y la situación actual.</dd>
+              <dd class="lang-en">Gap between the desired and current situation.</dd>
+
+              <dt class="lang-es">Información externa</dt>
+              <dt class="lang-en">External information</dt>
+              <dd class="lang-es">Información de dominio público o propia del consultor.</dd>
+              <dd class="lang-en">Public-domain information or consultant-owned data.</dd>
+
+              <dt class="lang-es">Información interna</dt>
+              <dt class="lang-en">Internal information</dt>
+              <dd class="lang-es">Información propia del consultante.</dd>
+              <dd class="lang-en">Information belonging to the client.</dd>
+
+              <dt class="lang-es">Programa de búsqueda de información documental</dt>
+              <dt class="lang-en">Documentary information search plan</dt>
+              <dd class="lang-es">Documento que presenta la información que el consultor requiere para solucionar el problema estudiado.</dd>
+              <dd class="lang-en">Document outlining the information the consultant requires to solve the studied problem.</dd>
             </dl>
-        </section>
-        
-        <hr>
-        
-        <section id="desarrollo-referencias">
-            <h2>Desarrollo y Referencias</h2>
-            <p><strong>Empresas e Instituciones participantes en el desarrollo del EC:</strong></p>
-            <ul>
-                [cite_start]<li>Cámara Nacional de Empresas de Consultoría [cite: 66]</li>
-                [cite_start]<li>Cencade, S.A. de C.V. [cite: 67]</li>
-                [cite_start]<li>Compite [cite: 69]</li>
-                [cite_start]<li>Instituto de Ingeniería de la Universidad Nacional Autónoma de México [cite: 70]</li>
-                [cite_start]<li>Secretaría de Economía [cite: 70]</li>
-                [cite_start]<li>Universidad del Valle de Atemajac (Jalisco) [cite: 71]</li>
-                [cite_start]<li>Universidad del Valle de México [cite: 72]</li>
-            </ul>
-            <p><strong>Referencias de Información:</strong></p>
-            <ul>
-                [cite_start]<li>Instituto Nacional de Estadística y Geografía [cite: 84]</li>
-                [cite_start]<li>Secretaría de Economía [cite: 86]</li>
-                [cite_start]<li>Cámara Nacional de Empresas de Consultoría [cite: 87]</li>
-            </ul>
-        </section>
+          </div>
+        </details>
+      </section>
+
+      <section class="card" id="referencias">
+        <h2><span class="lang-es">Referencias</span><span class="lang-en">References</span></h2>
+        <ul class="lang-es">
+          <li>INEGI: Estadística sobre el número de consultores en México.</li>
+          <li>Secretaría de Economía: Estadística sobre especialidades comunes del mercado de consultores.</li>
+          <li>Cámara Nacional de Empresas de Consultoría: Estadística de especialidades en consultoría en México.</li>
+        </ul>
+        <ul class="lang-en">
+          <li>INEGI: Statistics on the number of consultants in Mexico.</li>
+          <li>Ministry of Economy: Statistics on common specialties in the consulting market.</li>
+          <li>National Chamber of Consulting Firms: Statistics on consulting specialties in Mexico.</li>
+        </ul>
+        <p class="lang-es"><em>Nota:</em> Esta versión es una representación fiel, bilingüe y enriquecida del contenido del EC0249.</p>
+        <p class="lang-en"><em>Note:</em> This edition is a faithful, bilingual, enriched representation of EC0249 contents.</p>
+      </section>
+
+      <section class="card">
+        <h2><span class="lang-es">Ayuda Rápida</span><span class="lang-en">Quick Help</span></h2>
+        <ul>
+          <li><span class="kbd">ES</span>/<span class="kbd">EN</span> <span class="lang-es">para alternar idioma</span><span class="lang-en">to switch language</span>.</li>
+          <li><span class="kbd">Auto</span>/<span class="kbd">Claro</span>/<span class="kbd">Oscuro</span> <span class="lang-es">para controlar el tema</span><span class="lang-en">to control theme</span>.</li>
+          <li><span class="lang-es">Imprime con </span><span class="lang-en">Print with </span><span class="kbd">Ctrl/Cmd + P</span>.</li>
+        </ul>
+      </section>
 
     </main>
+  </div>
 
-    <main id="english-content" lang="en" class="hidden">
-        <h1>EC0249 Competence Standard: Provide General Consulting Services</h1>
+  <script>
+    (function(){
+      const root = document.documentElement;
+      const langButtons = { es: document.getElementById('btn-es'), en: document.getElementById('btn-en') };
+      const themeButtons = {
+        auto: document.getElementById('theme-auto'),
+        light: document.getElementById('theme-light'),
+        dark: document.getElementById('theme-dark')
+      };
 
-        <section id="general-data-en">
-            <h2>I. General Information</h2>
-            [cite_start]<p><strong>Code:</strong> EC0249 [cite: 5, 7]</p>
-            [cite_start]<p><strong>Title:</strong> Provide general consulting services [cite: 8]</p>
-            [cite_start]<p><strong>Purpose of the Competence Standard:</strong> To serve as a reference for the evaluation and certification of individuals performing consulting functions, regardless of specialty. [cite: 10] [cite_start]This includes identifying the situation or problem posed, developing alternative solutions, and presenting a solution to the client. [cite: 10] [cite_start]It can also serve as a reference for developing training programs. [cite: 11]</p>
-            <p><strong>Description of the Competence Standard:</strong> This standard outlines the critical and substantive functions a consultant must demonstrate. These functions are:
-                <ol>
-                    [cite_start]<li>Identifying the situation/problem posed through interviews and the creation of documents. [cite: 15, 16]</li>
-                    [cite_start]<li>Developing solution options for the situation/problem posed, by preparing a report on the impacts, designing alternatives, and presenting the chosen one. [cite: 17, 18]</li>
-                    [cite_start]<li>Presenting the proposed solution to the client, preparing the work proposal, recording agreements, and describing the plan to be developed. [cite: 19]</li>
-                </ol>
-            </p>
-            [cite_start]<p>This standard also establishes the theoretical, basic, and practical knowledge, as well as the relevant attitudes for performance. [cite: 21, 22] [cite_start]It is based on the principles of legality, competitiveness, free access, respect, decent work, and social responsibility. [cite: 23] [cite_start]Possession of a professional degree is not required for certification. [cite: 12, 13]</p>
-            [cite_start]<p><strong>Level in the National Competency System:</strong> Five [cite: 30]</p>
-            [cite_start]<p><strong>Approval Date by the CONOCER Technical Committee:</strong> July 17, 2012 [cite: 36]</p>
-            [cite_start]<p><strong>Publication Date in the D.O.F.:</strong> October 16, 2012 [cite: 39]</p>
-            [cite_start]<p><strong>Certificate Validity Period:</strong> 4 years [cite: 42]</p>
-        </section>
+      // Load prefs
+      const savedLang = localStorage.getItem('ec0249-lang');
+      const savedTheme = localStorage.getItem('ec0249-theme');
+      if(savedLang){ setLang(savedLang); } else { setLang('es'); }
+      if(savedTheme){ setTheme(savedTheme); } else { setTheme('auto'); }
 
-        <hr>
+      // Language toggle
+      langButtons.es.addEventListener('click', ()=> setLang('es'));
+      langButtons.en.addEventListener('click', ()=> setLang('en'));
 
-        <section id="profile-ec-en">
-            <h2>II. Competence Standard Profile</h2>
-            [cite_start]<p><strong>Competence Standard:</strong> Provide general consulting services [cite: 94]</p>
-            <ul>
-                [cite_start]<li><strong>Element 1 of 3:</strong> Identify the situation / problem posed [cite: 96]</li>
-                [cite_start]<li><strong>Element 2 of 3:</strong> Develop solution options for the situation / problem posed [cite: 98, 99]</li>
-                [cite_start]<li><strong>Element 3 of 3:</strong> Present the proposed solution [cite: 101]</li>
-            </ul>
-        </section>
+      function setLang(l){
+        root.setAttribute('data-lang', l);
+        langButtons.es.setAttribute('aria-pressed', String(l==='es'));
+        langButtons.en.setAttribute('aria-pressed', String(l==='en'));
+        localStorage.setItem('ec0249-lang', l);
+        document.documentElement.lang = l;
+      }
 
-        <hr>
+      // Theme toggle
+      themeButtons.auto.addEventListener('click', ()=> setTheme('auto'));
+      themeButtons.light.addEventListener('click', ()=> setTheme('light'));
+      themeButtons.dark.addEventListener('click', ()=> setTheme('dark'));
 
-        <section id="elements-ec-en">
-            <h2>III. Elements that make up the Competence Standard</h2>
+      function setTheme(t){
+        root.setAttribute('data-theme', t);
+        for(const k in themeButtons){ themeButtons[k].setAttribute('aria-pressed', String(k===t)); }
+        localStorage.setItem('ec0249-theme', t);
+      }
 
-            <article id="element1-en">
-                <h3>Element 1 of 3: Identify the situation / problem posed</h3>
-                <h4>Evaluation Criteria</h4>
-                <h5>Performances</h5>
-                <p><strong>1. Interviews the parties involved in the consultancy:</strong></p>
-                <ul>
-                    [cite_start]<li>Stating their name at the beginning of the interview. [cite: 107]</li>
-                    [cite_start]<li>Indicating that the reason for the interview is to obtain data related to the problem under study. [cite: 108]</li>
-                    [cite_start]<li>Requesting that the required information be provided verbally/in writing. [cite: 108]</li>
-                    [cite_start]<li>Requesting that evidence supporting their answers be provided. [cite: 109]</li>
-                    [cite_start]<li>Recording the responses obtained from the interview. [cite: 111]</li>
-                    [cite_start]<li>Closing the interview by thanking for the participation and cooperation received. [cite: 112]</li>
-                </ul>
-
-                <h5>Products</h5>
-                <p><strong>1. The elaborated document that describes the problem posed:</strong></p>
-                <ul>
-                    [cite_start]<li>Includes the impact of the current situation. [cite: 115]</li>
-                    [cite_start]<li>Establishes the scope. [cite: 116]</li>
-                    [cite_start]<li>Includes the integration of the information obtained. [cite: 117]</li>
-                    [cite_start]<li>Contains the interpretation of the problem and its effects. [cite: 118]</li>
-                </ul>
-
-                <h5>Knowledge</h5>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Knowledge Area</th>
-                            <th>Level</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            [cite_start]<td>Types of interviews and questionnaires [cite: 163, 165]</td>
-                            [cite_start]<td>Comprehension [cite: 170, 171]</td>
-                        </tr>
-                        <tr>
-                            [cite_start]<td>Indicators: Concept and Uses [cite: 177]</td>
-                            [cite_start]<td>Comprehension [cite: 172]</td>
-                        </tr>
-                        <tr>
-                            [cite_start]<td>Information sources and sample characteristics [cite: 181, 182]</td>
-                            [cite_start]<td>Comprehension [cite: 190]</td>
-                        </tr>
-                        <tr>
-                            [cite_start]<td>Problem investigation methodology [cite: 183]</td>
-                            [cite_start]<td>Comprehension [cite: 191]</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h5>Attitudes/Habits/Values</h5>
-                <ul>
-                    [cite_start]<li><strong>Cleanliness:</strong> The way information is presented, without cross-outs or amendments. [cite: 188]</li>
-                    [cite_start]<li><strong>Order:</strong> The way information is presented adhering to the proposed methodological sequence. [cite: 188]</li>
-                </ul>
-            </article>
-
-            <hr>
-
-            <article id="element2-en">
-                <h3>Element 2 of 3: Develop solution options for the situation / problem posed</h3>
-                <h4>Evaluation Criteria</h4>
-                <h5>Products</h5>
-                <p><strong>1. The report of the findings:</strong></p>
-                <ul>
-                    [cite_start]<li>Describes the methodology applied. [cite: 206]</li>
-                    [cite_start]<li>Defines the findings. [cite: 207]</li>
-                    [cite_start]<li>Includes a detailed definition of the situation to be resolved. [cite: 208]</li>
-                </ul>
-                <p><strong>2. The designed solution:</strong></p>
-                <ul>
-                    [cite_start]<li>Is consistent with the situation to be resolved. [cite: 210]</li>
-                    [cite_start]<li>Mentions the benefits and disadvantages of the solution. [cite: 211, 212]</li>
-                    [cite_start]<li>Has a detailed justification and includes the cost/benefit implications. [cite: 220]</li>
-                </ul>
-                <h5>Attitudes/Habits/Values</h5>
-                <ul>
-                    [cite_start]<li><strong>Responsibility:</strong> The way they accept and sign what is stipulated in the codes of ethics, confidentiality, and privacy notice. [cite: 223, 224]</li>
-                </ul>
-            </article>
-            
-            <hr>
-
-            <article id="element3-en">
-                <h3>Element 3 of 3: Present the proposed solution</h3>
-                <h4>Evaluation Criteria</h4>
-                <h5>Performances</h5>
-                <p><strong>1. Presents the developed proposal to the client:</strong></p>
-                <ul>
-                    [cite_start]<li>Describing the suggested proposal and its scope. [cite: 229, 230]</li>
-                    [cite_start]<li>Explaining the advantages, disadvantages, and implications of implementation. [cite: 231, 233]</li>
-                    [cite_start]<li>Mentioning those responsible, stages, and deliverables. [cite: 231, 232]</li>
-                    [cite_start]<li>Answering questions and explaining the cost/benefit ratio. [cite: 235]</li>
-                </ul>
-
-                <h5>Products</h5>
-                <p><strong>1. The elaborated work proposal:</strong></p>
-                <ul>
-                    [cite_start]<li>Includes background, diagnosis, and a description of the solution. [cite: 239, 240, 241]</li>
-                    [cite_start]<li>Includes a work plan, deliverables, risks, responsibilities, and estimated cost. [cite: 242, 243, 244, 245]</li>
-                </ul>
-
-                <h5>Attitudes/Habits/Values</h5>
-                <ul>
-                    [cite_start]<li><strong>Cleanliness:</strong> The way information is presented without cross-outs and amendments. [cite: 266, 268]</li>
-                    [cite_start]<li><strong>Order:</strong> The way information is presented adhering to the proposed methodological sequence. [cite: 267, 269]</li>
-                </ul>
-            </article>
-        </section>
-        
-        <hr>
-
-        <section id="evaluation-aspects-en">
-            <h2>Relevant Evaluation Aspects</h2>
-            <p><strong>Practice Details:</strong></p>
-            <ul>
-                [cite_start]<li>Candidates must submit the documents (product evidence) in electronic format to the evaluator. [cite: 76] [cite_start]The evaluator will have 5 business days for review. [cite: 76]</li>
-                [cite_start]<li>Performance and knowledge evidence will be evaluated after the products are reviewed, either at the workplace or in a simulation. [cite: 77]</li>
-            </ul>
-            <p><strong>Support/Requirements:</strong></p>
-            <ul>
-                [cite_start]<li>The documents that constitute the product evidence. [cite: 79]</li>
-                [cite_start]<li>The facilities required by the candidate for the presentation (computer, projector, screen, etc.). [cite: 79]</li>
-            </ul>
-            [cite_start]<p><strong>Estimated Evaluation Duration:</strong> 4 hours in-office and 2 hours in the field, totaling 6 hours. [cite: 82]</p>
-        </section>
-        
-        <hr>
-
-        <section id="glossary-en">
-            <h2>Glossary</h2>
-            <dl>
-                <dt><strong>Impact of the current situation:</strong></dt>
-                [cite_start]<dd>The difference between the desired situation and the current situation. [cite: 192]</dd>
-                <dt><strong>External information:</strong></dt>
-                [cite_start]<dd>Information in the public domain or owned by the consultant. [cite: 194, 197]</dd>
-                <dt><strong>Internal information:</strong></dt>
-                [cite_start]<dd>Information owned by the client. [cite: 195, 198]</dd>
-            </dl>
-        </section>
-
-        <hr>
-
-        <section id="development-references-en">
-            <h2>Development and References</h2>
-            <p><strong>Companies and Institutions participating in the EC development:</strong></p>
-            <ul>
-                [cite_start]<li>National Chamber of Consulting Companies [cite: 66]</li>
-                [cite_start]<li>Cencade, S.A. de C.V. [cite: 67]</li>
-                [cite_start]<li>Compite [cite: 69]</li>
-                [cite_start]<li>Institute of Engineering of the National Autonomous University of Mexico [cite: 70]</li>
-                [cite_start]<li>Secretariat of Economy [cite: 70]</li>
-                [cite_start]<li>Universidad del Valle de Atemajac (Jalisco) [cite: 71]</li>
-                [cite_start]<li>Universidad del Valle de México [cite: 72]</li>
-            </ul>
-            <p><strong>Information References:</strong></p>
-            <ul>
-                [cite_start]<li>National Institute of Statistics and Geography [cite: 84]</li>
-                [cite_start]<li>Secretariat of Economy [cite: 86]</li>
-                [cite_start]<li>National Chamber of Consulting Companies [cite: 87]</li>
-            </ul>
-        </section>
-
-    </main>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const btnEs = document.getElementById('btn-es');
-            const btnEn = document.getElementById('btn-en');
-            const contentEs = document.getElementById('spanish-content');
-            const contentEn = document.getElementById('english-content');
-            const htmlTag = document.documentElement;
-
-            function switchToSpanish() {
-                contentEn.classList.add('hidden');
-                contentEs.classList.remove('hidden');
-                btnEn.classList.remove('active');
-                btnEs.classList.add('active');
-                htmlTag.setAttribute('lang', 'es');
-            }
-
-            function switchToEnglish() {
-                contentEs.classList.add('hidden');
-                contentEn.classList.remove('hidden');
-                btnEs.classList.remove('active');
-                btnEn.classList.add('active');
-                htmlTag.setAttribute('lang', 'en');
-            }
-
-            btnEs.addEventListener('click', switchToSpanish);
-            btnEn.addEventListener('click', switchToEnglish);
-            
-            // Set initial state
-            switchToSpanish();
+      // Smooth-scroll TOC
+      document.querySelectorAll('nav.toc a[href^="#"]').forEach(a => {
+        a.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const id = a.getAttribute('href');
+          document.querySelector(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+          history.pushState(null, '', id);
         });
-    </script>
-
+      });
+    })();
+  </script>
 </body>
 </html>
