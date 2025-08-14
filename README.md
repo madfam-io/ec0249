@@ -1,54 +1,66 @@
-# Resumen del Contenido Teórico para el Estándar de Competencia EC0249
+# RESUMEN DE CONTENIDO TEÓRICO CON BASE EN EL EC0249
 
-Este documento proporciona un resumen de los conceptos teóricos fundamentales necesarios para la evaluación del **Estándar de Competencia EC0249: Proporcionar servicios de consultoría general**. La información aquí contenida es crucial para superar con éxito la evaluación, especialmente en lo que respecta al primer elemento del estándar.
+> **Propósito**: Asegurar que cuentes con los elementos teóricos necesarios para presentar tu evaluación del Estándar de Competencia **EC0249** (*Proporcionar servicios de consultoría general*). Este README resume los **criterios de CONOCIMIENTOS** relacionados con el **Elemento 1** del estándar.
 
 ---
 
-## Elemento 1: Identificar la situación/problema planteado
+## Elemento 1: Identificar la situación / problema planteado
 
-[cite_start]Para realizar un diagnóstico preciso y obtener la información necesaria que fundamente la identificación de un problema o situación, es indispensable dominar las siguientes herramientas y conceptos[cite: 275, 277].
+### 1) Entrevistas y tipos de entrevistas
 
-### [cite_start]1. Entrevistas y sus Tipos [cite: 276]
+La primera etapa metodológica para *proporcionar servicios de consultoría* es realizar un **diagnóstico** y **obtener información** que permita identificar con precisión la situación o problema planteado. Las **entrevistas** son herramientas clave para recabar dicha información:
 
-[cite_start]Las entrevistas son herramientas clave para recabar información directamente de las personas involucradas[cite: 278].
+* **Entrevistas individuales**: se utilizan para obtener **información personalizada**.
+* **Entrevistas grupales**: permiten recabar **información masiva en poco tiempo**.
+* **Codificación de entrevistas**: formar **categorías** a partir de las respuestas de las personas entrevistadas.
+* **Entrevistas personales en campo**: uno o más integrantes del equipo de investigación **interrogan directamente** a las personas de una **población** objetivo.
 
-* [cite_start]**Entrevistas Individuales:** Se utilizan para obtener información detallada y personalizada de un individuo[cite: 279].
-* [cite_start]**Entrevistas Grupales:** Son útiles para recopilar información masiva en un corto período de tiempo[cite: 280].
-* [cite_start]**Entrevistas Personales:** Implican que el equipo de investigación se desplace para interrogar directamente a los miembros de una población[cite: 282].
+---
 
-[cite_start]Es importante codificar las respuestas, organizándolas en categorías para facilitar su análisis[cite: 281].
+### 2) Cuestionarios y tipos de cuestionarios
 
-### [cite_start]2. Cuestionarios y sus Tipos [cite: 283]
+Otra herramienta esencial en la identificación de la situación/problema son los **cuestionarios**, principalmente de dos tipos:
 
-[cite_start]Los cuestionarios son otra herramienta fundamental en la etapa de diagnóstico[cite: 284].
+* **Cuestionarios abiertos**: recaban **opiniones**.
+* **Cuestionarios cerrados**: recaban **información precisa y cuantificable**.
 
-* [cite_start]**Cuestionarios Abiertos:** Permiten recabar opiniones y percepciones cualitativas[cite: 285].
-* [cite_start]**Cuestionarios Cerrados:** Se utilizan para obtener información precisa, específica y cuantificable[cite: 286].
+---
 
-### [cite_start]3. Indicadores [cite: 288]
+### 3) Indicadores
 
-[cite_start]Los indicadores son esenciales para medir y registrar datos clave que fundamentan la detección de un problema[cite: 289].
+Los **indicadores** son fundamentales en esta etapa, ya que permiten **identificar datos clave** que sustentan la detección de la situación o problema:
 
-* [cite_start]Un **indicador** se construye para registrar el cambio de una variable a lo largo del tiempo[cite: 290].
-* [cite_start]Una **serie de tiempo** es una secuencia de observaciones de un proceso que varía con el tiempo y se utiliza, entre otras cosas, para realizar predicciones[cite: 291].
-* [cite_start]Un **índice** es una categorización (numérica o descriptiva) de una gran cantidad de información para simplificarla y facilitar la toma de decisiones[cite: 292].
+* Un **indicador** se construye para **registrar el cambio de una variable en el tiempo**.
+* Una **serie de tiempo** es una secuencia de observaciones registradas de un proceso que varía con el tiempo; uno de sus objetivos es la **predicción**.
+* Un **índice** categoriza de forma **numérica o descriptiva** grandes volúmenes de información para **simplificarla** y **facilitar la toma de decisiones**.
 
-### [cite_start]4. Fuentes de Información [cite: 293]
+---
 
-Es crucial definir y validar las fuentes de donde se obtendrá la información.
+### 4) Fuentes de información
 
-* [cite_start]Los **registros** incluyen cualquier hecho almacenado que pueda ser leído o transcrito, como documentos, archivos de computadora, fotografías, etc.[cite: 295].
-* [cite_start]La **validez** se refiere a qué tan bien un instrumento de recolección de datos mide lo que el consultor espera obtener [cite: 297] [cite_start]y si un dato es congruente con los fines de la investigación[cite: 296].
+Definir correctamente las **fuentes de información** es otro aspecto requerido en esta etapa:
 
-### [cite_start]5. Metodología de Investigación de Problemas [cite: 299]
+* Los **registros** abarcan todos los hechos almacenados que pueden **leerse o transcribirse**: documentos, archivos de computadora, películas, microfilmes, cintas, dibujos, fotografías, gráficos, etc.
+* La **validez** cuestiona si un dato o serie de datos es una **medida congruente** para los fines de la investigación.
+* La **validez del instrumento** se refiere a qué tan bien un instrumento de recopilación **ofrece lo que se espera obtener** al aplicarlo.
 
-Se debe seguir un proceso de investigación estructurado. [cite_start]Los pasos principales son[cite: 300]:
+---
 
-1.  [cite_start]Elegir un tema[cite: 301].
-2.  [cite_start]Encontrar información[cite: 303].
-3.  [cite_start]Redefinir el tema[cite: 304].
-4.  [cite_start]Seleccionar y evaluar el material[cite: 305].
-5.  [cite_start]Tomar notas[cite: 306].
-6.  [cite_start]Construir el proyecto[cite: 307].
+### 5) Metodología de investigación de problemas
 
-[cite_start]Para la integración, validación y análisis de la información recopilada, se recomienda el uso de **matrices y diagramas**, ya que organizan la información de manera clara y comprensible[cite: 309].
+Es indispensable conocer los **pasos principales** de un proceso de investigación:
+
+1. **Elegir el tema**.
+2. **Encontrar información**.
+3. **Redefinir el tema**.
+4. **Seleccionar y evaluar** el material.
+5. **Tomar notas**.
+6. **Construir el proyecto**.
+
+Para la **integración, validación y análisis** de la información recopilada es recomendable utilizar **matrices** y **diagramas**, ya que ayudan a **organizar** y **comprender** la información de forma más clara.
+
+---
+
+## Licencia y uso
+
+Este material es un **resumen** de estudio basado en el EC0249 y puede emplearse como guía de referencia para preparar la evaluación correspondiente.
