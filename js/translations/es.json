@@ -1,0 +1,159 @@
+{
+  "app": {
+    "title": "EC0249 · Plataforma Educativa de Consultoría",
+    "description": "Plataforma educativa interactiva para la certificación EC0249 - Proporcionar servicios de consultoría general",
+    "footer": "© 2024 EC0249 Plataforma Educativa. Desarrollado para la certificación en consultoría general según estándares CONOCER."
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "modules": "Módulos",
+    "assessment": "Evaluación",
+    "portfolio": "Portafolio",
+    "overview": "Resumen General",
+    "progress": "Mi Progreso",
+    "documents": "Documentos",
+    "certificationPath": "Ruta de Certificación"
+  },
+  "theme": {
+    "toggle": "Cambiar tema",
+    "auto": "Tema automático activado",
+    "light": "Tema claro activado", 
+    "dark": "Tema oscuro activado"
+  },
+  "language": {
+    "toggle": "Cambiar idioma",
+    "spanish": "Español",
+    "english": "Inglés",
+    "changed": "Idioma cambiado a español"
+  },
+  "dashboard": {
+    "welcome": "Bienvenido a EC0249",
+    "subtitle": "Tu plataforma integral para la certificación en consultoría general",
+    "quickStart": "Inicio Rápido",
+    "continueJourney": "Continúa tu viaje de aprendizaje desde donde lo dejaste",
+    "yourProgress": "Tu Progreso",
+    "overall": "General",
+    "keyFeatures": "Características Principales",
+    "interactiveLearning": "Aprendizaje Interactivo",
+    "interactiveLearningDesc": "Módulos de aprendizaje dinámicos con contenido multimedia",
+    "documentGeneration": "Generación de Documentos",
+    "documentGenerationDesc": "Plantillas profesionales para todos los entregables EC0249",
+    "practiceSimulations": "Simulaciones de Práctica",
+    "practiceSimulationsDesc": "Simulador de Entrevistas, Entrenador de Presentaciones, Evaluación de Conocimientos"
+  },
+  "modules": {
+    "title": "Sistema de Módulos de Aprendizaje",
+    "subtitle": "Domina las competencias EC0249 a través de contenido estructurado y actividades prácticas",
+    "module1": {
+      "title": "Fundamentos de Consultoría",
+      "description": "Conceptos básicos, ética y habilidades interpersonales necesarias para la consultoría profesional.",
+      "lessons": {
+        "lesson1_1": {
+          "title": "Introducción a la Consultoría",
+          "overview": "Fundamentos históricos y características de la consultoría profesional",
+          "objectives": [
+            "Comprender la evolución histórica de la consultoría",
+            "Identificar las características principales de un consultor",
+            "Reconocer los diferentes tipos de consultoría"
+          ]
+        },
+        "lesson1_2": {
+          "title": "Ética y Confidencialidad",
+          "overview": "Principios éticos fundamentales y manejo de la confidencialidad en consultoría",
+          "objectives": [
+            "Conocer el código de ética del consultor",
+            "Aplicar principios de confidencialidad",
+            "Manejar conflictos de interés"
+          ]
+        },
+        "lesson1_3": {
+          "title": "Habilidades Interpersonales",
+          "overview": "Desarrollo de competencias comunicativas y relacionales para consultores",
+          "objectives": [
+            "Desarrollar habilidades de comunicación efectiva",
+            "Manejar técnicas de facilitación grupal",
+            "Aplicar estrategias de manejo de conflictos"
+          ]
+        }
+      }
+    },
+    "module2": {
+      "title": "Identificación de Problemas",
+      "description": "Elemento 1: Metodologías para identificar problemas organizacionales y necesidades del cliente."
+    },
+    "module3": {
+      "title": "Desarrollo de Soluciones", 
+      "description": "Elemento 2: Diseño y desarrollo de propuestas de solución efectivas."
+    },
+    "module4": {
+      "title": "Presentación de Propuestas",
+      "description": "Elemento 3: Técnicas de presentación y negociación de propuestas de consultoría."
+    }
+  },
+  "assessment": {
+    "title": "Centro de Evaluación",
+    "subtitle": "Evalúa tu dominio de las competencias EC0249 y prepárate para la certificación oficial",
+    "knowledgeTests": "Pruebas de Conocimiento",
+    "practiceExercises": "Ejercicios Prácticos",
+    "portfolioBuilder": "Constructor de Portafolio"
+  },
+  "portfolio": {
+    "title": "Mi Portafolio",
+    "subtitle": "Gestiona y revisa todos tus documentos y evidencias para la certificación.",
+    "competencyElements": "Elementos de Competencia",
+    "competencyDesc": "Rastrea tu progreso en los tres elementos de competencia."
+  },
+  "common": {
+    "start": "Iniciar",
+    "continue": "Continuar",
+    "complete": "Completar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "loading": "Cargando...",
+    "success": "¡Éxito!",
+    "error": "Error",
+    "warning": "Advertencia",
+    "info": "Información"
+  },
+  "templates": {
+    "elemento1_documento_problema": {
+      "title": "Documento que describe el problema planteado",
+      "description": "Documento principal que describe el problema identificado, su alcance e impacto",
+      "criteria": [
+        "Incluye la afectación de la situación actual",
+        "Establece el alcance", 
+        "Incluye la integración de la información obtenida",
+        "Contiene la interpretación del problema y sus afectaciones"
+      ],
+      "sections": {
+        "resumen_ejecutivo": {
+          "title": "Resumen Ejecutivo",
+          "placeholder": "Breve descripción del problema identificado...",
+          "guidance": "Resumen conciso del problema principal en máximo 200 palabras"
+        },
+        "descripcion_problema": {
+          "title": "Descripción Detallada del Problema",
+          "placeholder": "Descripción completa del problema...",
+          "guidance": "Descripción exhaustiva incluyendo contexto, síntomas y manifestaciones"
+        },
+        "alcance": {
+          "title": "Alcance del Problema",
+          "placeholder": "Definición del alcance y límites...",
+          "guidance": "Especificar áreas, procesos y personas afectadas"
+        },
+        "impacto": {
+          "title": "Análisis de Impacto",
+          "placeholder": "Impacto en la organización...",
+          "guidance": "Cuantificar impactos financieros, operacionales y estratégicos"
+        },
+        "stakeholders": {
+          "title": "Stakeholders Afectados",
+          "placeholder": "Identificación de partes interesadas...",
+          "guidance": "Listar y describir todas las partes afectadas por el problema"
+        }
+      }
+    }
+  }
+}

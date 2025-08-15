@@ -40,6 +40,7 @@
       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     }
     
+    /* Dark theme - system preference */
     @media (prefers-color-scheme: dark) {
       :root {
         --bg-primary: var(--gray-900);
@@ -52,8 +53,33 @@
       }
     }
 
+    /* Manual dark theme override */
+    [data-theme="dark"] {
+      --bg-primary: var(--gray-900);
+      --bg-secondary: var(--gray-800);
+      --text-primary: var(--gray-100);
+      --text-secondary: var(--gray-400);
+      --border: var(--gray-700);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    }
+
+    /* Manual light theme override */
+    [data-theme="light"] {
+      --bg-primary: var(--gray-50);
+      --bg-secondary: #ffffff;
+      --text-primary: var(--gray-900);
+      --text-secondary: var(--gray-600);
+      --border: var(--gray-200);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
     /* Base Styles */
-    * { box-sizing: border-box; }
+    * { 
+      box-sizing: border-box;
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
     
     body {
       margin: 0;
@@ -137,6 +163,90 @@
     
     .nav-tab:hover:not(.active) {
       background: var(--gray-200);
+    }
+
+    /* Theme Toggle */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      background: var(--gray-100);
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .theme-toggle:hover {
+      background: var(--gray-200);
+      transform: scale(1.05);
+    }
+    
+    .theme-toggle:active {
+      transform: scale(0.95);
+    }
+    
+    .theme-toggle-icon {
+      transition: transform 0.3s ease;
+    }
+    
+    .theme-toggle.changing .theme-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    /* Header Controls */
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Language Toggle */
+    .language-toggle {
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      background: var(--gray-100);
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      min-width: 60px;
+    }
+    
+    .language-toggle:hover {
+      background: var(--gray-200);
+      transform: scale(1.05);
+    }
+    
+    .language-toggle:active {
+      transform: scale(0.95);
+    }
+    
+    .language-toggle-icon {
+      font-size: 1.1rem;
+    }
+    
+    .language-text {
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     /* Main Content */
@@ -398,12 +508,25 @@
           <span>EC0249 Plataforma Educativa</span>
         </div>
         
-        <nav class="nav-tabs">
-          <button class="nav-tab active" data-view="dashboard">Dashboard</button>
-          <button class="nav-tab" data-view="modules">Módulos</button>
-          <button class="nav-tab" data-view="assessment">Evaluación</button>
-          <button class="nav-tab" data-view="portfolio">Portafolio</button>
-        </nav>
+        <div class="header-actions">
+          <nav class="nav-tabs">
+            <button class="nav-tab active" data-view="dashboard">Dashboard</button>
+            <button class="nav-tab" data-view="modules">Módulos</button>
+            <button class="nav-tab" data-view="assessment">Evaluación</button>
+            <button class="nav-tab" data-view="portfolio">Portafolio</button>
+          </nav>
+          
+          <div class="header-controls">
+            <button class="language-toggle" id="languageToggle" title="Cambiar idioma">
+              <span class="language-toggle-icon">🌐</span>
+              <span class="language-text">ES</span>
+            </button>
+            
+            <button class="theme-toggle" id="themeToggle" title="Cambiar tema">
+              <span class="theme-toggle-icon">🔄</span>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -1069,6 +1192,22 @@
     }
 
     /* Responsive Design */
+    @media (max-width: 968px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .nav-tabs {
+        flex: 1;
+      }
+    }
+    
     @media (max-width: 768px) {
       .document-editor {
         grid-template-columns: 1fr;
@@ -1082,6 +1221,15 @@
         grid-template-columns: 1fr;
       }
       
+      .nav-tabs {
+        font-size: 0.9rem;
+      }
+      
+      .nav-tab {
+        padding: 0.4rem 0.8rem;
+      }
+    }
+      
       .notification {
         right: 10px;
         left: 10px;
@@ -1094,6 +1242,7 @@
   <script src="js/document-templates.js"></script>
   <script src="js/assessment-portfolio.js"></script>
   <script src="js/simulation-system.js"></script>
+  <script src="js/i18n-manager.js"></script>
 
   <script>
     // Application State Management
@@ -1108,13 +1257,18 @@
           module4: { theory: 0, practice: 0, assessment: false }
         };
         this.portfolioItems = [];
+        this.currentTheme = 'auto'; // 'auto', 'light', 'dark'
+        this.currentLanguage = 'es'; // 'es', 'en'
+        this.i18n = new I18nManager();
         
         this.init();
       }
       
-      init() {
+      async init() {
         this.setupEventListeners();
         this.loadUserData();
+        this.initializeTheme();
+        await this.initializeI18n();
         this.renderCurrentView();
       }
       
@@ -1140,6 +1294,29 @@
             const moduleNum = e.target.closest('.module-card').dataset.module;
             this.openModule(moduleNum);
           }
+        });
+        
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+          themeToggle.addEventListener('click', () => {
+            this.toggleTheme();
+          });
+        }
+
+        // Language toggle
+        const languageToggle = document.getElementById('languageToggle');
+        if (languageToggle) {
+          languageToggle.addEventListener('click', () => {
+            this.toggleLanguage();
+          });
+        }
+
+        // Language change listener
+        window.addEventListener('languageChanged', (e) => {
+          this.currentLanguage = e.detail.language;
+          this.updateLanguageToggle();
+          this.updatePageContent();
         });
       }
       
@@ -1289,6 +1466,18 @@
         if (savedProgress) {
           this.userProgress = JSON.parse(savedProgress);
         }
+        
+        // Load theme preference
+        const savedTheme = localStorage.getItem('ec0249_theme');
+        if (savedTheme && ['auto', 'light', 'dark'].includes(savedTheme)) {
+          this.currentTheme = savedTheme;
+        }
+
+        // Load language preference
+        const savedLanguage = localStorage.getItem('ec0249_language');
+        if (savedLanguage && ['es', 'en'].includes(savedLanguage)) {
+          this.currentLanguage = savedLanguage;
+        }
       }
       
       saveUserData() {
@@ -1301,6 +1490,213 @@
           return sum + (module.theory + module.practice) / 2;
         }, 0);
         return Math.round(totalProgress / modules.length);
+      }
+
+      // Theme Management
+      initializeTheme() {
+        // Apply the loaded theme and update UI
+        this.applyTheme();
+        this.updateThemeToggleIcon();
+      }
+      
+      toggleTheme() {
+        // Cycle through themes: auto → light → dark → auto
+        const themes = ['auto', 'light', 'dark'];
+        const currentIndex = themes.indexOf(this.currentTheme);
+        const nextIndex = (currentIndex + 1) % themes.length;
+        this.currentTheme = themes[nextIndex];
+        
+        // Add animation class
+        const toggleButton = document.getElementById('themeToggle');
+        if (toggleButton) {
+          toggleButton.classList.add('changing');
+          setTimeout(() => {
+            toggleButton.classList.remove('changing');
+          }, 300);
+        }
+        
+        this.applyTheme();
+        this.updateThemeToggleIcon();
+        this.saveThemePreference();
+        
+        // Show notification
+        const themeNames = {
+          'auto': 'Automático (sigue el sistema)',
+          'light': 'Claro',
+          'dark': 'Oscuro'
+        };
+        this.showNotification(`Tema cambiado a: ${themeNames[this.currentTheme]}`, 'info');
+      }
+      
+      applyTheme() {
+        const htmlElement = document.documentElement;
+        htmlElement.setAttribute('data-theme', this.currentTheme);
+      }
+      
+      updateThemeToggleIcon() {
+        const iconElement = document.querySelector('.theme-toggle-icon');
+        if (!iconElement) return;
+        
+        const icons = {
+          'auto': '🔄',
+          'light': '☀️',
+          'dark': '🌙'
+        };
+        
+        const titles = {
+          'auto': 'Tema automático (sigue el sistema)',
+          'light': 'Tema claro',
+          'dark': 'Tema oscuro'
+        };
+        
+        iconElement.textContent = icons[this.currentTheme];
+        
+        const toggleButton = document.getElementById('themeToggle');
+        if (toggleButton) {
+          toggleButton.title = `${titles[this.currentTheme]} - Click para cambiar`;
+        }
+      }
+      
+      saveThemePreference() {
+        localStorage.setItem('ec0249_theme', this.currentTheme);
+      }
+
+      // I18n Management
+      async initializeI18n() {
+        await this.i18n.init();
+        this.currentLanguage = this.i18n.getCurrentLanguage();
+        this.updateLanguageToggle();
+        this.updatePageContent();
+      }
+
+      async toggleLanguage() {
+        const success = await this.i18n.toggleLanguage();
+        if (success) {
+          this.currentLanguage = this.i18n.getCurrentLanguage();
+          this.updateLanguageToggle();
+          this.updatePageContent();
+          
+          // Show notification
+          const message = this.i18n.t('language.changed');
+          this.showNotification(message, 'info');
+        }
+      }
+
+      updateLanguageToggle() {
+        const textElement = document.querySelector('.language-text');
+        const toggleButton = document.getElementById('languageToggle');
+        
+        if (textElement) {
+          textElement.textContent = this.currentLanguage.toUpperCase();
+        }
+        
+        if (toggleButton) {
+          const title = this.i18n.t('language.toggle');
+          const currentLangName = this.i18n.getLanguageDisplayName(this.currentLanguage);
+          toggleButton.title = `${title} (${currentLangName})`;
+        }
+      }
+
+      updatePageContent() {
+        // Update page title
+        document.title = this.i18n.t('app.title');
+        
+        // Update meta description
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.content = this.i18n.t('app.description');
+        }
+
+        // Update navigation tabs
+        const navTabs = {
+          'dashboard': 'navigation.dashboard',
+          'modules': 'navigation.modules', 
+          'assessment': 'navigation.assessment',
+          'portfolio': 'navigation.portfolio'
+        };
+
+        Object.entries(navTabs).forEach(([view, key]) => {
+          const tab = document.querySelector(`[data-view="${view}"]`);
+          if (tab) {
+            tab.textContent = this.i18n.t(key);
+          }
+        });
+
+        // Update sidebar navigation
+        const sidebarLinks = {
+          'overview': 'navigation.overview',
+          'progress': 'navigation.progress',
+          'documents': 'navigation.documents',
+          'certification': 'navigation.certificationPath'
+        };
+
+        Object.entries(sidebarLinks).forEach(([section, key]) => {
+          const link = document.querySelector(`[data-section="${section}"]`);
+          if (link) {
+            link.textContent = this.i18n.t(key);
+          }
+        });
+
+        // Update content based on current view
+        this.updateViewContent();
+        
+        // Update footer
+        const footer = document.querySelector('.footer p');
+        if (footer) {
+          footer.textContent = this.i18n.t('app.footer');
+        }
+      }
+
+      updateViewContent() {
+        // Update content based on current view
+        switch (this.currentView) {
+          case 'dashboard':
+            this.updateDashboardContent();
+            break;
+          case 'modules':
+            this.updateModulesContent();
+            break;
+          case 'assessment':
+            this.updateAssessmentContent();
+            break;
+          case 'portfolio':
+            this.updatePortfolioContent();
+            break;
+        }
+      }
+
+      updateDashboardContent() {
+        const welcomeTitle = document.querySelector('#dashboardView h1');
+        const welcomeSubtitle = document.querySelector('#dashboardView .hero-subtitle');
+        
+        if (welcomeTitle) welcomeTitle.textContent = this.i18n.t('dashboard.welcome');
+        if (welcomeSubtitle) welcomeSubtitle.textContent = this.i18n.t('dashboard.subtitle');
+        
+        // Update other dashboard elements as needed
+      }
+
+      updateModulesContent() {
+        const modulesTitle = document.querySelector('#modulesView h1');
+        const modulesSubtitle = document.querySelector('#modulesView > p');
+        
+        if (modulesTitle) modulesTitle.textContent = this.i18n.t('modules.title');
+        if (modulesSubtitle) modulesSubtitle.textContent = this.i18n.t('modules.subtitle');
+      }
+
+      updateAssessmentContent() {
+        const assessmentTitle = document.querySelector('#assessmentView h1');
+        const assessmentSubtitle = document.querySelector('#assessmentView > p');
+        
+        if (assessmentTitle) assessmentTitle.textContent = this.i18n.t('assessment.title');
+        if (assessmentSubtitle) assessmentSubtitle.textContent = this.i18n.t('assessment.subtitle');
+      }
+
+      updatePortfolioContent() {
+        const portfolioTitle = document.querySelector('#portfolioView h1');
+        const portfolioSubtitle = document.querySelector('#portfolioView > p');
+        
+        if (portfolioTitle) portfolioTitle.textContent = this.i18n.t('portfolio.title');
+        if (portfolioSubtitle) portfolioSubtitle.textContent = this.i18n.t('portfolio.subtitle');
       }
 
       // Notification system
