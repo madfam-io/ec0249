@@ -5,10 +5,15 @@
     "footer": "© {{year}} EC0249 Educational Platform. Developed for general consulting certification according to CONOCER standards."
   },
   "navigation": {
+    "title": "Navigation",
     "dashboard": "Dashboard",
     "modules": "Modules",
     "assessment": "Assessment",
-    "portfolio": "Portfolio"
+    "portfolio": "Portfolio",
+    "overview": "General Overview",
+    "progress": "My Progress",
+    "documents": "Templates",
+    "certificationPath": "Certification Path"
   },
   "dashboard": {
     "welcome": "Dashboard - EC0249",
@@ -23,7 +28,13 @@
     "subtitle": "Master EC0249 competencies through structured content and practical activities",
     "lessons": "lessons",
     "templates": "templates",
-    "completed": "completed"
+    "completed": "completed",
+    "nav": {
+      "module1": "Module 1: Fundamentals",
+      "module2": "Module 2: Identification",
+      "module3": "Module 3: Development", 
+      "module4": "Module 4: Presentation"
+    }
   },
   "assessment": {
     "title": "Assessment Center"

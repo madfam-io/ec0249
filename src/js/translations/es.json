@@ -5,6 +5,7 @@
     "footer": "© {{year}} EC0249 Plataforma Educativa. Desarrollado para la certificación en consultoría general según estándares CONOCER."
   },
   "navigation": {
+    "title": "Navegación",
     "dashboard": "Dashboard",
     "modules": "Módulos",
     "assessment": "Evaluación",
@@ -49,6 +50,12 @@
     "lessons": "lecciones",
     "templates": "plantillas",
     "completed": "completado",
+    "nav": {
+      "module1": "Módulo 1: Fundamentos",
+      "module2": "Módulo 2: Identificación", 
+      "module3": "Módulo 3: Desarrollo",
+      "module4": "Módulo 4: Presentación"
+    },
     "module1": {
       "title": "Fundamentos de Consultoría",
       "description": "Conceptos básicos, ética y habilidades interpersonales necesarias para la consultoría profesional.",

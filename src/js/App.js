@@ -538,7 +538,10 @@ class EC0249App {
         case 'module2':
         case 'module3':
         case 'module4':
-          await this.loadModuleContent(sectionName);
+          // Switch to modules view and focus on specific module
+          this.switchView('modules');
+          // TODO: Focus on specific module in modules view
+          this.showNotification(`Navegando al ${sectionName}`, 'info');
           break;
 
         case 'documents':
@@ -565,7 +568,10 @@ class EC0249App {
   async loadModuleContent(moduleId) {
     const contentEngine = this.modules.get('contentEngine');
     if (!contentEngine) {
-      this.showNotification('Motor de contenido no disponible', 'error');
+      console.warn(`[App] ContentEngine not available for ${moduleId}, falling back to modules view`);
+      // Fallback: switch to modules view
+      this.switchView('modules');
+      this.showNotification('Navegando a vista de módulos', 'info');
       return;
     }
 
@@ -585,9 +591,12 @@ class EC0249App {
       await contentEngine.renderContent(contentArea, null, {
         transition: 'fadeIn'
       });
+      this.showNotification(`Módulo ${moduleId} cargado exitosamente`, 'success');
     } catch (error) {
       console.error(`[App] Error loading module content:`, error);
-      this.showNotification('Error al cargar el módulo', 'error');
+      // Fallback: switch to modules view
+      this.switchView('modules');
+      this.showNotification('Error al cargar contenido específico, mostrando vista de módulos', 'warning');
     }
   }
 

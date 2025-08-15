@@ -65,7 +65,7 @@ class ThemeToggle extends BaseComponent {
    */
   defaultTemplate() {
     const { style, showText, showIcon, orientation, size } = this.componentConfig;
-    const { themes, currentTheme } = this.data;
+    const { themes = [], currentTheme = 'auto' } = this.data || {};
 
     const classes = [
       'theme-toggle-component',
@@ -94,8 +94,8 @@ class ThemeToggle extends BaseComponent {
    * @returns {string} HTML
    */
   renderButtonStyle(classes, themes, currentTheme, showText, showIcon) {
-    const currentThemeData = themes.find(t => t.value === currentTheme);
-    const title = this.i18nService.t('theme.toggle');
+    const currentThemeData = themes.find(t => t.value === currentTheme) || { icon: '🎨', label: currentTheme };
+    const title = this.i18nService ? this.i18nService.t('theme.toggle') : 'Toggle theme';
 
     return `
       <div class="${classes}">
@@ -115,7 +115,7 @@ class ThemeToggle extends BaseComponent {
    * @returns {string} HTML
    */
   renderSelectStyle(classes, themes, currentTheme) {
-    const title = this.i18nService.t('theme.toggle');
+    const title = this.i18nService ? this.i18nService.t('theme.toggle') : 'Toggle theme';
     
     const options = themes.map(theme => 
       `<option value="${theme.value}" ${theme.value === currentTheme ? 'selected' : ''}>

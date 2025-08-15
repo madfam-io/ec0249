@@ -69,7 +69,7 @@ class LanguageToggle extends BaseComponent {
    */
   defaultTemplate() {
     const { style, showText, showIcon, showNativeName, orientation, size } = this.componentConfig;
-    const { languages, currentLanguage, isDropdownOpen } = this.data;
+    const { languages = [], currentLanguage = 'es', isDropdownOpen = false } = this.data || {};
 
     const classes = [
       'language-toggle-component',
@@ -99,8 +99,8 @@ class LanguageToggle extends BaseComponent {
    * @returns {string} HTML
    */
   renderButtonStyle(classes, languages, currentLanguage, showText, showIcon) {
-    const currentLang = languages.find(l => l.code === currentLanguage);
-    const title = this.i18nService.t('language.toggle');
+    const currentLang = languages.find(l => l.code === currentLanguage) || { code: currentLanguage, label: currentLanguage.toUpperCase() };
+    const title = this.i18nService ? this.i18nService.t('language.toggle') : 'Toggle language';
 
     return `
       <div class="${classes}">
@@ -120,7 +120,7 @@ class LanguageToggle extends BaseComponent {
    * @returns {string} HTML
    */
   renderSelectStyle(classes, languages, currentLanguage) {
-    const title = this.i18nService.t('language.toggle');
+    const title = this.i18nService ? this.i18nService.t('language.toggle') : 'Toggle language';
     
     const options = languages.map(lang => 
       `<option value="${lang.code}" ${lang.code === currentLanguage ? 'selected' : ''}>
@@ -149,7 +149,7 @@ class LanguageToggle extends BaseComponent {
    */
   renderDropdownStyle(classes, languages, currentLanguage, showText, showIcon, showNativeName) {
     const currentLang = languages.find(l => l.code === currentLanguage);
-    const title = this.i18nService.t('language.toggle');
+    const title = this.i18nService ? this.i18nService.t('language.toggle') : 'Toggle language';
 
     const options = languages
       .filter(lang => lang.code !== currentLanguage)
