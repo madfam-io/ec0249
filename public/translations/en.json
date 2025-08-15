@@ -1,0 +1,67 @@
+{
+  "app": {
+    "title": "EC0249 · Educational Consulting Platform",
+    "description": "Interactive educational platform for EC0249 certification - Provide general consulting services",
+    "footer": "© {{year}} EC0249 Educational Platform. Developed for general consulting certification according to CONOCER standards."
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "modules": "Modules",
+    "assessment": "Assessment",
+    "portfolio": "Portfolio"
+  },
+  "dashboard": {
+    "welcome": "Dashboard - EC0249",
+    "subtitle": "Welcome to the educational platform for EC0249 certification - Provide general consulting services",
+    "yourProgress": "Your Overall Progress",
+    "overall": "Overall Progress",
+    "progressDescription": "Continue with Module 1 to advance in your certification",
+    "modulesOverview": "Learning Modules"
+  },
+  "modules": {
+    "title": "Learning Module System",
+    "subtitle": "Master EC0249 competencies through structured content and practical activities",
+    "lessons": "lessons",
+    "templates": "templates",
+    "completed": "completed"
+  },
+  "assessment": {
+    "title": "Assessment Center"
+  },
+  "portfolio": {
+    "title": "My Competency Portfolio"
+  },
+  "status": {
+    "available": "Available",
+    "locked": "Locked",
+    "inProgress": "In Progress",
+    "completed": "Completed"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "auto": "Auto",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "language": {
+    "toggle": "Change language",
+    "es": "Spanish",
+    "en": "English"
+  },
+  "common": {
+    "start": "Start",
+    "continue": "Continue",
+    "complete": "Complete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "success": "Success!",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information",
+    "underConstruction": "This feature is under construction",
+    "comingSoon": "Coming soon"
+  }
+}

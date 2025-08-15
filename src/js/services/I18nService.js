@@ -11,7 +11,7 @@ class I18nService extends Module {
       fallbackLanguage: 'es',
       supportedLanguages: ['es', 'en'],
       storageKey: 'ec0249_language',
-      translationsPath: './src/js/translations/',
+      translationsPath: './translations/',
       autoDetectLanguage: true,
       interpolationPattern: /\{\{(\w+)\}\}/g
     });

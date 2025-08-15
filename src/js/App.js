@@ -921,6 +921,9 @@ class EC0249App {
 
     // Update overall progress display
     this.updateOverallProgress();
+
+    // Ensure DOM translation after content update
+    i18n.translateDOM();
   }
 
   /**
@@ -941,6 +944,9 @@ class EC0249App {
 
     // Update modules grid
     this.renderModulesGrid();
+
+    // Ensure DOM translation after content update
+    i18n.translateDOM();
   }
 
   /**
@@ -1050,6 +1056,11 @@ class EC0249App {
         </div>
       `;
     }).join('');
+
+    // Ensure DOM translation after dynamic content injection
+    if (i18n) {
+      i18n.translateDOM();
+    }
   }
 
   /**
@@ -1141,6 +1152,9 @@ class EC0249App {
     if (assessmentTitle) {
       assessmentTitle.textContent = i18n.t('assessment.title');
     }
+
+    // Ensure DOM translation after content update
+    i18n.translateDOM();
   }
 
   /**
@@ -1153,6 +1167,9 @@ class EC0249App {
     if (portfolioTitle) {
       portfolioTitle.textContent = i18n.t('portfolio.title');
     }
+
+    // Ensure DOM translation after content update
+    i18n.translateDOM();
   }
 
   /**
