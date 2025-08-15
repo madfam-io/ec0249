@@ -1,425 +1,1351 @@
-<!doctype html>
-<html lang="es" data-theme="auto" data-lang="es">
+<!DOCTYPE html>
+<html lang="es" data-theme="auto">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EC0249 · Proporcionar servicios de consultoría general — Bilingual (ES/EN) · Tri‑Mode</title>
-  <meta name="description" content="Estándar de Competencia EC0249 — versión bilingüe (español/inglés) con tema automático, claro u oscuro." />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EC0249 · Plataforma Educativa de Consultoría</title>
+  <meta name="description" content="Plataforma educativa interactiva para la certificación EC0249 - Proporcionar servicios de consultoría general">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
   <style>
-    :root{
-      --bg: #ffffff;
-      --fg: #0f172a; /* slate-900 */
-      --muted: #475569; /* slate-600 */
-      --card: #f8fafc; /* slate-50 */
-      --border: #e2e8f0; /* slate-200 */
-      --accent: #2563eb; /* blue-600 */
-      --accent-fg: #ffffff;
-      --shadow: 0 10px 25px rgba(2,6,23,.08);
-      --radius: 14px;
-      --code: #111827;
-      --kbd-bg:#e5e7eb; --kbd-fg:#111827; --kbd-border:#d1d5db;
-      --link: #1d4ed8; --link-visited:#6d28d9;
+    /* CSS Variables for Theming */
+    :root {
+      --primary-50: #eff6ff;
+      --primary-100: #dbeafe;
+      --primary-500: #3b82f6;
+      --primary-600: #2563eb;
+      --primary-700: #1d4ed8;
+      --primary-900: #1e3a8a;
+      
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      
+      --success-500: #10b981;
+      --warning-500: #f59e0b;
+      --error-500: #ef4444;
+      
+      --bg-primary: var(--gray-50);
+      --bg-secondary: #ffffff;
+      --text-primary: var(--gray-900);
+      --text-secondary: var(--gray-600);
+      --border: var(--gray-200);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     }
-    @media (prefers-color-scheme: dark){
-      :root{
-        --bg: #0b1220; /* slate-950-ish */
-        --fg: #e5e7eb; /* slate-200 */
-        --muted: #9ca3af; /* slate-400 */
-        --card: #0f172a; /* slate-900 */
-        --border: #1f2937; /* slate-800 */
-        --accent: #60a5fa; /* blue-400 */
-        --accent-fg: #0b1220;
-        --shadow: 0 10px 30px rgba(0,0,0,.35);
-        --code: #e5e7eb;
-        --kbd-bg:#111827; --kbd-fg:#e5e7eb; --kbd-border:#374151;
-        --link:#93c5fd; --link-visited:#c4b5fd;
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: var(--gray-900);
+        --bg-secondary: var(--gray-800);
+        --text-primary: var(--gray-100);
+        --text-secondary: var(--gray-400);
+        --border: var(--gray-700);
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
       }
     }
-    /* Manual overrides for tri‑mode */
-    html[data-theme="light"]{
-      --bg: #ffffff; --fg:#0f172a; --muted:#475569; --card:#f8fafc; --border:#e2e8f0;
-      --accent:#2563eb; --accent-fg:#ffffff; --shadow:0 10px 25px rgba(2,6,23,.08);
-      --code:#111827; --kbd-bg:#e5e7eb; --kbd-fg:#111827; --kbd-border:#d1d5db; --link:#1d4ed8; --link-visited:#6d28d9;
+
+    /* Base Styles */
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
     }
-    html[data-theme="dark"]{
-      --bg:#0b1220; --fg:#e5e7eb; --muted:#9ca3af; --card:#0f172a; --border:#1f2937;
-      --accent:#60a5fa; --accent-fg:#0b1220; --shadow:0 10px 30px rgba(0,0,0,.35);
-      --code:#e5e7eb; --kbd-bg:#111827; --kbd-fg:#e5e7eb; --kbd-border:#374151; --link:#93c5fd; --link-visited:#c4b5fd;
+    
+    .app-container {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
     }
 
-    /* Base */
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";}
-    a{color:var(--link)} a:visited{color:var(--link-visited)}
-    .container{max-width:1100px;margin:0 auto;padding:24px}
-    header.site{position:sticky;top:0;z-index:50;background:linear-gradient(to bottom,var(--bg) 70%,color-mix(in oklab,var(--bg),transparent 100%) 100%);backdrop-filter:saturate(1.2) blur(6px);border-bottom:1px solid var(--border)}
-    .bar{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 24px}
-    .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),color-mix(in oklab,var(--accent),var(--accent-fg) 30%));box-shadow:var(--shadow)}
-    h1{font-size:clamp(1.25rem,2.2vw,1.8rem);margin:0}
-    .sub{color:var(--muted);font-size:.95rem}
-    .controls{display:flex;gap:10px;align-items:center}
-    .segmented{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--card)}
-    .segmented button{border:0;background:transparent;padding:8px 12px;color:var(--muted);cursor:pointer}
-    .segmented button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
-    .chip{padding:.25rem .6rem;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--muted);font-size:.85rem}
+    /* Header Styles */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--primary-600);
+    }
+    
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+    }
 
-    /* Layout */
-    .grid{display:grid;grid-template-columns:280px 1fr;gap:24px}
-    @media (max-width: 900px){.grid{grid-template-columns:1fr}}
-    nav.toc{position:sticky;top:82px;align-self:start;border:1px solid var(--border);background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
-    nav.toc h3{margin:.2rem 0 .5rem;font-size:1rem}
-    nav.toc a{display:block;padding:.35rem .4rem;border-radius:8px;text-decoration:none;color:var(--fg)}
-    nav.toc a:hover{background:color-mix(in oklab,var(--accent),transparent 85%)}
-    main{min-width:0}
+    /* Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      background: var(--gray-100);
+      padding: 0.25rem;
+      border-radius: 8px;
+    }
+    
+    .nav-tab {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    
+    .nav-tab.active {
+      background: var(--bg-secondary);
+      color: var(--primary-600);
+      box-shadow: var(--shadow);
+    }
+    
+    .nav-tab:hover:not(.active) {
+      background: var(--gray-200);
+    }
 
-    /* Cards & content */
-    section.card{border:1px solid var(--border);background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:18px}
-    section.card h2{margin-top:.2rem}
-    .meta{display:flex;flex-wrap:wrap;gap:10px;margin:.5rem 0 1rem}
-    .badge{background:color-mix(in oklab,var(--accent),transparent 85%);color:var(--fg);border:1px solid var(--border);padding:.25rem .5rem;border-radius:8px;font-size:.8rem}
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 2rem;
+    }
+    
+    @media (max-width: 968px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
 
-    details{border:1px solid var(--border);border-radius:12px;background:transparent}
-    details summary{list-style:none;cursor:pointer;padding:12px 14px;font-weight:600}
-    details[open]{background:color-mix(in oklab,var(--card),transparent 0%)}
-    details > div{padding:0 14px 14px}
+    /* Sidebar */
+    .sidebar {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      height: fit-content;
+      position: sticky;
+      top: 100px;
+    }
+    
+    .sidebar h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+    
+    .sidebar-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .sidebar-nav li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .sidebar-nav a {
+      display: block;
+      padding: 0.75rem;
+      text-decoration: none;
+      color: var(--text-secondary);
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+      background: var(--primary-50);
+      color: var(--primary-600);
+    }
 
-    .lang-es{display:revert}
-    .lang-en{display:none}
-    html[data-lang="en"] .lang-es{display:none}
-    html[data-lang="en"] .lang-en{display:revert}
+    /* Content Area */
+    .content-area {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      min-height: 600px;
+    }
+    
+    .content-area h1 {
+      margin: 0 0 1.5rem 0;
+      color: var(--text-primary);
+      font-size: 2rem;
+    }
+    
+    .content-area h2 {
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+    }
 
-    .glossary dt{font-weight:700}
-    .glossary dd{margin:0 0 10px 0}
+    /* Cards */
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+    
+    .card h3 {
+      margin: 0 0 1rem 0;
+      color: var(--text-primary);
+    }
 
-    .kbd{border:1px solid var(--kbd-border);border-bottom-width:3px;border-radius:6px;background:var(--kbd-bg);color:var(--kbd-fg);padding:2px 6px;font:600 .85rem ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    /* Progress Components */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--gray-200);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
 
-    @media print{
-      header.site, nav.toc, .controls{display:none}
-      body{background:#fff;color:#000}
-      section.card{break-inside:avoid}
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-primary {
+      background: var(--primary-500);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-600);
+    }
+    
+    .btn-secondary {
+      background: var(--gray-200);
+      color: var(--text-primary);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--gray-300);
+    }
+
+    /* Module Overview Cards */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    .module-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    
+    .module-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    
+    .module-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .module-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+    }
+    
+    .module-1 .module-icon { background: linear-gradient(135deg, #10b981, #059669); }
+    .module-2 .module-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .module-3 .module-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .module-4 .module-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    
+    .module-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--text-primary);
+    }
+    
+    .module-description {
+      color: var(--text-secondary);
+      margin: 0.5rem 0 1rem 0;
+    }
+    
+    .module-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    /* Utilities */
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+    .text-success { color: var(--success-500); }
+    .text-warning { color: var(--warning-500); }
+    .text-error { color: var(--error-500); }
+    
+    /* Loading States */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--gray-300);
+      border-top: 3px solid var(--primary-500);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <header class="site">
-    <div class="bar">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div>
-          <h1>EC0249 · Proporcionar servicios de consultoría general</h1>
-          <div class="sub">Versión bilingüe (Español / English) · Tema: Auto / Claro / Oscuro</div>
+  <div class="app-container" id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">📚</div>
+          <span>EC0249 Plataforma Educativa</span>
+        </div>
+        
+        <nav class="nav-tabs">
+          <button class="nav-tab active" data-view="dashboard">Dashboard</button>
+          <button class="nav-tab" data-view="modules">Módulos</button>
+          <button class="nav-tab" data-view="assessment">Evaluación</button>
+          <button class="nav-tab" data-view="portfolio">Portafolio</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <h3>Navegación</h3>
+        <ul class="sidebar-nav">
+          <li><a href="#" data-section="overview" class="active">Resumen General</a></li>
+          <li><a href="#" data-section="module1">Módulo 1: Fundamentos</a></li>
+          <li><a href="#" data-section="module2">Módulo 2: Identificación</a></li>
+          <li><a href="#" data-section="module3">Módulo 3: Desarrollo</a></li>
+          <li><a href="#" data-section="module4">Módulo 4: Presentación</a></li>
+          <li><a href="#" data-section="templates">Plantillas</a></li>
+          <li><a href="#" data-section="progress">Mi Progreso</a></li>
+        </ul>
+      </aside>
+
+      <!-- Content Area -->
+      <div class="content-area" id="contentArea">
+        <!-- Dashboard View -->
+        <div id="dashboardView">
+          <h1>Panel de Control - EC0249</h1>
+          <p>Bienvenido a la plataforma educativa para la certificación <strong>EC0249 - Proporcionar servicios de consultoría general</strong>. Esta plataforma te guiará a través de los tres elementos de competencia requeridos para tu certificación.</p>
+          
+          <div class="card">
+            <h3>Tu Progreso General</h3>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 15%"></div>
+            </div>
+            <p>15% completado - Continúa con el Módulo 1</p>
+          </div>
+
+          <div class="modules-grid">
+            <div class="module-card module-1" data-module="1">
+              <div class="module-header">
+                <div class="module-icon">🎯</div>
+                <div>
+                  <h3 class="module-title">Módulo 1: Fundamentos</h3>
+                </div>
+              </div>
+              <p class="module-description">Conceptos básicos de consultoría, ética y habilidades interpersonales.</p>
+              <div class="module-stats">
+                <span>4 lecciones</span>
+                <span class="text-warning">En progreso</span>
+              </div>
+            </div>
+
+            <div class="module-card module-2" data-module="2">
+              <div class="module-header">
+                <div class="module-icon">🔍</div>
+                <div>
+                  <h3 class="module-title">Módulo 2: Identificación</h3>
+                </div>
+              </div>
+              <p class="module-description">Elemento 1: Identificar la situación/problema planteado. 8 productos requeridos.</p>
+              <div class="module-stats">
+                <span>8 plantillas</span>
+                <span class="text-secondary">Bloqueado</span>
+              </div>
+            </div>
+
+            <div class="module-card module-3" data-module="3">
+              <div class="module-header">
+                <div class="module-icon">💡</div>
+                <div>
+                  <h3 class="module-title">Módulo 3: Desarrollo</h3>
+                </div>
+              </div>
+              <p class="module-description">Elemento 2: Desarrollar opciones de solución. 2 productos requeridos.</p>
+              <div class="module-stats">
+                <span>2 plantillas</span>
+                <span class="text-secondary">Bloqueado</span>
+              </div>
+            </div>
+
+            <div class="module-card module-4" data-module="4">
+              <div class="module-header">
+                <div class="module-icon">📋</div>
+                <div>
+                  <h3 class="module-title">Módulo 4: Presentación</h3>
+                </div>
+              </div>
+              <p class="module-description">Elemento 3: Presentar la propuesta de solución. 5 productos requeridos.</p>
+              <div class="module-stats">
+                <span>5 plantillas</span>
+                <span class="text-secondary">Bloqueado</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Próximos Pasos</h3>
+            <ul>
+              <li>Completar la introducción a los fundamentos de consultoría</li>
+              <li>Revisar el código de ética y confidencialidad</li>
+              <li>Familiarizarte con los 15 productos requeridos para la certificación</li>
+            </ul>
+            <a href="#" class="btn btn-primary" data-action="continue">Continuar Aprendizaje</a>
+          </div>
+        </div>
+
+        <!-- Modules View -->
+        <div id="modulesView" class="hidden">
+          <h1>Módulos de Aprendizaje</h1>
+          <p>Completa los cuatro módulos en secuencia para prepararte completamente para la evaluación EC0249.</p>
+          
+          <div class="modules-grid">
+            <!-- Module cards will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Assessment View -->
+        <div id="assessmentView" class="hidden">
+          <h1>Centro de Evaluación</h1>
+          <p>Practica tus habilidades en un entorno controlado antes de la evaluación oficial.</p>
+          
+          <div class="card">
+            <h3>Simuladores Disponibles</h3>
+            <ul>
+              <li>Simulador de Entrevistas</li>
+              <li>Entrenador de Presentaciones</li>
+              <li>Evaluación de Conocimientos</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Portfolio View -->
+        <div id="portfolioView" class="hidden">
+          <h1>Mi Portafolio</h1>
+          <p>Gestiona y revisa todos tus documentos y evidencias para la certificación.</p>
+          
+          <div class="card">
+            <h3>Elementos de Competencia</h3>
+            <p>Track your progress across all three competency elements.</p>
+          </div>
         </div>
       </div>
-      <div class="controls">
-        <div class="segmented" role="group" aria-label="Selector de idioma / Language">
-          <button id="btn-es" data-lang="es" aria-pressed="true">ES</button>
-          <button id="btn-en" data-lang="en" aria-pressed="false">EN</button>
-        </div>
-        <div class="segmented" role="group" aria-label="Tema">
-          <button id="theme-auto" data-theme="auto" aria-pressed="true" title="Respeta el sistema"><span class="lang-es">Auto</span><span class="lang-en">Auto</span></button>
-          <button id="theme-light" data-theme="light" aria-pressed="false" title="Claro"><span class="lang-es">Claro</span><span class="lang-en">Light</span></button>
-          <button id="theme-dark" data-theme="dark" aria-pressed="false" title="Oscuro"><span class="lang-es">Oscuro</span><span class="lang-en">Dark</span></button>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <div class="container grid">
-    <nav class="toc" aria-label="Tabla de contenido / Table of contents">
-      <h3><span class="lang-es">Contenido</span><span class="lang-en">Contents</span></h3>
-      <a href="#datos"><span class="lang-es">I. Datos Generales</span><span class="lang-en">I. General Data</span></a>
-      <a href="#perfil"><span class="lang-es">II. Perfil del EC</span><span class="lang-en">II. Standard Profile</span></a>
-      <a href="#elementos"><span class="lang-es">III. Elementos y Criterios</span><span class="lang-en">III. Elements & Criteria</span></a>
-      <a href="#glosario"><span class="lang-es">Glosario</span><span class="lang-en">Glossary</span></a>
-      <a href="#referencias"><span class="lang-es">Referencias</span><span class="lang-en">References</span></a>
-    </nav>
-
-    <main>
-      <section class="card" id="intro">
-        <div class="meta">
-          <span class="chip">N-FO-02 · v6.0</span>
-          <span class="chip"><span class="lang-es">Nivel en SNC: Cinco</span><span class="lang-en">National Skills Level: Five</span></span>
-          <span class="chip"><span class="lang-es">Aprob.: 17/Jul/2012 · D.O.F.: 16/Oct/2012</span><span class="lang-en">Approved: Jul 17, 2012 · Gazette: Oct 16, 2012</span></span>
-          <span class="chip"><span class="lang-es">Vigencia Cert.: 4 años</span><span class="lang-en">Certificate Validity: 4 years</span></span>
-        </div>
-        <p class="lang-es"><strong>Propósito.</strong> Servir como referente para evaluar y certificar a personas que realizan funciones de consultoría —sin importar la especialidad— y para diseñar programas de capacitación basados en EC. No requiere título profesional para certificarse.</p>
-        <p class="lang-en"><strong>Purpose.</strong> Serves as a benchmark to evaluate and certify individuals who perform consulting functions—regardless of specialty—and to design training programs based on the standard. A professional degree is not required for certification.</p>
-        <p class="lang-es"><strong>Descripción.</strong> El estándar define funciones mínimas: (1) Identificar la situación/problema; (2) Desarrollar opciones de solución; (3) Presentar la propuesta de solución al consultante. Incluye conocimientos, actitudes y evidencias requeridas.</p>
-        <p class="lang-en"><strong>Description.</strong> The standard defines minimum functions: (1) Identify the situation/problem; (2) Develop solution options; (3) Present the proposed solution to the client. It includes required knowledge, attitudes, and evidence.</p>
-      </section>
-
-      <section class="card" id="datos">
-        <h2><span class="lang-es">I. Datos Generales</span><span class="lang-en">I. General Data</span></h2>
-        <details open>
-          <summary><span class="lang-es">Clasificaciones y Alcance</span><span class="lang-en">Classifications & Scope</span></summary>
-          <div>
-            <ul class="lang-es">
-              <li><strong>Código / Título:</strong> EC0249 · Proporcionar servicios de consultoría general</li>
-              <li><strong>Nivel:</strong> Cinco (planifica, programa y es responsable de resultados de equipos).</li>
-              <li><strong>SCIAN:</strong> 54, 541, 5416, 54161, 54169; clases 541610 (MÉX), 541690.</li>
-              <li><strong>Ocupaciones relacionadas (CNO):</strong> 0825-01 Consultores de sistemas administrativos; p. ej., consultor de análisis organizacional.</li>
-            </ul>
-            <ul class="lang-en">
-              <li><strong>Code / Title:</strong> EC0249 · Provide general consulting services</li>
-              <li><strong>Level:</strong> Five (plans, schedules, and is accountable for team outcomes).</li>
-              <li><strong>NAICS (SCIAN):</strong> 54, 541, 5416, 54161, 54169; classes 541610 (MEX), 541690.</li>
-              <li><strong>Related occupations (CNO):</strong> 0825-01 Administrative systems consultants; e.g., organizational analysis consultant.</li>
-            </ul>
-          </div>
-        </details>
-        <details>
-          <summary><span class="lang-es">Participantes y Fechas</span><span class="lang-en">Participants & Dates</span></summary>
-          <div>
-            <p class="lang-es"><strong>Comité de Gestión por Competencias:</strong> Sector de Consultoría. <strong>Empresas/Instituciones:</strong> Cámara Nacional de Empresas de Consultoría; Cencade, S.A. de C.V.; Compite; Instituto de Ingeniería de la UNAM; Secretaría de Economía; UNIVA; UVM.</p>
-            <p class="lang-en"><strong>Sector Skills Committee:</strong> Consulting Sector. <strong>Organizations involved:</strong> National Chamber of Consulting Firms; Cencade, S.A. de C.V.; Compite; UNAM Institute of Engineering; Ministry of Economy; UNIVA; UVM.</p>
-            <p class="lang-es"><strong>Aprobación:</strong> 17 de julio de 2012 · <strong>Publicación en D.O.F.:</strong> 16 de octubre de 2012.</p>
-            <p class="lang-en"><strong>Approval:</strong> July 17, 2012 · <strong>Official Gazette:</strong> October 16, 2012.</p>
-            <p class="lang-es"><strong>Revisión/Actualización del EC:</strong> cada 2 años. <strong>Vigencia del certificado:</strong> 4 años.</p>
-            <p class="lang-en"><strong>Review/Update cycle:</strong> every 2 years. <strong>Certificate validity:</strong> 4 years.</p>
-          </div>
-        </details>
-        <details>
-          <summary><span class="lang-es">Aspectos de Evaluación</span><span class="lang-en">Assessment Aspects</span></summary>
-          <div>
-            <ul class="lang-es">
-              <li><strong>Entrega de evidencias por producto:</strong> formato electrónico; revisión en 5 días hábiles por el evaluador.</li>
-              <li><strong>Evidencias de desempeño y conocimiento:</strong> en sitio o simulación (evaluador actúa como cliente/entrevistado).</li>
-              <li><strong>Apoyos:</strong> equipo para presentación (computadora, proyector, pantalla, rotafolio, etc.).</li>
-              <li><strong>Duración estimada:</strong> 4 h gabinete + 2 h campo = 6 h.</li>
-            </ul>
-            <ul class="lang-en">
-              <li><strong>Product evidence submission:</strong> electronic format; reviewed within 5 business days.</li>
-              <li><strong>Performance & knowledge evidence:</strong> on-site or simulated (evaluator acts as client/interviewee).</li>
-              <li><strong>Supports:</strong> presentation equipment (computer, projector, screen, flipchart, etc.).</li>
-              <li><strong>Estimated duration:</strong> 4 h office + 2 h field = 6 h.</li>
-            </ul>
-          </div>
-        </details>
-      </section>
-
-      <section class="card" id="perfil">
-        <h2><span class="lang-es">II. Perfil del Estándar de Competencia</span><span class="lang-en">II. Standard Profile</span></h2>
-        <div class="meta">
-          <span class="badge"><span class="lang-es">Elemento 1:</span><span class="lang-en">Element 1:</span> E0875</span>
-          <span class="badge"><span class="lang-es">Elemento 2:</span><span class="lang-en">Element 2:</span> E0876</span>
-          <span class="badge"><span class="lang-es">Elemento 3:</span><span class="lang-en">Element 3:</span> E0877</span>
-        </div>
-        <p class="lang-es">Funciones mínimas: Identificar la situación/problema; Desarrollar opciones de solución; Presentar la propuesta de solución.</p>
-        <p class="lang-en">Minimum functions: Identify the situation/problem; Develop solution options; Present the proposed solution.</p>
-      </section>
-
-      <section class="card" id="elementos">
-        <h2><span class="lang-es">III. Elementos y Criterios de Evaluación</span><span class="lang-en">III. Elements & Evaluation Criteria</span></h2>
-
-        <!-- Element 1 -->
-        <details open>
-          <summary><strong>E0875</strong> · <span class="lang-es">Identificar la situación / problema planteado</span><span class="lang-en">Identify the stated situation / problem</span></summary>
-          <div>
-            <h3><span class="lang-es">Desempeños</span><span class="lang-en">Performances</span></h3>
-            <ul class="lang-es">
-              <li>Entrevista a las partes: se presenta, explica el propósito, solicita información y evidencias (verbal/escrita), registra respuestas y cierra agradeciendo.</li>
-            </ul>
-            <ul class="lang-en">
-              <li>Interviews stakeholders: introduces self, explains purpose, requests information and evidence (oral/written), records responses, and closes with thanks.</li>
-            </ul>
-
-            <h3><span class="lang-es">Productos</span><span class="lang-en">Products</span></h3>
-            <ul class="lang-es">
-              <li>Documento que describe el problema (alcance, integración de información, interpretación y afectaciones).</li>
-              <li>Afectación detectada congruente con la información integrada.</li>
-              <li>Integración de la información (recopilada, congruente con el problema, e interpretación).</li>
-              <li>Reporte de metodología: definición del problema; programa de entrevistas; áreas involucradas; estudios/pruebas; requerimientos de información; programa de observaciones; búsqueda documental; método de evaluación.</li>
-              <li>Guía de entrevista: propósito; actividades/responsabilidades; información/doc. a solicitar; cierre.</li>
-              <li>Cuestionario: propósito; datos generales; confidencialidad; instrucciones; preguntas alineadas; documentación de soporte; comentarios; agradecimiento.</li>
-              <li>Programa de búsqueda documental: información interna y externa relevante.</li>
-              <li>Reporte de visita de campo: objetivo, alcance, observaciones y resultados.</li>
-            </ul>
-            <ul class="lang-en">
-              <li>Problem description document (scope, information integration, interpretation and impacts).</li>
-              <li>Detected impacts consistent with integrated information.</li>
-              <li>Information integration (collected data, alignment with problem, and interpretation).</li>
-              <li>Methodology report: problem definition; interview program; involved areas; studies/tests; information requirements; field observations plan; documentary research; evaluation method.</li>
-              <li>Interview guide: purpose; activities/responsibilities; info/documents to request; closing.</li>
-              <li>Questionnaire: purpose; respondent data; confidentiality; instructions; aligned questions; supporting documents; comments; thanks.</li>
-              <li>Documentary search plan: internal and external information.</li>
-              <li>Field visit report: objective, scope, observations and results.</li>
-            </ul>
-
-            <h3><span class="lang-es">Conocimientos</span><span class="lang-en">Knowledge</span></h3>
-            <ul class="lang-es">
-              <li>Entrevistas: tipos.</li>
-              <li>Cuestionarios: tipos.</li>
-              <li>Indicadores: concepto y usos.</li>
-              <li>Fuentes de información: tipos y características de muestras.</li>
-              <li>Metodología de investigación de problemas: definición, requerimientos y evaluación de información.</li>
-            </ul>
-            <ul class="lang-en">
-              <li>Interviews: types.</li>
-              <li>Questionnaires: types.</li>
-              <li>Indicators: concept and uses.</li>
-              <li>Information sources: types and sample characteristics.</li>
-              <li>Problem-research methodology: definition, requirements and information assessment.</li>
-            </ul>
-
-            <h3><span class="lang-es">Actitudes / Hábitos / Valores</span><span class="lang-en">Attitudes / Habits / Values</span></h3>
-            <ul class="lang-es"><li>Limpieza; Orden.</li></ul>
-            <ul class="lang-en"><li>Neatness; Order.</li></ul>
-          </div>
-        </details>
-
-        <!-- Element 2 -->
-        <details>
-          <summary><strong>E0876</strong> · <span class="lang-es">Desarrollar opciones de solución a la situación / problema planteado</span><span class="lang-en">Develop solution options for the stated situation / problem</span></summary>
-          <div>
-            <h3><span class="lang-es">Productos</span><span class="lang-en">Products</span></h3>
-            <ul class="lang-es">
-              <li>Reporte de afectaciones: metodología aplicada, afectaciones definidas y situación a resolver detallada.</li>
-              <li>Solución diseñada: congruente con la situación; beneficios; desventajas; justificación detallada; implicaciones costo/beneficio.</li>
-            </ul>
-            <ul class="lang-en">
-              <li>Report of impacts: applied methodology, defined impacts, and detailed situation to be solved.</li>
-              <li>Designed solution: consistent with the situation; benefits; drawbacks; detailed justification; cost/benefit implications.</li>
-            </ul>
-
-            <h3><span class="lang-es">Actitudes / Hábitos / Valores</span><span class="lang-en">Attitudes / Habits / Values</span></h3>
-            <ul class="lang-es"><li>Responsabilidad: aceptación y firma de códigos de ética, confidencialidad y aviso de privacidad.</li></ul>
-            <ul class="lang-en"><li>Responsibility: acceptance and signature of codes of ethics, confidentiality and privacy notice.</li></ul>
-          </div>
-        </details>
-
-        <!-- Element 3 -->
-        <details>
-          <summary><strong>E0877</strong> · <span class="lang-es">Presentar la propuesta de solución</span><span class="lang-en">Present the proposed solution</span></summary>
-          <div>
-            <h3><span class="lang-es">Desempeños</span><span class="lang-en">Performances</span></h3>
-            <ul class="lang-es">
-              <li>Presenta la propuesta al consultante: descripción; alcance; ventajas/desventajas; responsables (consultante/consultor); etapas e indicadores; entregables; implicaciones de implantación y costo/beneficio; respuesta a dudas; recursos a emplear.</li>
-            </ul>
-            <ul class="lang-en">
-              <li>Presents the proposal to the client: description; scope; pros/cons; responsible parties (client/consultant); stages and indicators; deliverables; implementation and cost/benefit implications; Q&A; resources to be used.</li>
-            </ul>
-
-            <h3><span class="lang-es">Productos</span><span class="lang-en">Products</span></h3>
-            <ul class="lang-es">
-              <li>Propuesta de trabajo: antecedentes/diagnóstico; síntesis descriptiva; alcance; solución detallada; plan de trabajo; entregables; riesgos; responsabilidades; costo estimado.</li>
-              <li>Descripción detallada: etapas; resultados esperados; indicadores; mecanismos de control; recursos del consultor y del consultante.</li>
-              <li>Plan de trabajo: resultados esperados; actividades; recursos.</li>
-              <li>Actividades: calendarización; responsables; indicadores; mecanismos de control y seguimiento.</li>
-              <li>Registro de acuerdos: propuesta autorizada; alcance; resultados; tiempos; responsabilidades; costos y condiciones de pago; cláusulas de confidencialidad y propiedad intelectual.</li>
-            </ul>
-            <ul class="lang-en">
-              <li>Work proposal: background/diagnosis; descriptive summary; scope; detailed solution; work plan; deliverables; risks; responsibilities; estimated cost.</li>
-              <li>Detailed description: stages; expected results; indicators; control mechanisms; consultant and client resources.</li>
-              <li>Work plan: expected results; activities; resources.</li>
-              <li>Activities: schedule; owners; indicators; control and follow-up mechanisms.</li>
-              <li>Record of agreements: approved proposal; scope; expected results; implementation time; responsibilities; cost and payment terms; confidentiality and IP clauses.</li>
-            </ul>
-
-            <h3 id="glosario"><span class="lang-es">Glosario</span><span class="lang-en">Glossary</span></h3>
-            <dl class="glossary">
-              <dt class="lang-es">Afectación de la situación actual</dt>
-              <dt class="lang-en">Impact of the current situation</dt>
-              <dd class="lang-es">Diferencia entre la situación deseada y la situación actual.</dd>
-              <dd class="lang-en">Gap between the desired and current situation.</dd>
-
-              <dt class="lang-es">Información externa</dt>
-              <dt class="lang-en">External information</dt>
-              <dd class="lang-es">Información de dominio público o propia del consultor.</dd>
-              <dd class="lang-en">Public-domain information or consultant-owned data.</dd>
-
-              <dt class="lang-es">Información interna</dt>
-              <dt class="lang-en">Internal information</dt>
-              <dd class="lang-es">Información propia del consultante.</dd>
-              <dd class="lang-en">Information belonging to the client.</dd>
-
-              <dt class="lang-es">Programa de búsqueda de información documental</dt>
-              <dt class="lang-en">Documentary information search plan</dt>
-              <dd class="lang-es">Documento que presenta la información que el consultor requiere para solucionar el problema estudiado.</dd>
-              <dd class="lang-en">Document outlining the information the consultant requires to solve the studied problem.</dd>
-            </dl>
-          </div>
-        </details>
-      </section>
-
-      <section class="card" id="referencias">
-        <h2><span class="lang-es">Referencias</span><span class="lang-en">References</span></h2>
-        <ul class="lang-es">
-          <li>INEGI: Estadística sobre el número de consultores en México.</li>
-          <li>Secretaría de Economía: Estadística sobre especialidades comunes del mercado de consultores.</li>
-          <li>Cámara Nacional de Empresas de Consultoría: Estadística de especialidades en consultoría en México.</li>
-        </ul>
-        <ul class="lang-en">
-          <li>INEGI: Statistics on the number of consultants in Mexico.</li>
-          <li>Ministry of Economy: Statistics on common specialties in the consulting market.</li>
-          <li>National Chamber of Consulting Firms: Statistics on consulting specialties in Mexico.</li>
-        </ul>
-        <p class="lang-es"><em>Nota:</em> Esta versión es una representación fiel, bilingüe y enriquecida del contenido del EC0249.</p>
-        <p class="lang-en"><em>Note:</em> This edition is a faithful, bilingual, enriched representation of EC0249 contents.</p>
-      </section>
-
-      <section class="card">
-        <h2><span class="lang-es">Ayuda Rápida</span><span class="lang-en">Quick Help</span></h2>
-        <ul>
-          <li><span class="kbd">ES</span>/<span class="kbd">EN</span> <span class="lang-es">para alternar idioma</span><span class="lang-en">to switch language</span>.</li>
-          <li><span class="kbd">Auto</span>/<span class="kbd">Claro</span>/<span class="kbd">Oscuro</span> <span class="lang-es">para controlar el tema</span><span class="lang-en">to control theme</span>.</li>
-          <li><span class="lang-es">Imprime con </span><span class="lang-en">Print with </span><span class="kbd">Ctrl/Cmd + P</span>.</li>
-        </ul>
-      </section>
-
     </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>&copy; 2024 EC0249 Plataforma Educativa. Desarrollado para la certificación en consultoría general según estándares CONOCER.</p>
+    </footer>
   </div>
 
+  <!-- Additional CSS for new components -->
+  <style>
+    /* Document Editor Styles */
+    .document-editor {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2rem;
+      height: calc(100vh - 200px);
+    }
+    
+    .editor-header {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .editor-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .editor-sidebar {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      height: fit-content;
+      position: sticky;
+      top: 1rem;
+    }
+    
+    .criteria-list {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+    }
+    
+    .criteria-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    
+    .editor-content {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      overflow-y: auto;
+    }
+    
+    .document-form {
+      max-width: none;
+    }
+    
+    .form-section {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .section-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+    
+    .required-mark {
+      color: var(--error-500);
+      margin-left: 0.25rem;
+    }
+    
+    .guidance {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+    
+    .form-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      resize: vertical;
+    }
+    
+    .character-count {
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+    
+    .repeatable-section .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .repeatable-item {
+      background: var(--gray-50);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+    }
+    
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    /* Assessment Styles */
+    .assessment-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .assessment-header {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+    
+    .assessment-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    
+    .time-remaining {
+      font-weight: 600;
+      color: var(--primary-600);
+    }
+    
+    .question-container {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+    
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .question-category {
+      background: var(--primary-50);
+      color: var(--primary-700);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .options-container {
+      margin: 1.5rem 0;
+    }
+    
+    .option-label {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .option-label:hover {
+      border-color: var(--primary-300);
+      background: var(--primary-50);
+    }
+    
+    .option-label input[type="radio"] {
+      margin-right: 1rem;
+    }
+    
+    /* Simulation Styles */
+    .simulation-setup {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .scenario-meta {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .scenario-meta span {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .difficulty.intermediate {
+      background: var(--warning-500);
+      color: white;
+    }
+    
+    .briefing-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    
+    .context-card, .client-card, .audience-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    
+    .interview-simulation {
+      height: calc(100vh - 150px);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .simulation-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+    
+    .interview-interface {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      flex: 1;
+      min-height: 0;
+    }
+    
+    .conversation-area {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    
+    .client-avatar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .avatar-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--primary-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+    }
+    
+    .client-status {
+      font-size: 0.8rem;
+      color: var(--success-500);
+    }
+    
+    .conversation-log {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      min-height: 300px;
+    }
+    
+    .message {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    
+    .client-message {
+      background: var(--gray-100);
+      margin-right: 2rem;
+    }
+    
+    .user-message {
+      background: var(--primary-50);
+      margin-left: 2rem;
+    }
+    
+    .message-sender {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    
+    .message-time {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+      display: block;
+    }
+    
+    .user-input-area textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      resize: vertical;
+    }
+    
+    .input-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    
+    .evaluation-panel {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      overflow-y: auto;
+    }
+    
+    .criterion-track {
+      margin-bottom: 0.75rem;
+    }
+    
+    .criterion-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    
+    .criterion-status.pending {
+      background: var(--gray-100);
+      color: var(--text-secondary);
+    }
+    
+    .criterion-status.completed {
+      background: var(--success-500);
+      color: white;
+    }
+    
+    .notes-section textarea {
+      width: 100%;
+      min-height: 150px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      resize: vertical;
+    }
+    
+    /* Portfolio Styles */
+    .portfolio-overview {
+      text-align: center;
+      margin: 2rem 0;
+    }
+    
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      color: white;
+    }
+    
+    .score-number {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    
+    .score-label {
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+    }
+    
+    .elements-breakdown {
+      display: grid;
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    .element-status-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    
+    .element-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .element-weight {
+      background: var(--gray-200);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+    
+    .progress-item {
+      margin-bottom: 1rem;
+    }
+    
+    .progress-item span {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    /* Notification Styles */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      max-width: 400px;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification-content {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+    }
+    
+    .notification-icon {
+      font-size: 1.25rem;
+    }
+    
+    .notification-message {
+      flex: 1;
+      color: var(--text-primary);
+    }
+    
+    .notification-close {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .notification-success {
+      border-left: 4px solid var(--success-500);
+    }
+    
+    .notification-error {
+      border-left: 4px solid var(--error-500);
+    }
+    
+    .notification-warning {
+      border-left: 4px solid var(--warning-500);
+    }
+    
+    .notification-info {
+      border-left: 4px solid var(--primary-500);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .document-editor {
+        grid-template-columns: 1fr;
+      }
+      
+      .interview-interface {
+        grid-template-columns: 1fr;
+      }
+      
+      .briefing-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+    }
+  </style>
+
+  <script src="js/modules.js"></script>
+  <script src="js/document-templates.js"></script>
+  <script src="js/assessment-portfolio.js"></script>
+  <script src="js/simulation-system.js"></script>
+
   <script>
-    (function(){
-      const root = document.documentElement;
-      const langButtons = { es: document.getElementById('btn-es'), en: document.getElementById('btn-en') };
-      const themeButtons = {
-        auto: document.getElementById('theme-auto'),
-        light: document.getElementById('theme-light'),
-        dark: document.getElementById('theme-dark')
-      };
-
-      // Load prefs
-      const savedLang = localStorage.getItem('ec0249-lang');
-      const savedTheme = localStorage.getItem('ec0249-theme');
-      if(savedLang){ setLang(savedLang); } else { setLang('es'); }
-      if(savedTheme){ setTheme(savedTheme); } else { setTheme('auto'); }
-
-      // Language toggle
-      langButtons.es.addEventListener('click', ()=> setLang('es'));
-      langButtons.en.addEventListener('click', ()=> setLang('en'));
-
-      function setLang(l){
-        root.setAttribute('data-lang', l);
-        langButtons.es.setAttribute('aria-pressed', String(l==='es'));
-        langButtons.en.setAttribute('aria-pressed', String(l==='en'));
-        localStorage.setItem('ec0249-lang', l);
-        document.documentElement.lang = l;
+    // Application State Management
+    class EC0249App {
+      constructor() {
+        this.currentView = 'dashboard';
+        this.currentSection = 'overview';
+        this.userProgress = {
+          module1: { theory: 25, practice: 0, assessment: false },
+          module2: { theory: 0, practice: 0, assessment: false },
+          module3: { theory: 0, practice: 0, assessment: false },
+          module4: { theory: 0, practice: 0, assessment: false }
+        };
+        this.portfolioItems = [];
+        
+        this.init();
       }
-
-      // Theme toggle
-      themeButtons.auto.addEventListener('click', ()=> setTheme('auto'));
-      themeButtons.light.addEventListener('click', ()=> setTheme('light'));
-      themeButtons.dark.addEventListener('click', ()=> setTheme('dark'));
-
-      function setTheme(t){
-        root.setAttribute('data-theme', t);
-        for(const k in themeButtons){ themeButtons[k].setAttribute('aria-pressed', String(k===t)); }
-        localStorage.setItem('ec0249-theme', t);
+      
+      init() {
+        this.setupEventListeners();
+        this.loadUserData();
+        this.renderCurrentView();
       }
-
-      // Smooth-scroll TOC
-      document.querySelectorAll('nav.toc a[href^="#"]').forEach(a => {
-        a.addEventListener('click', (e)=>{
-          e.preventDefault();
-          const id = a.getAttribute('href');
-          document.querySelector(id)?.scrollIntoView({behavior:'smooth', block:'start'});
-          history.pushState(null, '', id);
+      
+      setupEventListeners() {
+        // Navigation tabs
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+          tab.addEventListener('click', (e) => {
+            this.switchView(e.target.dataset.view);
+          });
         });
-      });
-    })();
+        
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.switchSection(e.target.dataset.section);
+          });
+        });
+        
+        // Module cards
+        document.addEventListener('click', (e) => {
+          if (e.target.closest('.module-card')) {
+            const moduleNum = e.target.closest('.module-card').dataset.module;
+            this.openModule(moduleNum);
+          }
+        });
+      }
+      
+      switchView(viewName) {
+        this.currentView = viewName;
+        
+        // Update nav tabs
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+        
+        // Update content
+        this.renderCurrentView();
+      }
+      
+      switchSection(sectionName) {
+        this.currentSection = sectionName;
+        
+        // Update sidebar
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+          link.classList.remove('active');
+        });
+        document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+        
+        // Update content based on section
+        this.renderCurrentSection();
+      }
+      
+      renderCurrentView() {
+        // Hide all views
+        document.querySelectorAll('[id$="View"]').forEach(view => {
+          view.classList.add('hidden');
+        });
+        
+        // Show current view
+        document.getElementById(`${this.currentView}View`).classList.remove('hidden');
+        
+        // Load view-specific content
+        this.loadViewContent();
+      }
+      
+      renderCurrentSection() {
+        // This will be expanded to handle different sections
+        console.log(`Rendering section: ${this.currentSection}`);
+      }
+      
+      loadViewContent() {
+        switch(this.currentView) {
+          case 'modules':
+            this.renderModulesContent();
+            break;
+          case 'assessment':
+            this.renderAssessmentContent();
+            break;
+          case 'portfolio':
+            this.renderPortfolioContent();
+            break;
+        }
+      }
+      
+      renderModulesContent() {
+        const modulesGrid = document.querySelector('#modulesView .modules-grid');
+        if (!modulesGrid) return;
+        
+        const modules = [
+          {
+            num: 1,
+            title: 'Fundamentos de Consultoría',
+            description: 'Conceptos básicos, ética y habilidades interpersonales necesarias para la consultoría profesional.',
+            icon: '🎯',
+            lessons: 4,
+            status: 'in_progress',
+            progress: 25
+          },
+          {
+            num: 2,
+            title: 'Identificación del Problema',
+            description: 'Elemento 1: Técnicas de entrevista, cuestionarios e investigación de campo.',
+            icon: '🔍',
+            lessons: 8,
+            status: 'locked',
+            progress: 0
+          },
+          {
+            num: 3,
+            title: 'Desarrollo de Soluciones',
+            description: 'Elemento 2: Análisis de impacto y diseño de soluciones efectivas.',
+            icon: '💡',
+            lessons: 4,
+            status: 'locked',
+            progress: 0
+          },
+          {
+            num: 4,
+            title: 'Presentación de Propuestas',
+            description: 'Elemento 3: Preparación y presentación profesional de propuestas.',
+            icon: '📋',
+            lessons: 6,
+            status: 'locked',
+            progress: 0
+          }
+        ];
+        
+        modulesGrid.innerHTML = modules.map(module => `
+          <div class="module-card module-${module.num}" data-module="${module.num}">
+            <div class="module-header">
+              <div class="module-icon">${module.icon}</div>
+              <div>
+                <h3 class="module-title">Módulo ${module.num}: ${module.title}</h3>
+              </div>
+            </div>
+            <p class="module-description">${module.description}</p>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${module.progress}%"></div>
+            </div>
+            <div class="module-stats">
+              <span>${module.lessons} lecciones</span>
+              <span class="${module.status === 'in_progress' ? 'text-warning' : module.status === 'locked' ? 'text-secondary' : 'text-success'}">
+                ${module.status === 'in_progress' ? 'En progreso' : module.status === 'locked' ? 'Bloqueado' : 'Completado'}
+              </span>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      renderAssessmentContent() {
+        // Will be expanded with assessment tools
+      }
+      
+      renderPortfolioContent() {
+        // Will be expanded with portfolio management
+      }
+      
+      openModule(moduleNum) {
+        if (this.moduleSystem) {
+          const moduleId = `module${moduleNum}`;
+          const contentArea = document.getElementById('contentArea');
+          contentArea.innerHTML = this.moduleSystem.renderModuleContent(moduleId);
+          this.switchSection(`module${moduleNum}`);
+        }
+      }
+      
+      loadUserData() {
+        // Load from localStorage or API
+        const savedProgress = localStorage.getItem('ec0249_progress');
+        if (savedProgress) {
+          this.userProgress = JSON.parse(savedProgress);
+        }
+      }
+      
+      saveUserData() {
+        localStorage.setItem('ec0249_progress', JSON.stringify(this.userProgress));
+      }
+      
+      calculateOverallProgress() {
+        const modules = Object.values(this.userProgress);
+        const totalProgress = modules.reduce((sum, module) => {
+          return sum + (module.theory + module.practice) / 2;
+        }, 0);
+        return Math.round(totalProgress / modules.length);
+      }
+
+      // Notification system
+      showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+          <div class="notification-content">
+            <span class="notification-icon">${this.getNotificationIcon(type)}</span>
+            <span class="notification-message">${message}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+          </div>
+        `;
+        
+        // Add to page
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+          if (notification.parentElement) {
+            notification.remove();
+          }
+        }, 5000);
+        
+        // Animate in
+        setTimeout(() => {
+          notification.classList.add('show');
+        }, 100);
+      }
+
+      getNotificationIcon(type) {
+        const icons = {
+          'success': '✅',
+          'error': '❌',
+          'warning': '⚠️',
+          'info': 'ℹ️'
+        };
+        return icons[type] || 'ℹ️';
+      }
+    }
+    
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => {
+      window.ec0249App = new EC0249App();
+    });
   </script>
 </body>
 </html>
