@@ -2,7 +2,7 @@
   "app": {
     "title": "EC0249 · Plataforma Educativa de Consultoría",
     "description": "Plataforma educativa interactiva para la certificación EC0249 - Proporcionar servicios de consultoría general",
-    "footer": "© 2024 EC0249 Plataforma Educativa. Desarrollado para la certificación en consultoría general según estándares CONOCER."
+    "footer": "© {{year}} EC0249 Plataforma Educativa. Desarrollado para la certificación en consultoría general según estándares CONOCER."
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -31,8 +31,10 @@
     "subtitle": "Bienvenido a la plataforma educativa para la certificación EC0249 - Proporcionar servicios de consultoría general",
     "quickStart": "Inicio Rápido",
     "continueJourney": "Continúa tu viaje de aprendizaje desde donde lo dejaste",
-    "yourProgress": "Tu Progreso",
-    "overall": "General",
+    "yourProgress": "Tu Progreso General",
+    "overall": "Progreso General",
+    "progressDescription": "Continúa con el Módulo 1 para avanzar en tu certificación",
+    "modulesOverview": "Módulos de Aprendizaje",
     "keyFeatures": "Características Principales",
     "interactiveLearning": "Aprendizaje Interactivo",
     "interactiveLearningDesc": "Módulos de aprendizaje dinámicos con contenido multimedia",
@@ -44,6 +46,9 @@
   "modules": {
     "title": "Sistema de Módulos de Aprendizaje",
     "subtitle": "Domina las competencias EC0249 a través de contenido estructurado y actividades prácticas",
+    "lessons": "lecciones",
+    "templates": "plantillas",
+    "completed": "completado",
     "module1": {
       "title": "Fundamentos de Consultoría",
       "description": "Conceptos básicos, ética y habilidades interpersonales necesarias para la consultoría profesional.",
@@ -102,6 +107,12 @@
     "subtitle": "Gestiona y revisa todos tus documentos y evidencias para la certificación.",
     "competencyElements": "Elementos de Competencia",
     "competencyDesc": "Rastrea tu progreso en los tres elementos de competencia."
+  },
+  "status": {
+    "available": "Disponible",
+    "locked": "Bloqueado",
+    "inProgress": "En progreso",
+    "completed": "Completado"
   },
   "common": {
     "start": "Iniciar",

@@ -8,6 +8,8 @@ import StateManager from './core/StateManager.js';
 import ThemeService from './services/ThemeService.js';
 import I18nService from './services/I18nService.js';
 import StorageService from './services/StorageService.js';
+import RouterService from './services/RouterService.js';
+import ProgressService from './services/ProgressService.js';
 import ThemeToggle from './components/ThemeToggle.js';
 import LanguageToggle from './components/LanguageToggle.js';
 import AppConfig, { ConfigManager } from './config/AppConfig.js';
@@ -25,6 +27,10 @@ class EC0249App {
     this.modules = new Map();
     this.initialized = false;
     this.destroyed = false;
+    
+    // Navigation state management
+    this.navigationInProgress = false;
+    this.lastNavigationTime = 0;
     
     // Application state
     this.appState = {
@@ -152,6 +158,14 @@ class EC0249App {
     });
     
     container.singleton('I18nService', I18nService, {
+      dependencies: ['StorageService', 'EventBus']
+    });
+
+    container.singleton('RouterService', RouterService, {
+      dependencies: ['EventBus']
+    });
+
+    container.singleton('ProgressService', ProgressService, {
       dependencies: ['StorageService', 'EventBus']
     });
 
@@ -370,6 +384,10 @@ class EC0249App {
     eventBus.subscribe('theme:changed', this.handleThemeChange.bind(this));
     eventBus.subscribe('language:changed', this.handleLanguageChange.bind(this));
 
+    // Subscribe to router events
+    eventBus.subscribe('router:navigate', this.handleRouterNavigate.bind(this));
+    eventBus.subscribe('router:popstate', this.handleRouterPopstate.bind(this));
+
     console.log('[App] Event listeners setup');
   }
 
@@ -397,12 +415,24 @@ class EC0249App {
     await simulationEngine.initialize(container, eventBus);
     this.modules.set('simulationEngine', simulationEngine);
 
+    // Initialize RouterService for URL navigation
+    const routerService = container.resolve('RouterService');
+    await routerService.initialize(container, eventBus);
+    this.modules.set('routerService', routerService);
+
+    // Initialize ProgressService for tracking user completion
+    const progressService = container.resolve('ProgressService');
+    await progressService.initialize(container, eventBus);
+    this.modules.set('progressService', progressService);
+
     // Expose engines globally for legacy compatibility
     if (typeof window !== 'undefined') {
       window.contentEngine = contentEngine;
       window.assessmentEngine = assessmentEngine;
       window.documentEngine = documentEngine;
       window.simulationEngine = simulationEngine;
+      window.routerService = routerService;
+      window.progressService = progressService;
     }
 
     console.log('[App] Modules initialized');
@@ -414,27 +444,44 @@ class EC0249App {
    */
   async switchView(viewName) {
     if (this.appState.currentView === viewName) return;
+    
+    // Simple debouncing to prevent rapid navigation
+    const now = Date.now();
+    if (this.navigationInProgress || (now - this.lastNavigationTime) < 100) {
+      return;
+    }
+    
+    this.navigationInProgress = true;
+    this.lastNavigationTime = now;
 
-    await this.state.dispatch('SET_PROPERTY', {
-      path: 'currentView',
-      value: viewName
-    });
+    try {
+      const previousView = this.appState.currentView;
+      
+      // Update app state immediately
+      this.appState.currentView = viewName;
 
-    // Update navigation UI
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.classList.toggle('active', tab.dataset.view === viewName);
-    });
+      // Update state manager
+      await this.state.dispatch('SET_PROPERTY', {
+        path: 'currentView',
+        value: viewName
+      });
 
-    // Render new view
-    this.renderCurrentView();
+      // Update navigation UI immediately
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.view === viewName);
+      });
 
-    // Emit view change event
-    eventBus.publish('app:view-change', {
-      view: viewName,
-      previousView: this.appState.currentView
-    });
+      // Render new view
+      this.renderCurrentView();
 
-    this.appState.currentView = viewName;
+      // Emit view change event with correct previous value
+      eventBus.publish('app:view-change', {
+        view: viewName,
+        previousView
+      });
+    } finally {
+      this.navigationInProgress = false;
+    }
   }
 
   /**
@@ -444,12 +491,18 @@ class EC0249App {
   async switchSection(sectionName) {
     if (this.appState.currentSection === sectionName) return;
 
+    const previousSection = this.appState.currentSection;
+    
+    // Update app state immediately
+    this.appState.currentSection = sectionName;
+
+    // Update state manager
     await this.state.dispatch('SET_PROPERTY', {
       path: 'currentSection',
       value: sectionName
     });
 
-    // Update sidebar UI
+    // Update sidebar UI immediately
     document.querySelectorAll('.sidebar-nav a').forEach(link => {
       link.classList.toggle('active', link.dataset.section === sectionName);
     });
@@ -457,13 +510,11 @@ class EC0249App {
     // Handle section-specific content loading
     await this.loadSectionContent(sectionName);
 
-    // Emit section change event
+    // Emit section change event with correct previous value
     eventBus.publish('app:section-change', {
       section: sectionName,
-      previousSection: this.appState.currentSection
+      previousSection
     });
-
-    this.appState.currentSection = sectionName;
   }
 
   /**
@@ -723,6 +774,19 @@ class EC0249App {
           this.showNotification(i18n ? i18n.t('common.underConstruction') : 'Esta funcionalidad está en construcción', 'info');
           break;
 
+        case 'test-progress':
+          // Demo: Test progress tracking
+          try {
+            const progressService = this.getService('ProgressService');
+            progressService.updateTheoryProgress('module1', 50); // 50% theory complete
+            this.updateOverallProgress();
+            this.renderModulesGrid();
+            this.showNotification('Demo: Progress updated to 50% for Module 1', 'success');
+          } catch (error) {
+            console.error('Error testing progress:', error);
+          }
+          break;
+
         case 'manage-portfolio':
           this.switchView('portfolio');
           break;
@@ -788,6 +852,12 @@ class EC0249App {
     // Update page title
     document.title = i18n.t('app.title');
 
+    // Update footer with dynamic year
+    this.updateFooter();
+
+    // Translate all DOM elements with data-i18n attributes
+    i18n.translateDOM();
+
     // Update navigation
     const navMappings = {
       'dashboard': 'navigation.dashboard',
@@ -821,6 +891,19 @@ class EC0249App {
   }
 
   /**
+   * Update footer with dynamic year
+   */
+  updateFooter() {
+    const i18n = container.resolve('I18nService');
+    const footerElement = document.getElementById('footerText');
+    
+    if (footerElement) {
+      const currentYear = new Date().getFullYear();
+      footerElement.textContent = i18n.t('app.footer', { year: currentYear });
+    }
+  }
+
+  /**
    * Update dashboard content
    */
   updateDashboardContent() {
@@ -835,6 +918,9 @@ class EC0249App {
     if (welcomeSubtitle) {
       welcomeSubtitle.textContent = i18n.t('dashboard.subtitle');
     }
+
+    // Update overall progress display
+    this.updateOverallProgress();
   }
 
   /**
@@ -864,15 +950,21 @@ class EC0249App {
     const modulesGrid = document.querySelector('#modulesView .modules-grid');
     if (!modulesGrid) return;
 
-    const modules = [
+    // Get progress service to get dynamic data
+    let progressService = null;
+    try {
+      progressService = container.resolve('ProgressService');
+    } catch (error) {
+      console.warn('[App] ProgressService not available for modules grid');
+    }
+
+    const moduleDefinitions = [
       {
         id: 'module1',
         number: 1,
         title: 'Fundamentos de Consultoría',
         description: 'Conceptos básicos, ética y habilidades interpersonales necesarias para la consultoría profesional.',
         icon: '🎯',
-        status: 'available',
-        progress: 25,
         lessons: 4,
         color: 'green'
       },
@@ -882,8 +974,6 @@ class EC0249App {
         title: 'Identificación del Problema',
         description: 'Elemento 1: Técnicas de entrevista, cuestionarios e investigación de campo para identificar situaciones problemáticas.',
         icon: '🔍',
-        status: 'locked',
-        progress: 0,
         lessons: 8,
         color: 'blue'
       },
@@ -893,8 +983,6 @@ class EC0249App {
         title: 'Desarrollo de Soluciones',
         description: 'Elemento 2: Análisis de impacto y diseño de soluciones efectivas con justificación costo-beneficio.',
         icon: '💡',
-        status: 'locked',
-        progress: 0,
         lessons: 4,
         color: 'purple'
       },
@@ -904,45 +992,143 @@ class EC0249App {
         title: 'Presentación de Propuestas',
         description: 'Elemento 3: Preparación y presentación profesional de propuestas de solución.',
         icon: '📋',
-        status: 'locked',
-        progress: 0,
         lessons: 6,
         color: 'orange'
       }
     ];
 
-    modulesGrid.innerHTML = modules.map(module => `
-      <div class="module-card module-${module.number}" data-module="${module.number}">
-        <div class="module-header">
-          <div class="module-icon ${module.color}">${module.icon}</div>
-          <div class="module-status ${module.status}"></div>
-        </div>
-        <div class="module-content">
-          <h3 class="module-title">Módulo ${module.number}: ${module.title}</h3>
-          <p class="module-description">${module.description}</p>
-          <div class="module-stats">
-            <span>${module.lessons} lecciones</span>
-            <span class="status-text ${module.status === 'available' ? 'text-success' : module.status === 'locked' ? 'text-secondary' : 'text-warning'}">
-              ${module.status === 'available' ? 'Disponible' : module.status === 'locked' ? 'Bloqueado' : 'En progreso'}
-            </span>
+    // Get dynamic progress data
+    const modules = moduleDefinitions.map(module => {
+      let status = 'available';
+      let progress = 0;
+      
+      if (progressService) {
+        status = progressService.getModuleStatus(module.id);
+        progress = progressService.calculateModuleProgress(module.id);
+      }
+      
+      return { ...module, status, progress };
+    });
+
+    // Get i18n service for translations
+    let i18n = null;
+    try {
+      i18n = container.resolve('I18nService');
+    } catch (error) {
+      console.warn('[App] I18nService not available for modules grid');
+    }
+
+    modulesGrid.innerHTML = modules.map(module => {
+      // Get status display info
+      const statusInfo = this.getModuleStatusInfo(module.status, i18n);
+      
+      return `
+        <div class="module-card module-${module.number}" data-module="${module.number}">
+          <div class="module-header">
+            <div class="module-icon ${module.color}">${module.icon}</div>
+            <div class="module-status ${module.status}"></div>
           </div>
-          <div class="module-progress">
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: ${module.progress}%"></div>
+          <div class="module-content">
+            <h3 class="module-title">Módulo ${module.number}: ${module.title}</h3>
+            <p class="module-description">${module.description}</p>
+            <div class="module-stats">
+              <span>${module.lessons} ${i18n ? i18n.t('modules.lessons') : 'lecciones'}</span>
+              <span class="status-text ${statusInfo.class}">
+                ${statusInfo.text}
+              </span>
             </div>
-            <span class="progress-text">${module.progress}% completado</span>
-          </div>
-          <div class="module-actions">
-            ${module.status === 'available' ? 
-              `<button class="btn btn-primary" onclick="ec0249App.openModule('${module.number}')">Continuar</button>` :
-              module.status === 'locked' ? 
-                `<button class="btn btn-secondary" disabled>Bloqueado</button>` :
-                `<button class="btn btn-primary" onclick="ec0249App.openModule('${module.number}')">Continuar</button>`
-            }
+            <div class="module-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${module.progress}%"></div>
+              </div>
+              <span class="progress-text">${module.progress}% ${i18n ? i18n.t('modules.completed') : 'completado'}</span>
+            </div>
+            <div class="module-actions">
+              ${this.getModuleActionButton(module.status, module.number, i18n)}
+            </div>
           </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
+  }
+
+  /**
+   * Get module status display information
+   * @param {string} status - Module status
+   * @param {Object} i18n - I18n service
+   * @returns {Object} Status display info
+   */
+  getModuleStatusInfo(status, i18n) {
+    const statusMap = {
+      'available': {
+        text: i18n ? i18n.t('status.available') : 'Disponible',
+        class: 'text-success'
+      },
+      'locked': {
+        text: i18n ? i18n.t('status.locked') : 'Bloqueado',
+        class: 'text-secondary'
+      },
+      'in_progress': {
+        text: i18n ? i18n.t('status.inProgress') : 'En progreso',
+        class: 'text-warning'
+      },
+      'completed': {
+        text: i18n ? i18n.t('status.completed') : 'Completado',
+        class: 'text-success'
+      }
+    };
+
+    return statusMap[status] || statusMap['available'];
+  }
+
+  /**
+   * Get module action button HTML
+   * @param {string} status - Module status
+   * @param {number} moduleNumber - Module number
+   * @param {Object} i18n - I18n service
+   * @returns {string} Button HTML
+   */
+  getModuleActionButton(status, moduleNumber, i18n) {
+    const continueText = i18n ? i18n.t('common.continue') : 'Continuar';
+    const lockedText = i18n ? i18n.t('status.locked') : 'Bloqueado';
+
+    switch (status) {
+      case 'available':
+      case 'in_progress':
+        return `<button class="btn btn-primary" onclick="ec0249App.openModule('${moduleNumber}')">${continueText}</button>`;
+      case 'completed':
+        return `<button class="btn btn-success" onclick="ec0249App.openModule('${moduleNumber}')">${i18n ? i18n.t('common.complete') : 'Completado'}</button>`;
+      case 'locked':
+      default:
+        return `<button class="btn btn-secondary" disabled>${lockedText}</button>`;
+    }
+  }
+
+  /**
+   * Update overall progress display
+   */
+  updateOverallProgress() {
+    let progressService = null;
+    try {
+      progressService = container.resolve('ProgressService');
+    } catch (error) {
+      console.warn('[App] ProgressService not available for overall progress');
+      return;
+    }
+
+    const overallData = progressService.getOverallProgress();
+    
+    // Update progress percentage display
+    const progressElement = document.getElementById('overallProgress');
+    if (progressElement) {
+      progressElement.textContent = `${overallData.percentage}%`;
+    }
+
+    // Update progress bar
+    const progressBarElement = document.getElementById('overallProgressBar');
+    if (progressBarElement) {
+      progressBarElement.style.width = `${overallData.percentage}%`;
+    }
   }
 
   /**
@@ -999,6 +1185,42 @@ class EC0249App {
     
     // Update all UI content
     this.updateViewContent();
+  }
+
+  /**
+   * Handle router navigation events
+   * @param {Object} data - Router navigation data
+   */
+  handleRouterNavigate(data) {
+    console.log(`[App] Router navigate to: ${data.path}`);
+    
+    // Update app view based on route
+    if (data.route && data.route !== this.appState.currentView) {
+      this.switchView(data.route);
+    }
+    
+    // Handle section parameters
+    if (data.params.section) {
+      this.switchSection(data.params.section);
+    }
+  }
+
+  /**
+   * Handle router popstate events (back/forward)
+   * @param {Object} data - Router popstate data
+   */
+  handleRouterPopstate(data) {
+    console.log(`[App] Router popstate to: ${data.route}`);
+    
+    // Update app view based on route
+    if (data.route && data.route !== this.appState.currentView) {
+      this.switchView(data.route);
+    }
+    
+    // Handle section parameters
+    if (data.params.section) {
+      this.switchSection(data.params.section);
+    }
   }
 
   /**
