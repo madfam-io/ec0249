@@ -266,7 +266,7 @@ class ContentEngine extends Module {
   }
 
   /**
-   * Create content section
+   * Create content section - Enhanced for Module 1 rich content
    * @param {Object} section - Section data
    * @param {Object} parentContent - Parent content context
    * @returns {Promise<HTMLElement>} Section element
@@ -275,6 +275,11 @@ class ContentEngine extends Module {
     const sectionElement = document.createElement('section');
     sectionElement.className = `content-section section-${section.type || 'default'}`;
     sectionElement.setAttribute('data-section-id', section.id);
+
+    // Handle Module 1 content structure
+    if (parentContent.type === 'lesson' && parentContent.content) {
+      return this.createLessonContentSection(parentContent, sectionElement);
+    }
 
     if (section.title) {
       const title = document.createElement('h3');
@@ -691,22 +696,380 @@ class ContentEngine extends Module {
   }
 
   /**
+   * Create lesson content section with rich Module 1 structure
+   * @param {Object} content - Lesson content data
+   * @param {HTMLElement} container - Container element
+   * @returns {HTMLElement} Rendered content element
+   */
+  createLessonContentSection(content, container) {
+    // Clear container
+    container.innerHTML = '';
+    container.className = 'lesson-content-container';
+
+    // Handle different content types from Module 1
+    if (content.content) {
+      Object.entries(content.content).forEach(([key, sectionData]) => {
+        const sectionElement = this.createRichContentSection(key, sectionData);
+        container.appendChild(sectionElement);
+      });
+    }
+
+    // Add activities if present
+    if (content.activities && content.activities.length > 0) {
+      const activitiesSection = this.createActivitiesSection(content.activities);
+      container.appendChild(activitiesSection);
+    }
+
+    // Add assessment info if present
+    if (content.assessment) {
+      const assessmentSection = this.createAssessmentSection(content.assessment);
+      container.appendChild(assessmentSection);
+    }
+
+    return container;
+  }
+
+  /**
+   * Create rich content section based on Module 1 content structure
+   * @param {string} sectionKey - Section key (e.g., 'introduction', 'history')
+   * @param {Object} sectionData - Section data
+   * @returns {HTMLElement} Section element
+   */
+  createRichContentSection(sectionKey, sectionData) {
+    const section = document.createElement('section');
+    section.className = `rich-content-section section-${sectionKey}`;
+    section.setAttribute('data-section-key', sectionKey);
+
+    // Add section title
+    if (sectionData.title) {
+      const title = document.createElement('h3');
+      title.className = 'section-title';
+      title.textContent = sectionData.title;
+      section.appendChild(title);
+    }
+
+    // Handle different section types
+    switch (sectionKey) {
+      case 'introduction':
+        section.appendChild(this.createIntroductionContent(sectionData));
+        break;
+      case 'history':
+        section.appendChild(this.createHistoryTimeline(sectionData));
+        break;
+      case 'types':
+        section.appendChild(this.createTypesContent(sectionData));
+        break;
+      case 'characteristics':
+        section.appendChild(this.createCharacteristicsContent(sectionData));
+        break;
+      case 'process':
+        section.appendChild(this.createProcessContent(sectionData));
+        break;
+      case 'ethicalFoundations':
+        section.appendChild(this.createEthicalFoundationsContent(sectionData));
+        break;
+      case 'codeOfEthics':
+        section.appendChild(this.createCodeOfEthicsContent(sectionData));
+        break;
+      case 'confidentiality':
+        section.appendChild(this.createConfidentialityContent(sectionData));
+        break;
+      case 'conflictManagement':
+        section.appendChild(this.createConflictManagementContent(sectionData));
+        break;
+      case 'communication':
+        section.appendChild(this.createCommunicationContent(sectionData));
+        break;
+      case 'activeListening':
+        section.appendChild(this.createActiveListeningContent(sectionData));
+        break;
+      case 'groupFacilitation':
+        section.appendChild(this.createGroupFacilitationContent(sectionData));
+        break;
+      case 'conflictResolution':
+        section.appendChild(this.createConflictResolutionContent(sectionData));
+        break;
+      case 'changeManagement':
+        section.appendChild(this.createChangeManagementContent(sectionData));
+        break;
+      default:
+        section.appendChild(this.createGenericContent(sectionData));
+    }
+
+    return section;
+  }
+
+  /**
+   * Create introduction content with key points
+   */
+  createIntroductionContent(data) {
+    const container = document.createElement('div');
+    container.className = 'introduction-content';
+
+    if (data.text) {
+      const text = document.createElement('p');
+      text.className = 'introduction-text';
+      text.textContent = data.text;
+      container.appendChild(text);
+    }
+
+    if (data.keyPoints && data.keyPoints.length > 0) {
+      const pointsContainer = document.createElement('div');
+      pointsContainer.className = 'key-points';
+      
+      const pointsTitle = document.createElement('h4');
+      pointsTitle.textContent = 'Puntos Clave';
+      pointsContainer.appendChild(pointsTitle);
+
+      const pointsList = document.createElement('ul');
+      pointsList.className = 'key-points-list';
+      
+      data.keyPoints.forEach(point => {
+        const item = document.createElement('li');
+        item.innerHTML = `<span class="point-icon">✓</span> ${point}`;
+        pointsList.appendChild(item);
+      });
+
+      pointsContainer.appendChild(pointsList);
+      container.appendChild(pointsContainer);
+    }
+
+    return container;
+  }
+
+  /**
+   * Create history timeline
+   */
+  createHistoryTimeline(data) {
+    const container = document.createElement('div');
+    container.className = 'history-timeline';
+
+    if (data.timeline && data.timeline.length > 0) {
+      const timeline = document.createElement('div');
+      timeline.className = 'timeline';
+
+      data.timeline.forEach((period, index) => {
+        const timelineItem = document.createElement('div');
+        timelineItem.className = 'timeline-item';
+        
+        timelineItem.innerHTML = `
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <h5 class="timeline-period">${period.period}</h5>
+            <p class="timeline-description">${period.description}</p>
+          </div>
+        `;
+        
+        timeline.appendChild(timelineItem);
+      });
+
+      container.appendChild(timeline);
+    }
+
+    return container;
+  }
+
+  /**
+   * Create activities section
+   */
+  createActivitiesSection(activities) {
+    const section = document.createElement('section');
+    section.className = 'activities-section';
+
+    const title = document.createElement('h3');
+    title.textContent = 'Actividades de Aprendizaje';
+    section.appendChild(title);
+
+    const activitiesContainer = document.createElement('div');
+    activitiesContainer.className = 'activities-container';
+
+    activities.forEach(activity => {
+      const activityCard = document.createElement('div');
+      activityCard.className = `activity-card activity-${activity.type}`;
+      
+      activityCard.innerHTML = `
+        <div class="activity-header">
+          <span class="activity-icon">${this.getActivityIcon(activity.type)}</span>
+          <h4 class="activity-title">${activity.title}</h4>
+        </div>
+        <p class="activity-description">${activity.description}</p>
+        <button class="btn btn-primary start-activity" data-activity-type="${activity.type}">
+          Iniciar Actividad
+        </button>
+      `;
+
+      activitiesContainer.appendChild(activityCard);
+    });
+
+    section.appendChild(activitiesContainer);
+    return section;
+  }
+
+  /**
+   * Create assessment section
+   */
+  createAssessmentSection(assessment) {
+    const section = document.createElement('section');
+    section.className = 'assessment-section';
+
+    const title = document.createElement('h3');
+    title.textContent = 'Evaluación';
+    section.appendChild(title);
+
+    const assessmentCard = document.createElement('div');
+    assessmentCard.className = 'assessment-card';
+    
+    assessmentCard.innerHTML = `
+      <div class="assessment-info">
+        <p><strong>Tipo:</strong> ${this.getAssessmentTypeLabel(assessment.type)}</p>
+        ${assessment.questions ? `<p><strong>Preguntas:</strong> ${assessment.questions}</p>` : ''}
+        ${assessment.scenarios ? `<p><strong>Escenarios:</strong> ${assessment.scenarios}</p>` : ''}
+        ${assessment.activities ? `<p><strong>Actividades:</strong> ${assessment.activities}</p>` : ''}
+        <p><strong>Puntuación mínima:</strong> ${assessment.passingScore}%</p>
+      </div>
+      <button class="btn btn-primary start-assessment" data-assessment-type="${assessment.type}">
+        Iniciar Evaluación
+      </button>
+    `;
+
+    section.appendChild(assessmentCard);
+    return section;
+  }
+
+  /**
+   * Helper methods for content creation
+   */
+  getActivityIcon(type) {
+    const icons = {
+      reflection: '🤔',
+      case_study: '📊',
+      scenario: '🎭',
+      document: '📝',
+      roleplay: '🎪',
+      practice: '🏃‍♂️'
+    };
+    return icons[type] || '📚';
+  }
+
+  getAssessmentTypeLabel(type) {
+    const labels = {
+      quiz: 'Cuestionario',
+      scenario_based: 'Basado en Escenarios',
+      practical: 'Evaluación Práctica'
+    };
+    return labels[type] || 'Evaluación';
+  }
+
+  /**
+   * Create generic content for fallback
+   */
+  createGenericContent(data) {
+    const container = document.createElement('div');
+    container.className = 'generic-content';
+
+    if (data.text) {
+      const text = document.createElement('p');
+      text.textContent = data.text;
+      container.appendChild(text);
+    }
+
+    return container;
+  }
+
+  /**
    * Utility methods
    */
   async fetchContent(contentConfig) {
-    // This would typically fetch from an API or load from files
-    // For now, return a mock structure
-    return {
-      id: contentConfig.id,
-      type: contentConfig.type || 'lesson',
-      title: contentConfig.title,
-      overview: contentConfig.overview,
-      duration: contentConfig.duration,
-      objectives: contentConfig.objectives || [],
-      sections: contentConfig.sections || [],
-      interactions: contentConfig.interactions || [],
-      navigation: contentConfig.navigation !== false
-    };
+    const { id, type, source = 'i18n' } = contentConfig;
+
+    try {
+      switch (source) {
+        case 'i18n':
+          return await this.fetchI18nContent(id, type);
+        case 'api':
+          return await this.fetchAPIContent(id, type);
+        case 'file':
+          return await this.fetchFileContent(id, type);
+        default:
+          // Fallback to mock structure for compatibility
+          return {
+            id: contentConfig.id,
+            type: contentConfig.type || 'lesson',
+            title: contentConfig.title,
+            overview: contentConfig.overview,
+            duration: contentConfig.duration,
+            objectives: contentConfig.objectives || [],
+            sections: contentConfig.sections || [],
+            interactions: contentConfig.interactions || [],
+            navigation: contentConfig.navigation !== false
+          };
+      }
+    } catch (error) {
+      console.error(`[ContentEngine] Failed to fetch content ${id}:`, error);
+      // Return fallback content
+      return {
+        id: contentConfig.id,
+        type: 'error',
+        title: 'Content Loading Error',
+        overview: 'Failed to load content',
+        sections: [{
+          type: 'error',
+          content: 'Unable to load the requested content. Please try again later.'
+        }]
+      };
+    }
+  }
+
+  /**
+   * Fetch content from i18n translations
+   * @param {string} id - Content ID (e.g., 'module1.lessons.lesson1_1')
+   * @param {string} type - Content type
+   * @returns {Promise<Object>} Content data
+   */
+  async fetchI18nContent(id, type) {
+    try {
+      const content = this.i18n.getTranslation(id, this.i18n.getCurrentLanguage());
+      
+      if (!content) {
+        throw new Error(`Content not found for key: ${id}`);
+      }
+
+      return {
+        id,
+        type: type || 'lesson',
+        source: 'i18n',
+        ...content,
+        metadata: {
+          language: this.i18n.getCurrentLanguage(),
+          fetchedAt: Date.now()
+        }
+      };
+    } catch (error) {
+      console.error(`[ContentEngine] Failed to fetch i18n content ${id}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Fetch content from API
+   * @param {string} id - Content ID
+   * @param {string} type - Content type
+   * @returns {Promise<Object>} Content data
+   */
+  async fetchAPIContent(id, type) {
+    // Placeholder for future API integration
+    throw new Error('API content fetching not implemented yet');
+  }
+
+  /**
+   * Fetch content from file
+   * @param {string} id - Content ID
+   * @param {string} type - Content type
+   * @returns {Promise<Object>} Content data
+   */
+  async fetchFileContent(id, type) {
+    // Placeholder for future file-based content
+    throw new Error('File content fetching not implemented yet');
   }
 
   async localizeContent(content) {

@@ -59,34 +59,430 @@
     "module1": {
       "title": "Fundamentos de Consultoría",
       "description": "Conceptos básicos, ética y habilidades interpersonales necesarias para la consultoría profesional.",
+      "duration": "8-10 horas",
+      "competencyLevel": "Nivel 5 SNC",
       "lessons": {
         "lesson1_1": {
           "title": "Introducción a la Consultoría",
           "overview": "Fundamentos históricos y características de la consultoría profesional",
+          "duration": "2.5 horas",
           "objectives": [
             "Comprender la evolución histórica de la consultoría",
             "Identificar las características principales de un consultor",
-            "Reconocer los diferentes tipos de consultoría"
-          ]
+            "Reconocer los diferentes tipos de consultoría",
+            "Distinguir entre consultoría interna y externa",
+            "Conocer las etapas del proceso de consultoría"
+          ],
+          "content": {
+            "introduction": {
+              "title": "¿Qué es la Consultoría?",
+              "text": "La consultoría es un servicio profesional que ayuda a las organizaciones a resolver problemas, mejorar procesos y alcanzar objetivos específicos. Un consultor aporta conocimientos especializados, experiencia y una perspectiva externa objetiva.",
+              "keyPoints": [
+                "Servicio profesional especializado",
+                "Enfoque en resolución de problemas",
+                "Perspectiva externa objetiva",
+                "Transferencia de conocimientos",
+                "Mejora de procesos organizacionales"
+              ]
+            },
+            "history": {
+              "title": "Evolución Histórica de la Consultoría",
+              "timeline": [
+                {
+                  "period": "1900-1930",
+                  "description": "Orígenes en la ingeniería industrial y estudios de tiempos y movimientos"
+                },
+                {
+                  "period": "1930-1960", 
+                  "description": "Desarrollo de la consultoría en gestión y estrategia empresarial"
+                },
+                {
+                  "period": "1960-1990",
+                  "description": "Expansión hacia tecnologías de información y recursos humanos"
+                },
+                {
+                  "period": "1990-presente",
+                  "description": "Especialización en transformación digital y sostenibilidad"
+                }
+              ]
+            },
+            "types": {
+              "title": "Tipos de Consultoría",
+              "categories": [
+                {
+                  "type": "Por área de especialización",
+                  "examples": ["Estrategia", "Operaciones", "Tecnología", "Recursos Humanos", "Finanzas"]
+                },
+                {
+                  "type": "Por modalidad",
+                  "examples": ["Interna", "Externa", "Híbrida"]
+                },
+                {
+                  "type": "Por enfoque",
+                  "examples": ["Diagnóstico", "Implementación", "Capacitación", "Seguimiento"]
+                }
+              ]
+            },
+            "characteristics": {
+              "title": "Características del Consultor Profesional",
+              "skills": [
+                "Conocimientos técnicos especializados",
+                "Habilidades analíticas y de resolución de problemas",
+                "Capacidad de comunicación efectiva",
+                "Objetividad e imparcialidad",
+                "Adaptabilidad y flexibilidad",
+                "Ética profesional y confidencialidad"
+              ]
+            },
+            "process": {
+              "title": "Etapas del Proceso de Consultoría",
+              "stages": [
+                {
+                  "stage": "1. Contacto inicial",
+                  "description": "Establecimiento de la relación consultor-cliente"
+                },
+                {
+                  "stage": "2. Diagnóstico",
+                  "description": "Identificación y análisis del problema o situación"
+                },
+                {
+                  "stage": "3. Diseño de soluciones",
+                  "description": "Desarrollo de alternativas y recomendaciones"
+                },
+                {
+                  "stage": "4. Implementación",
+                  "description": "Puesta en marcha de las soluciones propuestas"
+                },
+                {
+                  "stage": "5. Evaluación y seguimiento",
+                  "description": "Medición de resultados y ajustes necesarios"
+                }
+              ]
+            }
+          },
+          "activities": [
+            {
+              "type": "reflection",
+              "title": "Autoevaluación de Competencias",
+              "description": "Evalúa tus habilidades actuales como consultor"
+            },
+            {
+              "type": "case_study",
+              "title": "Casos de Consultoría Exitosa",
+              "description": "Analiza ejemplos reales de proyectos de consultoría"
+            }
+          ],
+          "assessment": {
+            "type": "quiz",
+            "questions": 10,
+            "passingScore": 70
+          }
         },
         "lesson1_2": {
           "title": "Ética y Confidencialidad",
           "overview": "Principios éticos fundamentales y manejo de la confidencialidad en consultoría",
+          "duration": "3 horas",
           "objectives": [
             "Conocer el código de ética del consultor",
             "Aplicar principios de confidencialidad",
-            "Manejar conflictos de interés"
-          ]
+            "Manejar conflictos de interés",
+            "Implementar acuerdos de privacidad",
+            "Tomar decisiones éticas en situaciones complejas"
+          ],
+          "content": {
+            "ethicalFoundations": {
+              "title": "Fundamentos Éticos en Consultoría",
+              "principles": [
+                {
+                  "principle": "Integridad",
+                  "description": "Actuar con honestidad y transparencia en todas las interacciones"
+                },
+                {
+                  "principle": "Competencia profesional",
+                  "description": "Mantener y desarrollar conocimientos y habilidades especializadas"
+                },
+                {
+                  "principle": "Confidencialidad",
+                  "description": "Proteger información sensible del cliente"
+                },
+                {
+                  "principle": "Objetividad",
+                  "description": "Mantener imparcialidad y evitar conflictos de interés"
+                },
+                {
+                  "principle": "Responsabilidad",
+                  "description": "Asumir las consecuencias de decisiones y recomendaciones"
+                }
+              ]
+            },
+            "codeOfEthics": {
+              "title": "Código de Ética del Consultor",
+              "sections": [
+                {
+                  "section": "Responsabilidades hacia el cliente",
+                  "items": [
+                    "Proporcionar servicios competentes y profesionales",
+                    "Mantener confidencialidad de información",
+                    "Evitar conflictos de interés",
+                    "Ser transparente sobre limitaciones y riesgos"
+                  ]
+                },
+                {
+                  "section": "Responsabilidades hacia la profesión",
+                  "items": [
+                    "Mantener estándares profesionales",
+                    "Desarrollar competencias continuamente",
+                    "Contribuir al desarrollo de la profesión",
+                    "Respetar colegas y competencia"
+                  ]
+                },
+                {
+                  "section": "Responsabilidades hacia la sociedad",
+                  "items": [
+                    "Actuar en beneficio del interés público",
+                    "Promover prácticas sostenibles",
+                    "Respetar leyes y regulaciones",
+                    "Contribuir al desarrollo social"
+                  ]
+                }
+              ]
+            },
+            "confidentiality": {
+              "title": "Manejo de la Confidencialidad",
+              "guidelines": [
+                "Identificar información confidencial vs. pública",
+                "Establecer acuerdos de confidencialidad claros",
+                "Implementar medidas de protección de datos",
+                "Manejar información en equipos de trabajo",
+                "Gestionar información post-proyecto"
+              ],
+              "bestPractices": [
+                "Documentar acuerdos de confidencialidad",
+                "Limitar acceso a información sensible",
+                "Usar tecnologías seguras para comunicación",
+                "Establecer protocolos de eliminación de datos",
+                "Capacitar al equipo en manejo de información"
+              ]
+            },
+            "conflictManagement": {
+              "title": "Gestión de Conflictos de Interés",
+              "types": [
+                {
+                  "type": "Conflicto financiero",
+                  "description": "Intereses económicos que pueden afectar objetividad"
+                },
+                {
+                  "type": "Conflicto personal",
+                  "description": "Relaciones personales que comprometen profesionalismo"
+                },
+                {
+                  "type": "Conflicto de tiempo",
+                  "description": "Compromisos múltiples que afectan calidad del servicio"
+                },
+                {
+                  "type": "Conflicto de competencia",
+                  "description": "Trabajar con competidores o industrias relacionadas"
+                }
+              ],
+              "resolutionSteps": [
+                "Identificar el conflicto potencial",
+                "Evaluar el impacto en objetividad",
+                "Comunicar transparentemente al cliente",
+                "Implementar medidas de mitigación",
+                "Monitorear situación continuamente"
+              ]
+            }
+          },
+          "activities": [
+            {
+              "type": "scenario",
+              "title": "Dilemas Éticos",
+              "description": "Analiza situaciones complejas y toma decisiones éticas"
+            },
+            {
+              "type": "document",
+              "title": "Redacción de Acuerdo de Confidencialidad",
+              "description": "Crea un acuerdo de confidencialidad profesional"
+            }
+          ],
+          "assessment": {
+            "type": "scenario_based",
+            "scenarios": 5,
+            "passingScore": 75
+          }
         },
         "lesson1_3": {
           "title": "Habilidades Interpersonales",
           "overview": "Desarrollo de competencias comunicativas y relacionales para consultores",
+          "duration": "2.5 horas",
           "objectives": [
             "Desarrollar habilidades de comunicación efectiva",
             "Manejar técnicas de facilitación grupal",
-            "Aplicar estrategias de manejo de conflictos"
-          ]
+            "Aplicar estrategias de manejo de conflictos",
+            "Practicar escucha activa y empatía",
+            "Gestionar resistencia al cambio"
+          ],
+          "content": {
+            "communication": {
+              "title": "Comunicación Efectiva",
+              "components": [
+                {
+                  "component": "Comunicación verbal",
+                  "techniques": ["Claridad en el mensaje", "Uso de lenguaje apropiado", "Tono y ritmo adecuados"]
+                },
+                {
+                  "component": "Comunicación no verbal",
+                  "techniques": ["Lenguaje corporal", "Contacto visual", "Gestos y expresiones"]
+                },
+                {
+                  "component": "Comunicación escrita",
+                  "techniques": ["Estructura clara", "Lenguaje profesional", "Documentación efectiva"]
+                }
+              ],
+              "barriers": [
+                "Diferencias culturales",
+                "Jerga técnica excesiva",
+                "Falta de retroalimentación",
+                "Distracciones del entorno",
+                "Prejuicios y suposiciones"
+              ]
+            },
+            "activeListening": {
+              "title": "Escucha Activa",
+              "techniques": [
+                "Prestar atención completa al hablante",
+                "Hacer preguntas clarificadoras",
+                "Parafrasear para confirmar comprensión",
+                "Mostrar empatía y comprensión",
+                "Evitar interrupciones prematuras"
+              ],
+              "benefits": [
+                "Mejor comprensión del problema",
+                "Mayor confianza del cliente",
+                "Identificación de necesidades ocultas",
+                "Reducción de malentendidos",
+                "Facilitación de soluciones colaborativas"
+              ]
+            },
+            "groupFacilitation": {
+              "title": "Facilitación Grupal",
+              "roles": [
+                "Moderador de discusiones",
+                "Generador de consenso",
+                "Gestor de conflictos",
+                "Administrador del tiempo",
+                "Documentador de decisiones"
+              ],
+              "techniques": [
+                {
+                  "technique": "Brainstorming",
+                  "description": "Generación libre de ideas sin juicios"
+                },
+                {
+                  "technique": "Mapeo mental",
+                  "description": "Visualización de relaciones entre conceptos"
+                },
+                {
+                  "technique": "Análisis de fuerzas",
+                  "description": "Identificación de factores a favor y en contra"
+                },
+                {
+                  "technique": "Votación ponderada",
+                  "description": "Priorización democrática de opciones"
+                }
+              ]
+            },
+            "conflictResolution": {
+              "title": "Manejo de Conflictos",
+              "sources": [
+                "Diferencias de opinión",
+                "Competencia por recursos",
+                "Malentendidos comunicativos",
+                "Resistencia al cambio",
+                "Choques de personalidad"
+              ],
+              "strategies": [
+                {
+                  "strategy": "Colaboración",
+                  "description": "Buscar soluciones ganar-ganar",
+                  "when": "Cuando ambas partes tienen intereses legítimos"
+                },
+                {
+                  "strategy": "Compromiso",
+                  "description": "Encontrar puntos medios aceptables",
+                  "when": "Cuando hay presión de tiempo o recursos limitados"
+                },
+                {
+                  "strategy": "Acomodación",
+                  "description": "Ceder en favor de mantener relaciones",
+                  "when": "Cuando el tema es más importante para la otra parte"
+                },
+                {
+                  "strategy": "Evitación",
+                  "description": "Postergar o evitar confrontación",
+                  "when": "Cuando el conflicto es temporal o menor"
+                }
+              ]
+            },
+            "changeManagement": {
+              "title": "Gestión de Resistencia al Cambio",
+              "sources": [
+                "Miedo a lo desconocido",
+                "Pérdida de control percibida",
+                "Falta de comprensión del cambio",
+                "Experiencias negativas previas",
+                "Amenazas a intereses personales"
+              ],
+              "strategies": [
+                "Comunicación clara y frecuente",
+                "Involucrar stakeholders en el proceso",
+                "Proporcionar capacitación y apoyo",
+                "Reconocer y abordar preocupaciones",
+                "Celebrar pequeños triunfos"
+              ]
+            }
+          },
+          "activities": [
+            {
+              "type": "roleplay",
+              "title": "Simulación de Reunión Difícil",
+              "description": "Practica manejo de conflictos en reuniones complejas"
+            },
+            {
+              "type": "practice",
+              "title": "Ejercicios de Escucha Activa",
+              "description": "Desarrolla habilidades de escucha en parejas"
+            }
+          ],
+          "assessment": {
+            "type": "practical",
+            "activities": 3,
+            "passingScore": 80
+          }
         }
+      },
+      "moduleAssessment": {
+        "title": "Evaluación Integral Módulo 1",
+        "description": "Evaluación comprensiva de fundamentos de consultoría",
+        "components": [
+          {
+            "type": "knowledge_test",
+            "weight": 40,
+            "description": "Examen teórico sobre conceptos fundamentales"
+          },
+          {
+            "type": "case_study",
+            "weight": 35,
+            "description": "Análisis de caso de consultoría real"
+          },
+          {
+            "type": "ethical_scenario",
+            "weight": 25,
+            "description": "Resolución de dilemas éticos profesionales"
+          }
+        ],
+        "passingScore": 75,
+        "duration": "2 horas"
       }
     },
     "module2": {
@@ -138,40 +534,1101 @@
     "comingSoon": "Próximamente disponible"
   },
   "templates": {
-    "elemento1_documento_problema": {
+    "problem_description": {
       "title": "Documento que describe el problema planteado",
-      "description": "Documento principal que describe el problema identificado, su alcance e impacto",
-      "criteria": [
+      "description": "Documento comprehensivo que describe la situación problemática identificada",
+      "element": "E0875",
+      "elementName": "Identificar la situación/problema planteado",
+      "estimatedTime": 45,
+      "icon": "📋",
+      "evaluationCriteria": [
         "Incluye la afectación de la situación actual",
-        "Establece el alcance", 
+        "Establece el alcance del problema",
         "Incluye la integración de la información obtenida",
         "Contiene la interpretación del problema y sus afectaciones"
       ],
       "sections": {
-        "resumen_ejecutivo": {
-          "title": "Resumen Ejecutivo",
-          "placeholder": "Breve descripción del problema identificado...",
-          "guidance": "Resumen conciso del problema principal en máximo 200 palabras"
-        },
-        "descripcion_problema": {
-          "title": "Descripción Detallada del Problema",
-          "placeholder": "Descripción completa del problema...",
+        "problem_statement": {
+          "title": "Descripción del Problema",
+          "placeholder": "Describa claramente la situación problemática identificada...",
           "guidance": "Descripción exhaustiva incluyendo contexto, síntomas y manifestaciones"
         },
-        "alcance": {
+        "scope_definition": {
           "title": "Alcance del Problema",
-          "placeholder": "Definición del alcance y límites...",
+          "placeholder": "Defina el alcance y límites del problema...",
           "guidance": "Especificar áreas, procesos y personas afectadas"
         },
-        "impacto": {
-          "title": "Análisis de Impacto",
-          "placeholder": "Impacto en la organización...",
-          "guidance": "Cuantificar impactos financieros, operacionales y estratégicos"
+        "current_impact": {
+          "title": "Afectación de la Situación Actual",
+          "guidance": "Cuantificar impactos operacionales, financieros y en personal",
+          "subsections": {
+            "operational_impact": {
+              "title": "Impacto Operacional",
+              "placeholder": "Describir el impacto en las operaciones..."
+            },
+            "financial_impact": {
+              "title": "Impacto Financiero",
+              "placeholder": "Describir el impacto económico..."
+            },
+            "human_impact": {
+              "title": "Impacto en Personal",
+              "placeholder": "Describir el impacto en recursos humanos..."
+            }
+          }
         },
-        "stakeholders": {
-          "title": "Stakeholders Afectados",
-          "placeholder": "Identificación de partes interesadas...",
-          "guidance": "Listar y describir todas las partes afectadas por el problema"
+        "information_integration": {
+          "title": "Integración de la Información",
+          "guidance": "Síntesis de toda la información recopilada",
+          "subsections": {
+            "sources_used": {
+              "title": "Fuentes de Información Utilizadas",
+              "placeholder": "Liste las fuentes consultadas..."
+            },
+            "data_analysis": {
+              "title": "Análisis de Datos",
+              "placeholder": "Análisis detallado de los datos obtenidos..."
+            },
+            "findings_summary": {
+              "title": "Resumen de Hallazgos",
+              "placeholder": "Resumen de los principales hallazgos..."
+            }
+          }
+        },
+        "problem_interpretation": {
+          "title": "Interpretación del Problema",
+          "placeholder": "Proporcione su interpretación profesional del problema y sus implicaciones...",
+          "guidance": "Interpretación fundamentada basada en el análisis realizado"
+        }
+      }
+    },
+    "current_situation_impact": {
+      "title": "Afectación detectada de la situación actual",
+      "description": "Análisis detallado de los impactos y afectaciones de la situación actual",
+      "element": "E0875",
+      "estimatedTime": 30,
+      "icon": "⚠️",
+      "evaluationCriteria": [
+        "Es congruente con la integración de la información"
+      ],
+      "sections": {
+        "identified_impacts": {
+          "title": "Impactos Identificados",
+          "guidance": "Matriz de impactos por área afectada",
+          "headers": ["Área Afectada", "Tipo de Impacto", "Severidad", "Descripción"]
+        },
+        "impact_analysis": {
+          "title": "Análisis de Congruencia",
+          "placeholder": "Explique la congruencia entre los impactos detectados y la información integrada...",
+          "guidance": "Análisis que demuestre coherencia con la información recopilada"
+        }
+      }
+    },
+    "information_integration": {
+      "title": "Integración de la información presentada",
+      "description": "Síntesis y organización de toda la información recopilada",
+      "element": "E0875",
+      "estimatedTime": 60,
+      "icon": "🔗",
+      "evaluationCriteria": [
+        "Incluye la información recopilada",
+        "Es congruente con el problema planteado por el consultante",
+        "Incluye la interpretación de la información recopilada"
+      ],
+      "sections": {
+        "collected_information": {
+          "title": "Información Recopilada",
+          "guidance": "Organización sistemática de toda la información",
+          "subsections": {
+            "primary_sources": {
+              "title": "Fuentes Primarias",
+              "placeholder": "Liste las fuentes primarias consultadas..."
+            },
+            "secondary_sources": {
+              "title": "Fuentes Secundarias",
+              "placeholder": "Liste las fuentes secundarias consultadas..."
+            },
+            "internal_data": {
+              "title": "Datos Internos",
+              "placeholder": "Describa los datos internos obtenidos..."
+            },
+            "external_data": {
+              "title": "Datos Externos",
+              "placeholder": "Describa los datos externos obtenidos..."
+            }
+          }
+        },
+        "congruency_analysis": {
+          "title": "Análisis de Congruencia con el Problema",
+          "placeholder": "Analice la congruencia entre la información recopilada y el problema planteado...",
+          "guidance": "Demostrar coherencia entre información y problemática"
+        },
+        "information_interpretation": {
+          "title": "Interpretación de la Información",
+          "placeholder": "Proporcione su interpretación profesional de la información recopilada...",
+          "guidance": "Interpretación basada en análisis metodológico"
+        }
+      }
+    },
+    "methodology_report": {
+      "title": "Reporte de metodología empleada",
+      "description": "Descripción completa de la metodología utilizada para la identificación del problema",
+      "element": "E0875",
+      "estimatedTime": 90,
+      "icon": "📊",
+      "evaluationCriteria": [
+        "Incluye la definición de la situación y/o problema",
+        "Incluye el establecimiento de un programa de entrevistas",
+        "Incluye la identificación de las áreas involucradas",
+        "Incluye el establecimiento de los estudios/pruebas a realizar",
+        "Incluye el establecimiento de los requerimientos de información",
+        "Incluye el establecimiento de un programa de observaciones de campo",
+        "Incluye la búsqueda de información documental",
+        "Contiene la forma en que evalúa la información obtenida"
+      ],
+      "sections": {
+        "situation_definition": {
+          "title": "1. Definición de la Situación/Problema",
+          "placeholder": "Defina claramente la situación o problema identificado...",
+          "guidance": "Definición precisa y fundamentada"
+        },
+        "interview_program": {
+          "title": "2. Programa de Entrevistas",
+          "guidance": "Planificación detallada de entrevistas",
+          "subsections": {
+            "interview_schedule": {
+              "title": "Cronograma de Entrevistas",
+              "guidance": "Tabla con fechas, horarios y participantes"
+            },
+            "interview_participants": {
+              "title": "Participantes",
+              "placeholder": "Liste los participantes en las entrevistas..."
+            },
+            "interview_methodology": {
+              "title": "Metodología de Entrevistas",
+              "placeholder": "Describa la metodología a seguir en las entrevistas..."
+            }
+          }
+        },
+        "involved_areas": {
+          "title": "3. Áreas Involucradas",
+          "placeholder": "Liste todas las áreas organizacionales involucradas...",
+          "guidance": "Identificación completa de áreas afectadas"
+        },
+        "studies_tests": {
+          "title": "4. Estudios/Pruebas a Realizar",
+          "guidance": "Planificación de estudios y pruebas necesarios",
+          "subsections": {
+            "study_types": {
+              "title": "Tipos de Estudios",
+              "placeholder": "Liste los tipos de estudios a realizar..."
+            },
+            "test_procedures": {
+              "title": "Procedimientos de Prueba",
+              "placeholder": "Describa los procedimientos de prueba..."
+            },
+            "success_criteria": {
+              "title": "Criterios de Éxito",
+              "placeholder": "Establezca los criterios de éxito..."
+            }
+          }
+        },
+        "information_requirements": {
+          "title": "5. Requerimientos de Información",
+          "guidance": "Matriz de requerimientos de información",
+          "headers": ["Tipo de Información", "Fuente", "Método de Recopilación", "Responsable"]
+        },
+        "field_observation_program": {
+          "title": "6. Programa de Observaciones de Campo",
+          "guidance": "Planificación de observaciones directas",
+          "subsections": {
+            "observation_sites": {
+              "title": "Sitios de Observación",
+              "placeholder": "Liste los sitios donde se realizarán observaciones..."
+            },
+            "observation_schedule": {
+              "title": "Cronograma",
+              "guidance": "Tabla con fechas y horarios de observación"
+            },
+            "observation_criteria": {
+              "title": "Criterios de Observación",
+              "placeholder": "Establezca los criterios para las observaciones..."
+            }
+          }
+        },
+        "documentary_search": {
+          "title": "7. Búsqueda de Información Documental",
+          "guidance": "Estrategia de búsqueda documental",
+          "subsections": {
+            "document_types": {
+              "title": "Tipos de Documentos",
+              "placeholder": "Liste los tipos de documentos a buscar..."
+            },
+            "search_strategy": {
+              "title": "Estrategia de Búsqueda",
+              "placeholder": "Describa la estrategia de búsqueda..."
+            },
+            "document_sources": {
+              "title": "Fuentes Documentales",
+              "placeholder": "Liste las fuentes documentales..."
+            }
+          }
+        },
+        "information_evaluation": {
+          "title": "8. Evaluación de la Información",
+          "placeholder": "Describa el método utilizado para evaluar la calidad y relevancia de la información...",
+          "guidance": "Metodología para validar información obtenida"
+        }
+      }
+    },
+    "interview_guide": {
+      "title": "Guía de entrevista empleada",
+      "description": "Guía estructurada para conducir entrevistas efectivas",
+      "element": "E0875",
+      "estimatedTime": 40,
+      "icon": "🎤",
+      "evaluationCriteria": [
+        "Contiene el propósito de la entrevista",
+        "Establece la solicitud de la descripción de actividades y responsabilidades",
+        "Describe la información/documentación que se va a solicitar",
+        "Incluye el cierre de la entrevista"
+      ],
+      "sections": {
+        "interview_purpose": {
+          "title": "Propósito de la Entrevista",
+          "placeholder": "Defina claramente el propósito y objetivos de la entrevista...",
+          "guidance": "Establecer objetivos claros y específicos"
+        },
+        "opening_section": {
+          "title": "Apertura de la Entrevista",
+          "guidance": "Protocolo de inicio de entrevista",
+          "subsections": {
+            "introduction": {
+              "title": "Presentación",
+              "placeholder": "Texto de presentación del entrevistador..."
+            },
+            "purpose_explanation": {
+              "title": "Explicación del Propósito",
+              "placeholder": "Explicación del propósito al entrevistado..."
+            },
+            "confidentiality": {
+              "title": "Confidencialidad",
+              "placeholder": "Declaración de confidencialidad..."
+            }
+          }
+        },
+        "activities_responsibilities": {
+          "title": "Solicitud de Actividades y Responsabilidades",
+          "placeholder": "Liste las preguntas específicas sobre actividades y responsabilidades...",
+          "guidance": "Preguntas estructuradas para obtener información detallada"
+        },
+        "information_requests": {
+          "title": "Información/Documentación Solicitada",
+          "guidance": "Especificación de información requerida",
+          "subsections": {
+            "documents_needed": {
+              "title": "Documentos Requeridos",
+              "placeholder": "Liste los documentos necesarios..."
+            },
+            "information_types": {
+              "title": "Tipos de Información",
+              "placeholder": "Especifique los tipos de información..."
+            },
+            "delivery_format": {
+              "title": "Formato de Entrega",
+              "placeholder": "Especifique el formato de entrega..."
+            }
+          }
+        },
+        "interview_closure": {
+          "title": "Cierre de la Entrevista",
+          "guidance": "Protocolo de cierre profesional",
+          "subsections": {
+            "summary_confirmation": {
+              "title": "Confirmación de Resumen",
+              "placeholder": "Proceso de confirmación del resumen..."
+            },
+            "next_steps": {
+              "title": "Próximos Pasos",
+              "placeholder": "Definición de próximos pasos..."
+            },
+            "thank_you": {
+              "title": "Agradecimiento",
+              "placeholder": "Mensaje de agradecimiento..."
+            }
+          }
+        }
+      }
+    },
+    "questionnaire": {
+      "title": "Cuestionario elaborado",
+      "description": "Cuestionario estructurado para recopilación sistemática de información",
+      "element": "E0875",
+      "estimatedTime": 60,
+      "icon": "📝",
+      "evaluationCriteria": [
+        "Incluye la explicación del propósito del cuestionario",
+        "Incluye espacio para los datos generales",
+        "Menciona la confidencialidad de la información",
+        "Contiene las instrucciones sobre la forma de llenado",
+        "Establece preguntas relacionadas con la información buscada",
+        "Especifica la documentación de soporte",
+        "Contiene un espacio para comentarios finales",
+        "Contiene frases de agradecimiento"
+      ],
+      "sections": {
+        "questionnaire_purpose": {
+          "title": "1. Propósito del Cuestionario",
+          "placeholder": "Explique claramente el propósito del cuestionario...",
+          "guidance": "Justificación y objetivos del instrumento"
+        },
+        "general_data": {
+          "title": "2. Datos Generales",
+          "guidance": "Campos para información básica del participante",
+          "fields": {
+            "participant_name": {
+              "label": "Nombre del Participante",
+              "type": "text"
+            },
+            "position": {
+              "label": "Cargo/Posición",
+              "type": "text"
+            },
+            "department": {
+              "label": "Departamento",
+              "type": "text"
+            },
+            "date": {
+              "label": "Fecha",
+              "type": "date"
+            },
+            "duration": {
+              "label": "Duración Estimada",
+              "type": "text"
+            }
+          }
+        },
+        "confidentiality_notice": {
+          "title": "3. Aviso de Confidencialidad",
+          "placeholder": "Incluya la declaración de confidencialidad...",
+          "guidance": "Declaración formal de manejo confidencial"
+        },
+        "filling_instructions": {
+          "title": "4. Instrucciones de Llenado",
+          "placeholder": "Proporcione instrucciones claras sobre cómo completar el cuestionario...",
+          "guidance": "Instrucciones claras y precisas"
+        },
+        "main_questions": {
+          "title": "5. Preguntas Principales",
+          "guidance": "Constructor de preguntas estructuradas",
+          "placeholder": "Desarrolle las preguntas principales del cuestionario..."
+        },
+        "supporting_documentation": {
+          "title": "6. Documentación de Soporte",
+          "placeholder": "Liste los documentos que deben acompañar al cuestionario...",
+          "guidance": "Documentos complementarios necesarios"
+        },
+        "final_comments": {
+          "title": "7. Espacio para Comentarios Finales",
+          "template": "[Espacio designado para comentarios adicionales del participante]",
+          "guidance": "Sección para observaciones adicionales"
+        },
+        "acknowledgment": {
+          "title": "8. Agradecimiento",
+          "placeholder": "Incluya frases de agradecimiento apropiadas...",
+          "guidance": "Mensaje profesional de agradecimiento"
+        }
+      }
+    },
+    "documentary_search_program": {
+      "title": "Programa de búsqueda de información documental",
+      "description": "Plan estructurado para la búsqueda y recopilación de información documental",
+      "element": "E0875",
+      "estimatedTime": 35,
+      "icon": "🔍",
+      "evaluationCriteria": [
+        "Incluye información interna relacionada con el problema",
+        "Incluye información externa relacionada con el problema"
+      ],
+      "sections": {
+        "internal_information": {
+          "title": "Información Interna",
+          "guidance": "Planificación de búsqueda interna",
+          "subsections": {
+            "internal_sources": {
+              "title": "Fuentes Internas",
+              "placeholder": "Liste las fuentes internas de información..."
+            },
+            "internal_documents": {
+              "title": "Documentos Internos",
+              "placeholder": "Especifique los documentos internos requeridos..."
+            },
+            "internal_search_strategy": {
+              "title": "Estrategia de Búsqueda Interna",
+              "placeholder": "Describa la estrategia para búsqueda interna..."
+            },
+            "internal_timeline": {
+              "title": "Cronograma Interno",
+              "guidance": "Tabla con actividades y fechas internas"
+            }
+          }
+        },
+        "external_information": {
+          "title": "Información Externa",
+          "guidance": "Planificación de búsqueda externa",
+          "subsections": {
+            "external_sources": {
+              "title": "Fuentes Externas",
+              "placeholder": "Liste las fuentes externas de información..."
+            },
+            "external_documents": {
+              "title": "Documentos Externos",
+              "placeholder": "Especifique los documentos externos requeridos..."
+            },
+            "external_search_strategy": {
+              "title": "Estrategia de Búsqueda Externa",
+              "placeholder": "Describa la estrategia para búsqueda externa..."
+            },
+            "external_timeline": {
+              "title": "Cronograma Externo",
+              "guidance": "Tabla con actividades y fechas externas"
+            }
+          }
+        }
+      }
+    },
+    "field_visit_report": {
+      "title": "Reporte de visita de campo",
+      "description": "Informe detallado de las observaciones y hallazgos durante visitas de campo",
+      "element": "E0875",
+      "estimatedTime": 50,
+      "icon": "🚶",
+      "evaluationCriteria": [
+        "Muestra el objetivo de la visita de campo",
+        "Establece el alcance",
+        "Incluye la descripción de las observaciones realizadas",
+        "Incluye el resultado de la visita de campo"
+      ],
+      "sections": {
+        "visit_objective": {
+          "title": "Objetivo de la Visita",
+          "placeholder": "Defina claramente el objetivo de la visita de campo...",
+          "guidance": "Objetivo específico y medible"
+        },
+        "visit_scope": {
+          "title": "Alcance de la Visita",
+          "placeholder": "Establezca el alcance y límites de la visita...",
+          "guidance": "Delimitación clara del alcance"
+        },
+        "observations_description": {
+          "title": "Descripción de Observaciones",
+          "guidance": "Observaciones estructuradas por categoría",
+          "subsections": {
+            "process_observations": {
+              "title": "Observaciones de Procesos",
+              "placeholder": "Describa las observaciones de procesos..."
+            },
+            "system_observations": {
+              "title": "Observaciones de Sistemas",
+              "placeholder": "Describa las observaciones de sistemas..."
+            },
+            "personnel_observations": {
+              "title": "Observaciones de Personal",
+              "placeholder": "Describa las observaciones de personal..."
+            },
+            "infrastructure_observations": {
+              "title": "Observaciones de Infraestructura",
+              "placeholder": "Describa las observaciones de infraestructura..."
+            }
+          }
+        },
+        "visit_results": {
+          "title": "Resultados de la Visita",
+          "guidance": "Síntesis de resultados y recomendaciones",
+          "subsections": {
+            "key_findings": {
+              "title": "Hallazgos Principales",
+              "placeholder": "Liste los hallazgos más importantes..."
+            },
+            "recommendations": {
+              "title": "Recomendaciones Inmediatas",
+              "placeholder": "Liste las recomendaciones inmediatas..."
+            },
+            "follow_up_actions": {
+              "title": "Acciones de Seguimiento",
+              "placeholder": "Defina las acciones de seguimiento necesarias..."
+            }
+          }
+        }
+      }
+    },
+    "impact_analysis_report": {
+      "title": "Reporte de las afectaciones encontradas",
+      "description": "Análisis comprehensivo de las afectaciones identificadas y su metodología",
+      "element": "E0876",
+      "elementName": "Desarrollar opciones de solución",
+      "estimatedTime": 60,
+      "icon": "📈",
+      "evaluationCriteria": [
+        "Describe la metodología aplicada",
+        "Define las afectaciones encontradas",
+        "Incluye la definición detallada de la situación a resolver"
+      ],
+      "sections": {
+        "applied_methodology": {
+          "title": "Metodología Aplicada",
+          "placeholder": "Describa detalladamente la metodología utilizada para identificar las afectaciones...",
+          "guidance": "Metodología sistemática y fundamentada"
+        },
+        "identified_impacts": {
+          "title": "Afectaciones Encontradas",
+          "guidance": "Categorización sistemática de impactos",
+          "subsections": {
+            "operational_impacts": {
+              "title": "Afectaciones Operacionales",
+              "placeholder": "Liste las afectaciones operacionales..."
+            },
+            "financial_impacts": {
+              "title": "Afectaciones Financieras",
+              "placeholder": "Liste las afectaciones financieras..."
+            },
+            "human_impacts": {
+              "title": "Afectaciones al Personal",
+              "placeholder": "Liste las afectaciones al personal..."
+            },
+            "strategic_impacts": {
+              "title": "Afectaciones Estratégicas",
+              "placeholder": "Liste las afectaciones estratégicas..."
+            }
+          }
+        },
+        "situation_definition": {
+          "title": "Definición Detallada de la Situación",
+          "placeholder": "Proporcione una definición detallada y precisa de la situación que requiere solución...",
+          "guidance": "Definición integral basada en el análisis realizado"
+        }
+      }
+    },
+    "solution_design": {
+      "title": "Solución diseñada",
+      "description": "Diseño detallado de la solución propuesta con justificación completa",
+      "element": "E0876",
+      "estimatedTime": 90,
+      "icon": "💡",
+      "evaluationCriteria": [
+        "Es congruente con la situación a resolver",
+        "Menciona los beneficios de la solución",
+        "Menciona las desventajas de la solución",
+        "Cuenta con una justificación detallada",
+        "Incluye las implicaciones de costo/beneficio"
+      ],
+      "sections": {
+        "solution_overview": {
+          "title": "Descripción General de la Solución",
+          "placeholder": "Proporcione una descripción general y clara de la solución propuesta...",
+          "guidance": "Descripción comprensible y completa"
+        },
+        "congruency_analysis": {
+          "title": "Análisis de Congruencia",
+          "placeholder": "Explique cómo la solución propuesta es congruente con la situación identificada...",
+          "guidance": "Demostrar alineación entre problema y solución"
+        },
+        "solution_benefits": {
+          "title": "Beneficios de la Solución",
+          "guidance": "Beneficios categorizados por horizonte temporal",
+          "subsections": {
+            "short_term_benefits": {
+              "title": "Beneficios a Corto Plazo",
+              "placeholder": "Liste los beneficios a corto plazo..."
+            },
+            "medium_term_benefits": {
+              "title": "Beneficios a Mediano Plazo",
+              "placeholder": "Liste los beneficios a mediano plazo..."
+            },
+            "long_term_benefits": {
+              "title": "Beneficios a Largo Plazo",
+              "placeholder": "Liste los beneficios a largo plazo..."
+            }
+          }
+        },
+        "solution_disadvantages": {
+          "title": "Desventajas de la Solución",
+          "guidance": "Análisis honesto de limitaciones y riesgos",
+          "subsections": {
+            "implementation_challenges": {
+              "title": "Desafíos de Implementación",
+              "placeholder": "Liste los desafíos de implementación..."
+            },
+            "resource_limitations": {
+              "title": "Limitaciones de Recursos",
+              "placeholder": "Liste las limitaciones de recursos..."
+            },
+            "potential_risks": {
+              "title": "Riesgos Potenciales",
+              "placeholder": "Liste los riesgos potenciales..."
+            }
+          }
+        },
+        "detailed_justification": {
+          "title": "Justificación Detallada",
+          "placeholder": "Proporcione una justificación detallada de por qué esta solución es la más apropiada...",
+          "guidance": "Argumentación sólida basada en evidencia"
+        },
+        "cost_benefit_implications": {
+          "title": "Implicaciones Costo/Beneficio",
+          "guidance": "Análisis financiero integral",
+          "subsections": {
+            "implementation_costs": {
+              "title": "Costos de Implementación",
+              "guidance": "Tabla detallada de costos de implementación"
+            },
+            "operational_costs": {
+              "title": "Costos Operacionales",
+              "guidance": "Tabla de costos operacionales continuos"
+            },
+            "quantified_benefits": {
+              "title": "Beneficios Cuantificados",
+              "guidance": "Tabla de beneficios con valores estimados"
+            },
+            "roi_analysis": {
+              "title": "Análisis de ROI",
+              "placeholder": "Proporcione el análisis de retorno de inversión..."
+            }
+          }
+        }
+      }
+    },
+    "work_proposal": {
+      "title": "Propuesta de trabajo elaborada",
+      "description": "Propuesta formal de trabajo con todos los componentes requeridos",
+      "element": "E0877",
+      "elementName": "Presentar la propuesta de solución",
+      "estimatedTime": 120,
+      "icon": "📋",
+      "evaluationCriteria": [
+        "Incluye los antecedentes y/o el diagnóstico",
+        "Incluye la síntesis descriptiva del proyecto propuesto",
+        "Especifica el alcance del proyecto propuesto",
+        "Describe la solución propuesta en detalle",
+        "Incluye un plan de trabajo",
+        "Especifica los entregables por parte del consultor",
+        "Especifica los riesgos del proyecto",
+        "Especifica las responsabilidades del consultor",
+        "Especifica las responsabilidades del consultante",
+        "Especifica el costo estimado"
+      ],
+      "sections": {
+        "background_diagnosis": {
+          "title": "1. Antecedentes y Diagnóstico",
+          "placeholder": "Proporcione los antecedentes y diagnóstico de la situación...",
+          "guidance": "Contexto histórico y situación actual"
+        },
+        "project_synthesis": {
+          "title": "2. Síntesis Descriptiva del Proyecto",
+          "placeholder": "Describa de manera sintética el proyecto propuesto...",
+          "guidance": "Resumen ejecutivo del proyecto"
+        },
+        "project_scope": {
+          "title": "3. Alcance del Proyecto",
+          "guidance": "Definición clara de alcance",
+          "subsections": {
+            "included_activities": {
+              "title": "Actividades Incluidas",
+              "placeholder": "Liste las actividades incluidas en el proyecto..."
+            },
+            "excluded_activities": {
+              "title": "Actividades Excluidas",
+              "placeholder": "Liste las actividades excluidas del proyecto..."
+            },
+            "scope_limitations": {
+              "title": "Limitaciones del Alcance",
+              "placeholder": "Describa las limitaciones del alcance..."
+            }
+          }
+        },
+        "detailed_solution": {
+          "title": "4. Solución Propuesta Detallada",
+          "placeholder": "Describa en detalle la solución propuesta...",
+          "guidance": "Descripción técnica y funcional completa"
+        },
+        "work_plan": {
+          "title": "5. Plan de Trabajo",
+          "guidance": "Planificación detallada del proyecto",
+          "subsections": {
+            "project_phases": {
+              "title": "Fases del Proyecto",
+              "guidance": "Tabla con fases, duraciones y objetivos"
+            },
+            "timeline": {
+              "title": "Cronograma",
+              "guidance": "Cronograma detallado de actividades"
+            },
+            "milestones": {
+              "title": "Hitos Principales",
+              "placeholder": "Liste los hitos principales del proyecto..."
+            }
+          }
+        },
+        "consultant_deliverables": {
+          "title": "6. Entregables del Consultor",
+          "guidance": "Tabla detallada de entregables",
+          "headers": ["Entregable", "Descripción", "Fecha de Entrega", "Criterios de Aceptación"]
+        },
+        "project_risks": {
+          "title": "7. Riesgos del Proyecto",
+          "guidance": "Matriz de riesgos y mitigaciones",
+          "headers": ["Riesgo", "Probabilidad", "Impacto", "Mitigación"]
+        },
+        "consultant_responsibilities": {
+          "title": "8. Responsabilidades del Consultor",
+          "placeholder": "Liste las responsabilidades del consultor...",
+          "guidance": "Responsabilidades específicas y medibles"
+        },
+        "client_responsibilities": {
+          "title": "9. Responsabilidades del Consultante",
+          "placeholder": "Liste las responsabilidades del cliente...",
+          "guidance": "Compromisos requeridos del cliente"
+        },
+        "estimated_cost": {
+          "title": "10. Costo Estimado",
+          "guidance": "Estructura completa de costos",
+          "subsections": {
+            "cost_breakdown": {
+              "title": "Desglose de Costos",
+              "guidance": "Tabla detallada de costos por categoría"
+            },
+            "payment_terms": {
+              "title": "Términos de Pago",
+              "placeholder": "Especifique los términos de pago..."
+            },
+            "cost_assumptions": {
+              "title": "Supuestos de Costo",
+              "placeholder": "Liste los supuestos considerados en el costeo..."
+            }
+          }
+        }
+      }
+    },
+    "detailed_solution_description": {
+      "title": "Descripción detallada de la solución propuesta",
+      "description": "Descripción técnica detallada de la implementación de la solución",
+      "element": "E0877",
+      "estimatedTime": 75,
+      "icon": "🔧",
+      "evaluationCriteria": [
+        "Especifica las etapas de la instalación",
+        "Describe el resultado esperado de cada etapa",
+        "Especifica los indicadores de avance de cada etapa",
+        "Menciona los mecanismos de control",
+        "Describe los recursos a utilizar por parte del consultor",
+        "Describe los recursos a utilizar por parte del consultante"
+      ],
+      "sections": {
+        "implementation_stages": {
+          "title": "Etapas de Implementación",
+          "guidance": "Tabla detallada de etapas de implementación",
+          "headers": ["Etapa", "Descripción", "Duración", "Dependencias"]
+        },
+        "stage_results": {
+          "title": "Resultados Esperados por Etapa",
+          "guidance": "Tabla de resultados esperados por etapa",
+          "headers": ["Etapa", "Resultado Esperado", "Criterios de Éxito", "Entregables"]
+        },
+        "progress_indicators": {
+          "title": "Indicadores de Avance",
+          "guidance": "Sistema de métricas de progreso",
+          "headers": ["Etapa", "Indicador", "Método de Medición", "Frecuencia"]
+        },
+        "control_mechanisms": {
+          "title": "Mecanismos de Control",
+          "guidance": "Sistemas de control y monitoreo",
+          "subsections": {
+            "quality_controls": {
+              "title": "Controles de Calidad",
+              "placeholder": "Liste los controles de calidad..."
+            },
+            "progress_reviews": {
+              "title": "Revisiones de Progreso",
+              "placeholder": "Describa las revisiones de progreso..."
+            },
+            "change_management": {
+              "title": "Gestión de Cambios",
+              "placeholder": "Describa el proceso de gestión de cambios..."
+            }
+          }
+        },
+        "consultant_resources": {
+          "title": "Recursos del Consultor",
+          "guidance": "Recursos que aportará el consultor",
+          "subsections": {
+            "human_resources": {
+              "title": "Recursos Humanos",
+              "guidance": "Tabla de personal del consultor"
+            },
+            "technical_resources": {
+              "title": "Recursos Técnicos",
+              "placeholder": "Liste los recursos técnicos del consultor..."
+            },
+            "methodological_resources": {
+              "title": "Recursos Metodológicos",
+              "placeholder": "Liste los recursos metodológicos..."
+            }
+          }
+        },
+        "client_resources": {
+          "title": "Recursos del Consultante",
+          "guidance": "Recursos requeridos del cliente",
+          "subsections": {
+            "personnel_assignment": {
+              "title": "Asignación de Personal",
+              "guidance": "Tabla de personal requerido del cliente"
+            },
+            "facilities_equipment": {
+              "title": "Instalaciones y Equipos",
+              "placeholder": "Liste las instalaciones y equipos requeridos..."
+            },
+            "information_access": {
+              "title": "Acceso a Información",
+              "placeholder": "Especifique el acceso a información requerido..."
+            }
+          }
+        }
+      }
+    },
+    "work_plan_presentation": {
+      "title": "Plan de trabajo presentado en la propuesta",
+      "description": "Plan detallado de trabajo con actividades, recursos y resultados esperados",
+      "element": "E0877",
+      "estimatedTime": 60,
+      "icon": "📅",
+      "evaluationCriteria": [
+        "Menciona el resultado esperado de la solución a instalar",
+        "Muestra las actividades a desarrollar",
+        "Especifica los recursos a utilizar"
+      ],
+      "sections": {
+        "expected_results": {
+          "title": "Resultado Esperado de la Solución",
+          "placeholder": "Describa claramente el resultado esperado una vez implementada la solución...",
+          "guidance": "Resultado final específico y medible"
+        },
+        "activities_development": {
+          "title": "Actividades a Desarrollar",
+          "guidance": "Tabla detallada de actividades del proyecto",
+          "headers": ["Actividad", "Descripción", "Responsable", "Duración", "Dependencias"]
+        },
+        "resource_specification": {
+          "title": "Especificación de Recursos",
+          "guidance": "Recursos requeridos por categoría",
+          "subsections": {
+            "human_resources_plan": {
+              "title": "Recursos Humanos",
+              "guidance": "Tabla de recursos humanos necesarios"
+            },
+            "material_resources": {
+              "title": "Recursos Materiales",
+              "guidance": "Tabla de recursos materiales necesarios"
+            },
+            "financial_resources": {
+              "title": "Recursos Financieros",
+              "guidance": "Tabla de recursos financieros necesarios"
+            },
+            "technological_resources": {
+              "title": "Recursos Tecnológicos",
+              "guidance": "Tabla de recursos tecnológicos necesarios"
+            }
+          }
+        }
+      }
+    },
+    "activity_development_plan": {
+      "title": "Actividades a desarrollar mencionadas en el plan",
+      "description": "Detalle específico de cada actividad con cronograma y controles",
+      "element": "E0877",
+      "estimatedTime": 80,
+      "icon": "⚙️",
+      "evaluationCriteria": [
+        "Presentan la calendarización de las actividades",
+        "Mencionan el responsable de la actividad",
+        "Presentan los indicadores de avance",
+        "Especifican su mecanismo de control",
+        "Especifican su mecanismo de seguimiento"
+      ],
+      "sections": {
+        "activity_calendar": {
+          "title": "Calendarización de Actividades",
+          "guidance": "Diagrama de Gantt o cronograma detallado",
+          "placeholder": "Desarrolle el cronograma de actividades..."
+        },
+        "activity_responsibilities": {
+          "title": "Responsables por Actividad",
+          "guidance": "Matriz de responsabilidades detallada",
+          "headers": ["Actividad", "Responsable Principal", "Responsables Secundarios", "Nivel de Autoridad"]
+        },
+        "progress_indicators_detail": {
+          "title": "Indicadores de Avance Detallados",
+          "guidance": "Sistema de indicadores por actividad",
+          "headers": ["Actividad", "Indicador", "Meta", "Método de Medición", "Frecuencia de Medición"]
+        },
+        "control_mechanisms_detail": {
+          "title": "Mecanismos de Control por Actividad",
+          "guidance": "Controles específicos por actividad",
+          "headers": ["Actividad", "Mecanismo de Control", "Responsable del Control", "Frecuencia"]
+        },
+        "monitoring_mechanisms": {
+          "title": "Mecanismos de Seguimiento",
+          "guidance": "Sistema integral de seguimiento",
+          "subsections": {
+            "monitoring_schedule": {
+              "title": "Cronograma de Seguimiento",
+              "guidance": "Tabla con fechas y actividades de seguimiento"
+            },
+            "monitoring_tools": {
+              "title": "Herramientas de Seguimiento",
+              "placeholder": "Liste las herramientas de seguimiento..."
+            },
+            "reporting_procedures": {
+              "title": "Procedimientos de Reporte",
+              "placeholder": "Describa los procedimientos de reporte..."
+            },
+            "escalation_procedures": {
+              "title": "Procedimientos de Escalación",
+              "placeholder": "Describa los procedimientos de escalación..."
+            }
+          }
+        }
+      }
+    },
+    "agreement_record": {
+      "title": "Registro elaborado de los acuerdos alcanzados",
+      "description": "Registro formal de todos los acuerdos establecidos entre consultor y cliente",
+      "element": "E0877",
+      "estimatedTime": 90,
+      "icon": "📄",
+      "evaluationCriteria": [
+        "Incluye la propuesta autorizada",
+        "Menciona el alcance",
+        "Menciona el resultado esperado",
+        "Especifica el tiempo esperado de implantación",
+        "Define las responsabilidades de los participantes",
+        "Menciona el costo de la solución presentada",
+        "Especifica las condiciones de pago acordadas",
+        "Incluye una cláusula sobre confidencialidad",
+        "Incluye una cláusula sobre la propiedad intelectual"
+      ],
+      "sections": {
+        "authorized_proposal": {
+          "title": "1. Propuesta Autorizada",
+          "guidance": "Referencia formal a la propuesta aprobada",
+          "subsections": {
+            "proposal_reference": {
+              "title": "Referencia de la Propuesta",
+              "placeholder": "Número o código de referencia de la propuesta..."
+            },
+            "authorization_details": {
+              "title": "Detalles de Autorización",
+              "placeholder": "Describa los detalles de la autorización..."
+            },
+            "approval_signatures": {
+              "title": "Firmas de Aprobación",
+              "guidance": "Campos para firmas de autorización"
+            }
+          }
+        },
+        "agreed_scope": {
+          "title": "2. Alcance Acordado",
+          "placeholder": "Describa detalladamente el alcance acordado...",
+          "guidance": "Alcance específico y delimitado"
+        },
+        "expected_result_agreement": {
+          "title": "3. Resultado Esperado",
+          "placeholder": "Especifique el resultado esperado acordado...",
+          "guidance": "Resultado específico y medible"
+        },
+        "implementation_timeframe": {
+          "title": "4. Tiempo de Implantación",
+          "guidance": "Cronograma acordado para la implementación",
+          "subsections": {
+            "start_date": {
+              "title": "Fecha de Inicio",
+              "guidance": "Fecha acordada de inicio del proyecto"
+            },
+            "end_date": {
+              "title": "Fecha de Finalización",
+              "guidance": "Fecha acordada de finalización del proyecto"
+            },
+            "key_milestones": {
+              "title": "Hitos Clave",
+              "guidance": "Tabla de hitos principales y fechas"
+            },
+            "timeline_conditions": {
+              "title": "Condiciones del Cronograma",
+              "placeholder": "Especifique las condiciones del cronograma..."
+            }
+          }
+        },
+        "participant_responsibilities": {
+          "title": "5. Responsabilidades de los Participantes",
+          "guidance": "Responsabilidades claramente definidas",
+          "subsections": {
+            "consultant_responsibilities_agreement": {
+              "title": "Responsabilidades del Consultor",
+              "placeholder": "Liste las responsabilidades específicas del consultor..."
+            },
+            "client_responsibilities_agreement": {
+              "title": "Responsabilidades del Cliente",
+              "placeholder": "Liste las responsabilidades específicas del cliente..."
+            },
+            "shared_responsibilities": {
+              "title": "Responsabilidades Compartidas",
+              "placeholder": "Liste las responsabilidades compartidas..."
+            }
+          }
+        },
+        "solution_cost": {
+          "title": "6. Costo de la Solución",
+          "guidance": "Estructura de costos acordada",
+          "subsections": {
+            "total_cost": {
+              "title": "Costo Total",
+              "guidance": "Monto total acordado en moneda especificada"
+            },
+            "cost_breakdown_agreement": {
+              "title": "Desglose de Costos",
+              "guidance": "Tabla detallada del desglose de costos"
+            },
+            "cost_adjustments": {
+              "title": "Ajustes de Costo",
+              "placeholder": "Especifique los mecanismos de ajuste de costos..."
+            }
+          }
+        },
+        "payment_conditions": {
+          "title": "7. Condiciones de Pago",
+          "guidance": "Términos de pago acordados",
+          "subsections": {
+            "payment_schedule": {
+              "title": "Calendario de Pagos",
+              "guidance": "Tabla con fechas y montos de pago"
+            },
+            "payment_methods": {
+              "title": "Métodos de Pago",
+              "placeholder": "Especifique los métodos de pago aceptados..."
+            },
+            "payment_terms": {
+              "title": "Términos de Pago",
+              "placeholder": "Describa los términos específicos de pago..."
+            }
+          }
+        },
+        "confidentiality_clause": {
+          "title": "8. Cláusula de Confidencialidad",
+          "template": "confidentiality_standard",
+          "guidance": "Cláusula legal estándar de confidencialidad"
+        },
+        "intellectual_property_clause": {
+          "title": "9. Cláusula de Propiedad Intelectual",
+          "template": "intellectual_property_standard",
+          "guidance": "Cláusula legal estándar de propiedad intelectual"
         }
       }
     }
