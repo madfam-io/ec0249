@@ -1,0 +1,27 @@
+{
+  "name": "ec0249-educational-platform",
+  "version": "1.0.0",
+  "description": "Interactive educational platform for EC0249 certification - Provide general consulting services",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite dev --host",
+    "clean": "rm -rf dist node_modules/.vite",
+    "lint": "echo 'Linting not configured yet'",
+    "test": "echo 'Tests not configured yet'"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "keywords": [
+    "ec0249",
+    "consulting",
+    "education",
+    "certification",
+    "conocer"
+  ],
+  "author": "EC0249 Platform Team",
+  "license": "MIT"
+}

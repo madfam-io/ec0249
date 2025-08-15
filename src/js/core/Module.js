@@ -194,6 +194,11 @@ class Module {
    */
   emit(event, data) {
     if (!this.eventBus) {
+      // During initialization, eventBus might not be ready yet - log but don't throw
+      if (this.state === 'initializing') {
+        console.debug(`[Module] ${this.name} trying to emit '${event}' during initialization - deferred`);
+        return Promise.resolve();
+      }
       throw new Error(`Module '${this.name}' not initialized - cannot emit events`);
     }
     return this.eventBus.publish(event, data);

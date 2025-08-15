@@ -28,34 +28,42 @@ class StorageService extends Module {
     try {
       if (this.isLocalStorageSupported()) {
         this.registerAdapter('localStorage', new LocalStorageAdapter());
+        console.log('[StorageService] localStorage adapter registered');
+      } else {
+        console.warn('[StorageService] localStorage not supported, falling back to memory');
       }
     } catch (error) {
-      console.warn('localStorage not available:', error.message);
+      console.warn('[StorageService] localStorage not available:', error.message);
     }
     
     // Try to register sessionStorage adapter
     try {
       if (this.isSessionStorageSupported()) {
         this.registerAdapter('sessionStorage', new SessionStorageAdapter());
+        console.log('[StorageService] sessionStorage adapter registered');
       }
     } catch (error) {
-      console.warn('sessionStorage not available:', error.message);
+      console.warn('[StorageService] sessionStorage not available:', error.message);
     }
     
     // Try to register IndexedDB adapter
     try {
       if (this.isIndexedDBSupported()) {
         this.registerAdapter('indexedDB', new IndexedDBAdapter(this.getConfig('prefix')));
+        console.log('[StorageService] IndexedDB adapter registered');
       }
     } catch (error) {
-      console.warn('IndexedDB not available:', error.message);
+      console.warn('[StorageService] IndexedDB not available:', error.message);
     }
 
+    // Set initialized flag BEFORE subscribing to events (which uses eventBus)
     this.initialized = true;
     
-    // Subscribe to storage events
+    // Subscribe to storage events (now safe to emit events)
     this.subscribe('storage:clear', this.handleClearStorage.bind(this));
     this.subscribe('storage:migrate', this.handleMigration.bind(this));
+    
+    console.log(`[StorageService] Initialized with adapters: ${Array.from(this.adapters.keys()).join(', ')}`);
   }
 
   /**
@@ -77,17 +85,31 @@ class StorageService extends Module {
     let adapter = this.adapters.get(adapterName);
     
     if (!adapter) {
-      if (this.getConfig('fallbackToMemory')) {
-        console.warn(`Storage adapter '${adapterName}' not found, falling back to memory`);
-        adapter = this.adapters.get('memory');
-        if (!adapter) {
-          // Create memory adapter on the fly if it doesn't exist
-          adapter = new MemoryStorageAdapter(this.memoryStorage);
-          this.adapters.set('memory', adapter);
+      // Try fallback chain: requested → localStorage → sessionStorage → memory
+      const fallbackOrder = ['localStorage', 'sessionStorage', 'memory'];
+      
+      for (const fallbackName of fallbackOrder) {
+        if (fallbackName !== adapterName) {
+          adapter = this.adapters.get(fallbackName);
+          if (adapter) {
+            if (adapterName !== this.getConfig('defaultAdapter') || fallbackName !== 'memory') {
+              // Only warn for non-default requests or non-memory fallbacks
+              console.warn(`[StorageService] Adapter '${adapterName}' not found, using '${fallbackName}'`);
+            }
+            return adapter;
+          }
         }
+      }
+      
+      // Last resort: create memory adapter on the fly
+      if (!this.adapters.has('memory')) {
+        console.warn(`[StorageService] No adapters available, creating memory adapter`);
+        adapter = new MemoryStorageAdapter(this.memoryStorage);
+        this.adapters.set('memory', adapter);
         return adapter;
       }
-      throw new Error(`Storage adapter '${adapterName}' not found`);
+      
+      throw new Error(`Storage adapter '${adapterName}' not found and no fallbacks available`);
     }
     
     return adapter;
@@ -135,12 +157,15 @@ class StorageService extends Module {
     try {
       await adapter.set(prefixedKey, storageValue);
       
-      this.emit('storage:set', {
-        key: prefixedKey,
-        originalKey: key,
-        adapter: adapter.name,
-        size: this.getStorageSize(storageValue)
-      });
+      // Only emit events if the module is fully initialized and eventBus is available
+      if (this.initialized && this.eventBus) {
+        this.emit('storage:set', {
+          key: prefixedKey,
+          originalKey: key,
+          adapter: adapter.name,
+          size: this.getStorageSize(storageValue)
+        });
+      }
     } catch (error) {
       console.error(`Storage set error for key '${key}':`, error);
       throw error;
@@ -183,24 +208,30 @@ class StorageService extends Module {
         data = await this.decompress(data);
       }
 
-      this.emit('storage:get', {
-        key: prefixedKey,
-        originalKey: key,
-        adapter: adapter.name,
-        hit: true
-      });
+      // Only emit events if the module is fully initialized and eventBus is available
+      if (this.initialized && this.eventBus) {
+        this.emit('storage:get', {
+          key: prefixedKey,
+          originalKey: key,
+          adapter: adapter.name,
+          hit: true
+        });
+      }
 
       return data;
     } catch (error) {
       console.error(`Storage get error for key '${key}':`, error);
       
-      this.emit('storage:get', {
-        key: prefixedKey,
-        originalKey: key,
-        adapter: adapter.name,
-        hit: false,
-        error: error.message
-      });
+      // Only emit events if the module is fully initialized and eventBus is available
+      if (this.initialized && this.eventBus) {
+        this.emit('storage:get', {
+          key: prefixedKey,
+          originalKey: key,
+          adapter: adapter.name,
+          hit: false,
+          error: error.message
+        });
+      }
       
       return defaultValue;
     }
@@ -219,11 +250,14 @@ class StorageService extends Module {
     try {
       await adapter.remove(prefixedKey);
       
-      this.emit('storage:remove', {
-        key: prefixedKey,
-        originalKey: key,
-        adapter: adapter.name
-      });
+      // Only emit events if the module is fully initialized and eventBus is available
+      if (this.initialized && this.eventBus) {
+        this.emit('storage:remove', {
+          key: prefixedKey,
+          originalKey: key,
+          adapter: adapter.name
+        });
+      }
     } catch (error) {
       console.error(`Storage remove error for key '${key}':`, error);
       throw error;
@@ -266,10 +300,13 @@ class StorageService extends Module {
         await adapter.clear();
       }
       
-      this.emit('storage:clear', {
-        adapter: adapter.name,
-        prefixed: options.prefix !== false
-      });
+      // Only emit events if the module is fully initialized and eventBus is available
+      if (this.initialized && this.eventBus) {
+        this.emit('storage:clear', {
+          adapter: adapter.name,
+          prefixed: options.prefix !== false
+        });
+      }
     } catch (error) {
       console.error('Storage clear error:', error);
       throw error;
