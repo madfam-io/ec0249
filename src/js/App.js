@@ -89,6 +89,9 @@ class EC0249App {
       // Initialize modules
       await this.initializeModules();
       
+      // Ensure I18nService is ready before rendering
+      await this.waitForI18nService();
+      
       // Render initial view
       this.renderCurrentView();
       
@@ -436,6 +439,36 @@ class EC0249App {
     }
 
     console.log('[App] Modules initialized');
+  }
+
+  /**
+   * Wait for I18nService to be fully loaded
+   */
+  async waitForI18nService() {
+    try {
+      const i18n = container.resolve('I18nService');
+      
+      // Wait for translations to be loaded
+      let retries = 0;
+      const maxRetries = 10;
+      
+      while (retries < maxRetries) {
+        // Check if translations are loaded by testing a key
+        const testTranslation = i18n.t('app.title');
+        if (testTranslation !== 'app.title') {
+          console.log('[App] I18nService ready with translations loaded');
+          return;
+        }
+        
+        // Wait 100ms and try again
+        await new Promise(resolve => setTimeout(resolve, 100));
+        retries++;
+      }
+      
+      console.warn('[App] I18nService timeout - proceeding with fallback translations');
+    } catch (error) {
+      console.error('[App] Error waiting for I18nService:', error);
+    }
   }
 
   /**

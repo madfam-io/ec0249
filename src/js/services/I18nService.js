@@ -11,7 +11,7 @@ class I18nService extends Module {
       fallbackLanguage: 'es',
       supportedLanguages: ['es', 'en'],
       storageKey: 'ec0249_language',
-      translationsPath: './translations/',
+      translationsPath: '/translations/',
       autoDetectLanguage: true,
       interpolationPattern: /\{\{(\w+)\}\}/g
     });
@@ -31,10 +31,12 @@ class I18nService extends Module {
     
     try {
       // Load initial translations
+      console.log(`[I18nService] Loading primary language: ${this.currentLanguage}`);
       await this.loadLanguage(this.currentLanguage);
-      console.log(`[I18nService] Loaded primary language: ${this.currentLanguage}`);
+      console.log(`[I18nService] Successfully loaded primary language: ${this.currentLanguage}`);
     } catch (error) {
       console.error(`[I18nService] Failed to load primary language ${this.currentLanguage}:`, error);
+      console.warn(`[I18nService] Using fallback translations for ${this.currentLanguage}`);
       // Set some basic fallback translations
       this.translations.set(this.currentLanguage, {
         app: { title: 'EC0249 Educational Platform' },
@@ -222,14 +224,21 @@ class I18nService extends Module {
   async fetchTranslations(language) {
     const path = `${this.getConfig('translationsPath')}${language}.json`;
     
+    console.log(`[I18nService] Attempting to fetch translations from: ${path}`);
+    
     try {
       const response = await fetch(path);
+      console.log(`[I18nService] Fetch response status: ${response.status} ${response.statusText}`);
+      
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      return await response.json();
+      const translations = await response.json();
+      console.log(`[I18nService] Successfully loaded ${Object.keys(translations).length} translation sections`);
+      return translations;
     } catch (error) {
+      console.error(`[I18nService] Failed to fetch translations from ${path}:`, error);
       throw new Error(`Failed to fetch translations from ${path}: ${error.message}`);
     }
   }
