@@ -124,9 +124,13 @@ class EC0249App {
    */
   async registerServices() {
     // Register core services
-    container.singleton('EventBus', () => eventBus);
+    container.singleton('EventBus', () => eventBus, {
+      factory: true
+    });
     
-    container.singleton('ConfigManager', () => this.config);
+    container.singleton('ConfigManager', () => this.config, {
+      factory: true
+    });
     
     container.singleton('StorageService', StorageService, {
       dependencies: ['EventBus']
@@ -139,7 +143,8 @@ class EC0249App {
         debug: this.config.get('state.debug')
       });
     }, {
-      dependencies: ['EventBus']
+      dependencies: ['EventBus'],
+      factory: true
     });
     
     container.singleton('ThemeService', ThemeService, {
@@ -168,7 +173,9 @@ class EC0249App {
     });
 
     // Register application instance for services that need it
-    container.singleton('App', () => this);
+    container.singleton('App', () => this, {
+      factory: true
+    });
 
     console.log('[App] Services registered');
   }
@@ -185,55 +192,71 @@ class EC0249App {
    * Initialize state management
    */
   async initializeState() {
-    this.state = container.resolve('StateManager');
+    try {
+      this.state = container.resolve('StateManager');
     
-    // Add state middleware
-    const stateMiddleware = this.config.get('state.middleware', []);
-    stateMiddleware.forEach(middleware => {
-      this.state.addMiddleware(middleware);
-    });
-
-    // Subscribe to state changes for persistence
-    if (this.config.get('state.persistState')) {
-      this.state.subscribe((newState, prevState, action) => {
-        this.persistState(newState, action);
+      // Add state middleware
+      const stateMiddleware = this.config.get('state.middleware', []);
+      stateMiddleware.forEach(middleware => {
+        this.state.addMiddleware(middleware);
       });
-    }
 
-    console.log('[App] State management initialized');
+      // Subscribe to state changes for persistence
+      if (this.config.get('state.persistState')) {
+        this.state.subscribe((newState, prevState, action) => {
+          this.persistState(newState, action);
+        });
+      }
+
+      console.log('[App] State management initialized');
+    } catch (error) {
+      console.error('[App] Error initializing state:', error);
+      throw error;
+    }
   }
 
   /**
    * Initialize UI components
    */
   async initializeComponents() {
-    // Initialize theme toggle
-    const themeToggleElement = document.getElementById('themeToggle');
-    if (themeToggleElement) {
-      const themeToggle = new ThemeToggle(themeToggleElement, {
-        style: 'button',
-        showIcon: true,
-        showText: false
-      });
-      
-      await themeToggle.initialize(container, eventBus);
-      this.components.set('themeToggle', themeToggle);
-    }
+    try {
+      // Initialize theme toggle
+      const themeToggleElement = document.getElementById('themeToggle');
+      if (themeToggleElement) {
+        const themeToggle = new ThemeToggle(themeToggleElement, {
+          style: 'button',
+          showIcon: true,
+          showText: false
+        });
+        
+        await themeToggle.initialize(container, eventBus);
+        this.components.set('themeToggle', themeToggle);
+        console.log('[App] ThemeToggle component initialized');
+      } else {
+        console.warn('[App] ThemeToggle element not found');
+      }
 
-    // Initialize language toggle
-    const languageToggleElement = document.getElementById('languageToggle');
-    if (languageToggleElement) {
-      const languageToggle = new LanguageToggle(languageToggleElement, {
-        style: 'button',
-        showIcon: true,
-        showText: true
-      });
-      
-      await languageToggle.initialize(container, eventBus);
-      this.components.set('languageToggle', languageToggle);
-    }
+      // Initialize language toggle
+      const languageToggleElement = document.getElementById('languageToggle');
+      if (languageToggleElement) {
+        const languageToggle = new LanguageToggle(languageToggleElement, {
+          style: 'button',
+          showIcon: true,
+          showText: true
+        });
+        
+        await languageToggle.initialize(container, eventBus);
+        this.components.set('languageToggle', languageToggle);
+        console.log('[App] LanguageToggle component initialized');
+      } else {
+        console.warn('[App] LanguageToggle element not found');
+      }
 
-    console.log('[App] UI components initialized');
+      console.log('[App] UI components initialized');
+    } catch (error) {
+      console.error('[App] Error initializing components:', error);
+      // Continue initialization even if components fail
+    }
   }
 
   /**
@@ -300,35 +323,44 @@ class EC0249App {
    * Setup global event listeners
    */
   setupEventListeners() {
-    // Navigation handling
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', (e) => {
-        const view = e.target.dataset.view;
+    // Navigation tabs handling
+    document.addEventListener('click', (e) => {
+      const navTab = e.target.closest('.nav-tab');
+      if (navTab) {
+        const view = navTab.dataset.view;
         if (view) {
           this.switchView(view);
         }
-      });
-    });
+        return;
+      }
 
-    // Sidebar navigation
-    document.querySelectorAll('.sidebar-nav a').forEach(link => {
-      link.addEventListener('click', (e) => {
+      // Sidebar navigation handling
+      const sidebarLink = e.target.closest('.sidebar-nav a');
+      if (sidebarLink) {
         e.preventDefault();
-        const section = e.target.dataset.section;
+        const section = sidebarLink.dataset.section;
         if (section) {
           this.switchSection(section);
         }
-      });
-    });
+        return;
+      }
 
-    // Module card clicks
-    document.addEventListener('click', (e) => {
+      // Module card clicks
       const moduleCard = e.target.closest('.module-card');
       if (moduleCard) {
         const moduleNum = moduleCard.dataset.module;
         if (moduleNum) {
           this.openModule(moduleNum);
         }
+        return;
+      }
+
+      // Action button handling
+      const actionButton = e.target.closest('[data-action]');
+      if (actionButton) {
+        const action = actionButton.dataset.action;
+        this.handleAction(action, actionButton);
+        return;
       }
     });
 
@@ -422,8 +454,8 @@ class EC0249App {
       link.classList.toggle('active', link.dataset.section === sectionName);
     });
 
-    // Render section content
-    this.renderCurrentView();
+    // Handle section-specific content loading
+    await this.loadSectionContent(sectionName);
 
     // Emit section change event
     eventBus.publish('app:section-change', {
@@ -435,13 +467,285 @@ class EC0249App {
   }
 
   /**
+   * Load content for specific section
+   * @param {string} sectionName - Section name
+   */
+  async loadSectionContent(sectionName) {
+    const contentArea = document.getElementById('contentArea');
+    if (!contentArea) return;
+
+    try {
+      switch (sectionName) {
+        case 'overview':
+          // Switch to dashboard view for overview
+          if (this.appState.currentView !== 'dashboard') {
+            this.switchView('dashboard');
+          }
+          break;
+
+        case 'module1':
+        case 'module2':
+        case 'module3':
+        case 'module4':
+          await this.loadModuleContent(sectionName);
+          break;
+
+        case 'documents':
+          await this.loadDocumentTemplates();
+          break;
+
+        case 'progress':
+          await this.loadProgressContent();
+          break;
+
+        default:
+          console.log(`[App] Section ${sectionName} - content loading not implemented`);
+      }
+    } catch (error) {
+      console.error(`[App] Error loading section content for ${sectionName}:`, error);
+      this.showNotification('Error al cargar el contenido', 'error');
+    }
+  }
+
+  /**
+   * Load module content using ContentEngine
+   * @param {string} moduleId - Module identifier
+   */
+  async loadModuleContent(moduleId) {
+    const contentEngine = this.modules.get('contentEngine');
+    if (!contentEngine) {
+      this.showNotification('Motor de contenido no disponible', 'error');
+      return;
+    }
+
+    const contentArea = document.getElementById('contentArea');
+    
+    // Create module content configuration
+    const contentConfig = {
+      id: moduleId,
+      type: 'module',
+      title: this.getModuleTitle(moduleId),
+      overview: this.getModuleOverview(moduleId)
+    };
+
+    try {
+      // Load and render content
+      await contentEngine.loadContent(contentConfig);
+      await contentEngine.renderContent(contentArea, null, {
+        transition: 'fadeIn'
+      });
+    } catch (error) {
+      console.error(`[App] Error loading module content:`, error);
+      this.showNotification('Error al cargar el módulo', 'error');
+    }
+  }
+
+  /**
+   * Load document templates using DocumentEngine
+   */
+  async loadDocumentTemplates() {
+    const documentEngine = this.modules.get('documentEngine');
+    if (!documentEngine) {
+      this.showNotification('Motor de documentos no disponible', 'error');
+      return;
+    }
+
+    const contentArea = document.getElementById('contentArea');
+    
+    // Create template listing HTML
+    const templates = Array.from(documentEngine.templates.values());
+    
+    contentArea.innerHTML = `
+      <div class="templates-view">
+        <h1>Plantillas de Documentos EC0249</h1>
+        <p>Todas las plantillas necesarias para completar tu certificación están aquí.</p>
+        
+        <div class="templates-grid">
+          ${templates.map(template => `
+            <div class="template-card" data-template-id="${template.id}">
+              <div class="template-header">
+                <div class="template-icon">${template.icon || '📄'}</div>
+                <div class="template-element">${template.element}</div>
+              </div>
+              <h3>${template.title}</h3>
+              <p>${template.description}</p>
+              <div class="template-meta">
+                <span>⏱️ ${template.estimatedTime} min</span>
+                <span class="template-status">📝 Disponible</span>
+              </div>
+              <button class="btn btn-primary" onclick="ec0249App.createDocument('${template.id}')">
+                Crear Documento
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Load progress content
+   */
+  async loadProgressContent() {
+    const contentArea = document.getElementById('contentArea');
+    
+    contentArea.innerHTML = `
+      <div class="progress-view">
+        <h1>Mi Progreso de Certificación</h1>
+        <p>Seguimiento detallado de tu avance hacia la certificación EC0249.</p>
+        
+        <div class="progress-summary">
+          <div class="progress-card">
+            <h3>Progreso General</h3>
+            <div class="circular-progress">
+              <div class="progress-circle">
+                <span class="progress-number">15%</span>
+              </div>
+            </div>
+            <p>Has completado 1 de 4 módulos</p>
+          </div>
+        </div>
+        
+        <div class="modules-progress">
+          <h2>Progreso por Módulo</h2>
+          <!-- Module progress details will be added here -->
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Get module title by ID
+   */
+  getModuleTitle(moduleId) {
+    const titles = {
+      'module1': 'Fundamentos de Consultoría',
+      'module2': 'Identificación del Problema',
+      'module3': 'Desarrollo de Soluciones',
+      'module4': 'Presentación de Propuestas'
+    };
+    return titles[moduleId] || 'Módulo';
+  }
+
+  /**
+   * Get module overview by ID
+   */
+  getModuleOverview(moduleId) {
+    const overviews = {
+      'module1': 'Conceptos básicos, ética y habilidades interpersonales necesarias para la consultoría profesional.',
+      'module2': 'Elemento 1: Técnicas de entrevista, cuestionarios e investigación de campo para identificar situaciones problemáticas.',
+      'module3': 'Elemento 2: Análisis de impacto y diseño de soluciones efectivas con justificación costo-beneficio.',
+      'module4': 'Elemento 3: Preparación y presentación profesional de propuestas de solución.'
+    };
+    return overviews[moduleId] || 'Descripción del módulo.';
+  }
+
+  /**
+   * Create new document using DocumentEngine
+   * @param {string} templateId - Template identifier
+   */
+  async createDocument(templateId) {
+    const documentEngine = this.modules.get('documentEngine');
+    if (!documentEngine) {
+      this.showNotification('Motor de documentos no disponible', 'error');
+      return;
+    }
+
+    try {
+      const document = documentEngine.createDocument(templateId);
+      this.showNotification(`Documento "${document.title}" creado exitosamente`, 'success');
+      
+      // TODO: Open document editor
+      console.log('Created document:', document);
+    } catch (error) {
+      console.error('Error creating document:', error);
+      this.showNotification('Error al crear el documento', 'error');
+    }
+  }
+
+  /**
    * Open a learning module
    * @param {string} moduleNum - Module number
    */
   openModule(moduleNum) {
-    // Implementation would depend on module system
     console.log(`[App] Opening module: ${moduleNum}`);
+    
+    // Switch to modules view if not already there
+    if (this.appState.currentView !== 'modules') {
+      this.switchView('modules');
+    }
+
+    // Switch to specific module section
+    this.switchSection(`module${moduleNum}`);
+    
     eventBus.publish('module:open', { module: moduleNum });
+  }
+
+  /**
+   * Handle action button clicks
+   * @param {string} action - Action identifier
+   * @param {HTMLElement} button - Button element
+   */
+  async handleAction(action, button) {
+    console.log(`[App] Handling action: ${action}`);
+
+    // Get i18n service for notifications (with fallback)
+    let i18n = null;
+    try {
+      i18n = this.getService('I18nService');
+    } catch (error) {
+      // I18nService not ready yet
+    }
+
+    try {
+      switch (action) {
+        case 'continue-learning':
+          this.switchView('modules');
+          this.switchSection('module1');
+          break;
+
+        case 'explore-modules':
+          this.switchView('modules');
+          break;
+
+        case 'view-templates':
+          this.switchSection('documents');
+          break;
+
+        case 'start-simulation':
+          this.switchView('assessment');
+          // TODO: Start simulation with SimulationEngine
+          this.showNotification(i18n ? i18n.t('common.underConstruction') : 'Esta funcionalidad está en construcción', 'info');
+          break;
+
+        case 'start-knowledge-test':
+          // TODO: Start assessment with AssessmentEngine
+          this.showNotification(i18n ? i18n.t('common.underConstruction') : 'Esta funcionalidad está en construcción', 'info');
+          break;
+
+        case 'manage-portfolio':
+          this.switchView('portfolio');
+          break;
+
+        case 'view-roadmap':
+          this.showNotification(i18n ? i18n.t('common.comingSoon') : 'Próximamente disponible', 'info');
+          break;
+
+        case 'view-element-1':
+        case 'view-element-2':
+        case 'view-element-3':
+          // TODO: Show element-specific documents
+          this.switchSection('documents');
+          break;
+
+        default:
+          console.warn(`[App] Unknown action: ${action}`);
+          this.showNotification('Función en desarrollo', 'info');
+      }
+    } catch (error) {
+      console.error(`[App] Error handling action ${action}:`, error);
+      this.showNotification('Error al ejecutar la acción', 'error');
+    }
   }
 
   /**
@@ -449,7 +753,7 @@ class EC0249App {
    */
   renderCurrentView() {
     // Hide all views
-    document.querySelectorAll('[id$="View"]').forEach(view => {
+    document.querySelectorAll('.view').forEach(view => {
       view.classList.add('hidden');
     });
 
@@ -457,6 +761,18 @@ class EC0249App {
     const currentViewElement = document.getElementById(`${this.appState.currentView}View`);
     if (currentViewElement) {
       currentViewElement.classList.remove('hidden');
+    }
+
+    // Update navigation UI
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.classList.remove('active');
+      tab.setAttribute('aria-selected', 'false');
+    });
+
+    const activeTab = document.querySelector(`[data-view="${this.appState.currentView}"]`);
+    if (activeTab) {
+      activeTab.classList.add('active');
+      activeTab.setAttribute('aria-selected', 'true');
     }
 
     // Update view-specific content
@@ -536,6 +852,97 @@ class EC0249App {
     if (modulesSubtitle) {
       modulesSubtitle.textContent = i18n.t('modules.subtitle');
     }
+
+    // Update modules grid
+    this.renderModulesGrid();
+  }
+
+  /**
+   * Render modules grid with current data
+   */
+  renderModulesGrid() {
+    const modulesGrid = document.querySelector('#modulesView .modules-grid');
+    if (!modulesGrid) return;
+
+    const modules = [
+      {
+        id: 'module1',
+        number: 1,
+        title: 'Fundamentos de Consultoría',
+        description: 'Conceptos básicos, ética y habilidades interpersonales necesarias para la consultoría profesional.',
+        icon: '🎯',
+        status: 'available',
+        progress: 25,
+        lessons: 4,
+        color: 'green'
+      },
+      {
+        id: 'module2',
+        number: 2,
+        title: 'Identificación del Problema',
+        description: 'Elemento 1: Técnicas de entrevista, cuestionarios e investigación de campo para identificar situaciones problemáticas.',
+        icon: '🔍',
+        status: 'locked',
+        progress: 0,
+        lessons: 8,
+        color: 'blue'
+      },
+      {
+        id: 'module3',
+        number: 3,
+        title: 'Desarrollo de Soluciones',
+        description: 'Elemento 2: Análisis de impacto y diseño de soluciones efectivas con justificación costo-beneficio.',
+        icon: '💡',
+        status: 'locked',
+        progress: 0,
+        lessons: 4,
+        color: 'purple'
+      },
+      {
+        id: 'module4',
+        number: 4,
+        title: 'Presentación de Propuestas',
+        description: 'Elemento 3: Preparación y presentación profesional de propuestas de solución.',
+        icon: '📋',
+        status: 'locked',
+        progress: 0,
+        lessons: 6,
+        color: 'orange'
+      }
+    ];
+
+    modulesGrid.innerHTML = modules.map(module => `
+      <div class="module-card module-${module.number}" data-module="${module.number}">
+        <div class="module-header">
+          <div class="module-icon ${module.color}">${module.icon}</div>
+          <div class="module-status ${module.status}"></div>
+        </div>
+        <div class="module-content">
+          <h3 class="module-title">Módulo ${module.number}: ${module.title}</h3>
+          <p class="module-description">${module.description}</p>
+          <div class="module-stats">
+            <span>${module.lessons} lecciones</span>
+            <span class="status-text ${module.status === 'available' ? 'text-success' : module.status === 'locked' ? 'text-secondary' : 'text-warning'}">
+              ${module.status === 'available' ? 'Disponible' : module.status === 'locked' ? 'Bloqueado' : 'En progreso'}
+            </span>
+          </div>
+          <div class="module-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${module.progress}%"></div>
+            </div>
+            <span class="progress-text">${module.progress}% completado</span>
+          </div>
+          <div class="module-actions">
+            ${module.status === 'available' ? 
+              `<button class="btn btn-primary" onclick="ec0249App.openModule('${module.number}')">Continuar</button>` :
+              module.status === 'locked' ? 
+                `<button class="btn btn-secondary" disabled>Bloqueado</button>` :
+                `<button class="btn btn-primary" onclick="ec0249App.openModule('${module.number}')">Continuar</button>`
+            }
+          </div>
+        </div>
+      </div>
+    `).join('');
   }
 
   /**

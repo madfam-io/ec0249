@@ -21,14 +21,34 @@ class StorageService extends Module {
   }
 
   async onInitialize() {
-    // Register storage adapters
-    this.registerAdapter('localStorage', new LocalStorageAdapter());
-    this.registerAdapter('sessionStorage', new SessionStorageAdapter());
+    // Register memory adapter first (always works)
     this.registerAdapter('memory', new MemoryStorageAdapter(this.memoryStorage));
     
+    // Try to register localStorage adapter
+    try {
+      if (this.isLocalStorageSupported()) {
+        this.registerAdapter('localStorage', new LocalStorageAdapter());
+      }
+    } catch (error) {
+      console.warn('localStorage not available:', error.message);
+    }
+    
+    // Try to register sessionStorage adapter
+    try {
+      if (this.isSessionStorageSupported()) {
+        this.registerAdapter('sessionStorage', new SessionStorageAdapter());
+      }
+    } catch (error) {
+      console.warn('sessionStorage not available:', error.message);
+    }
+    
     // Try to register IndexedDB adapter
-    if (this.isIndexedDBSupported()) {
-      this.registerAdapter('indexedDB', new IndexedDBAdapter(this.getConfig('prefix')));
+    try {
+      if (this.isIndexedDBSupported()) {
+        this.registerAdapter('indexedDB', new IndexedDBAdapter(this.getConfig('prefix')));
+      }
+    } catch (error) {
+      console.warn('IndexedDB not available:', error.message);
     }
 
     this.initialized = true;
@@ -54,12 +74,18 @@ class StorageService extends Module {
    */
   getAdapter(name = null) {
     const adapterName = name || this.getConfig('defaultAdapter');
-    const adapter = this.adapters.get(adapterName);
+    let adapter = this.adapters.get(adapterName);
     
     if (!adapter) {
       if (this.getConfig('fallbackToMemory')) {
         console.warn(`Storage adapter '${adapterName}' not found, falling back to memory`);
-        return this.adapters.get('memory');
+        adapter = this.adapters.get('memory');
+        if (!adapter) {
+          // Create memory adapter on the fly if it doesn't exist
+          adapter = new MemoryStorageAdapter(this.memoryStorage);
+          this.adapters.set('memory', adapter);
+        }
+        return adapter;
       }
       throw new Error(`Storage adapter '${adapterName}' not found`);
     }
@@ -400,6 +426,44 @@ class StorageService extends Module {
   }
 
   /**
+   * Check if localStorage is supported
+   * @returns {boolean} Support status
+   */
+  isLocalStorageSupported() {
+    try {
+      const test = '__storage_test__';
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Check if sessionStorage is supported
+   * @returns {boolean} Support status
+   */
+  isSessionStorageSupported() {
+    try {
+      const test = '__storage_test__';
+      sessionStorage.setItem(test, test);
+      sessionStorage.removeItem(test);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Check if IndexedDB is supported
+   * @returns {boolean} Support status
+   */
+  isIndexedDBSupported() {
+    return 'indexedDB' in window;
+  }
+
+  /**
    * Get storage statistics
    * @returns {Promise<Object>} Storage statistics
    */
@@ -445,24 +509,49 @@ class LocalStorageAdapter {
   }
 
   async set(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error('localStorage.setItem failed:', error);
+      throw error;
+    }
   }
 
   async get(key) {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : null;
+    } catch (error) {
+      console.error('localStorage.getItem failed:', error);
+      return null;
+    }
   }
 
   async remove(key) {
-    localStorage.removeItem(key);
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error('localStorage.removeItem failed:', error);
+      throw error;
+    }
   }
 
   async clear() {
-    localStorage.clear();
+    try {
+      localStorage.clear();
+    } catch (error) {
+      console.error('localStorage.clear failed:', error);
+      throw error;
+    }
   }
 
   async getKeys() {
-    return Object.keys(localStorage);
+    try {
+      return Object.keys(localStorage);
+    } catch (error) {
+      console.error('localStorage.getKeys failed:', error);
+      return [];
+    }
   }
 }
 

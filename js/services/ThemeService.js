@@ -250,13 +250,35 @@ class ThemeService extends Module {
    * @returns {string} Display name
    */
   getThemeDisplayName(theme) {
-    const i18n = this.container.has('I18nService') ? this.service('I18nService') : null;
+    let i18n = null;
+    
+    // Safely check for I18nService
+    try {
+      if (this.container && this.container.has && this.container.has('I18nService')) {
+        i18n = this.service('I18nService');
+      }
+    } catch (error) {
+      // Container not ready yet, use fallback
+    }
     
     if (i18n) {
-      return i18n.t(`theme.${theme}`, theme);
+      try {
+        return i18n.t(`theme.${theme}`, {}, null) || this.getFallbackDisplayName(theme);
+      } catch (error) {
+        // Translation failed, use fallback
+        return this.getFallbackDisplayName(theme);
+      }
     }
 
-    // Fallback display names
+    return this.getFallbackDisplayName(theme);
+  }
+
+  /**
+   * Get fallback display name for theme
+   * @param {string} theme - Theme name
+   * @returns {string} Display name
+   */
+  getFallbackDisplayName(theme) {
     const displayNames = {
       auto: 'Auto',
       light: 'Light',

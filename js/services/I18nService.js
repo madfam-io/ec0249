@@ -29,12 +29,30 @@ class I18nService extends Module {
     // Load saved language or detect from browser
     await this.initializeLanguage();
     
-    // Load initial translations
-    await this.loadLanguage(this.currentLanguage);
+    try {
+      // Load initial translations
+      await this.loadLanguage(this.currentLanguage);
+      console.log(`[I18nService] Loaded primary language: ${this.currentLanguage}`);
+    } catch (error) {
+      console.error(`[I18nService] Failed to load primary language ${this.currentLanguage}:`, error);
+      // Set some basic fallback translations
+      this.translations.set(this.currentLanguage, {
+        app: { title: 'EC0249 Educational Platform' },
+        navigation: { dashboard: 'Dashboard', modules: 'Modules', assessment: 'Assessment', portfolio: 'Portfolio' },
+        dashboard: { welcome: 'Welcome', subtitle: 'Educational Platform' },
+        theme: { auto: 'Auto', light: 'Light', dark: 'Dark' },
+        common: { underConstruction: 'Under Construction', comingSoon: 'Coming Soon' }
+      });
+      this.loadedLanguages.add(this.currentLanguage);
+    }
     
     // Preload fallback if different
     if (this.currentLanguage !== this.getConfig('fallbackLanguage')) {
-      this.loadLanguage(this.getConfig('fallbackLanguage'));
+      try {
+        await this.loadLanguage(this.getConfig('fallbackLanguage'));
+      } catch (error) {
+        console.warn(`[I18nService] Could not preload fallback language:`, error);
+      }
     }
 
     // Subscribe to language events
@@ -232,9 +250,11 @@ class I18nService extends Module {
       value = this.getTranslation(key, this.getConfig('fallbackLanguage'));
     }
 
-    // Return key if no translation found
+    // Return key if no translation found, but don't log as error during initialization
     if (value === null) {
-      console.warn(`[I18nService] Translation not found for key: ${key}`);
+      if (this.loadedLanguages.has(lang)) {
+        console.warn(`[I18nService] Translation not found for key: ${key}`);
+      }
       return key;
     }
 

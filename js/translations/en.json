@@ -1,159 +1,40 @@
 {
   "app": {
-    "title": "EC0249 · Educational Consulting Platform",
-    "description": "Interactive educational platform for EC0249 certification - Providing general consulting services",
-    "footer": "© 2024 EC0249 Educational Platform. Developed for general consulting certification according to CONOCER standards."
+    "title": "EC0249 · Educational Consulting Platform"
   },
   "navigation": {
     "dashboard": "Dashboard",
     "modules": "Modules",
     "assessment": "Assessment",
-    "portfolio": "Portfolio",
-    "overview": "General Overview",
-    "progress": "My Progress",
-    "documents": "Documents",
-    "certificationPath": "Certification Path"
-  },
-  "theme": {
-    "toggle": "Change theme",
-    "auto": "Auto theme activated",
-    "light": "Light theme activated",
-    "dark": "Dark theme activated"
-  },
-  "language": {
-    "toggle": "Change language",
-    "spanish": "Spanish",
-    "english": "English",
-    "changed": "Language changed to English"
+    "portfolio": "Portfolio"
   },
   "dashboard": {
-    "welcome": "Welcome to EC0249",
-    "subtitle": "Your comprehensive platform for general consulting certification",
-    "quickStart": "Quick Start",
-    "continueJourney": "Continue your learning journey from where you left off",
-    "yourProgress": "Your Progress",
-    "overall": "Overall",
-    "keyFeatures": "Key Features",
-    "interactiveLearning": "Interactive Learning",
-    "interactiveLearningDesc": "Dynamic learning modules with multimedia content",
-    "documentGeneration": "Document Generation",
-    "documentGenerationDesc": "Professional templates for all EC0249 deliverables",
-    "practiceSimulations": "Practice Simulations",
-    "practiceSimulationsDesc": "Interview Simulator, Presentation Trainer, Knowledge Assessment"
+    "welcome": "Dashboard - EC0249",
+    "subtitle": "Welcome to the educational platform for EC0249 certification - Provide general consulting services"
   },
   "modules": {
     "title": "Learning Module System",
-    "subtitle": "Master EC0249 competencies through structured content and practical activities",
-    "module1": {
-      "title": "Consulting Fundamentals",
-      "description": "Basic concepts, ethics, and interpersonal skills necessary for professional consulting.",
-      "lessons": {
-        "lesson1_1": {
-          "title": "Introduction to Consulting",
-          "overview": "Historical foundations and characteristics of professional consulting",
-          "objectives": [
-            "Understand the historical evolution of consulting",
-            "Identify the main characteristics of a consultant", 
-            "Recognize different types of consulting"
-          ]
-        },
-        "lesson1_2": {
-          "title": "Ethics and Confidentiality",
-          "overview": "Fundamental ethical principles and confidentiality management in consulting",
-          "objectives": [
-            "Know the consultant's code of ethics",
-            "Apply confidentiality principles",
-            "Handle conflicts of interest"
-          ]
-        },
-        "lesson1_3": {
-          "title": "Interpersonal Skills",
-          "overview": "Development of communication and relational competencies for consultants",
-          "objectives": [
-            "Develop effective communication skills",
-            "Handle group facilitation techniques",
-            "Apply conflict management strategies"
-          ]
-        }
-      }
-    },
-    "module2": {
-      "title": "Problem Identification",
-      "description": "Element 1: Methodologies for identifying organizational problems and client needs."
-    },
-    "module3": {
-      "title": "Solution Development",
-      "description": "Element 2: Design and development of effective solution proposals."
-    },
-    "module4": {
-      "title": "Proposal Presentation",
-      "description": "Element 3: Presentation and negotiation techniques for consulting proposals."
-    }
+    "subtitle": "Master EC0249 competencies through structured content and practical activities"
   },
   "assessment": {
-    "title": "Assessment Center",
-    "subtitle": "Evaluate your mastery of EC0249 competencies and prepare for official certification",
-    "knowledgeTests": "Knowledge Tests",
-    "practiceExercises": "Practice Exercises",
-    "portfolioBuilder": "Portfolio Builder"
+    "title": "Assessment Center"
   },
   "portfolio": {
-    "title": "My Portfolio",
-    "subtitle": "Manage and review all your documents and evidence for certification.",
-    "competencyElements": "Competency Elements",
-    "competencyDesc": "Track your progress across all three competency elements."
+    "title": "My Competency Portfolio"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "auto": "Auto",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "language": {
+    "toggle": "Change language",
+    "es": "Spanish",
+    "en": "English"
   },
   "common": {
-    "start": "Start",
-    "continue": "Continue",
-    "complete": "Complete",
-    "save": "Save",
-    "cancel": "Cancel",
-    "edit": "Edit",
-    "delete": "Delete",
-    "loading": "Loading...",
-    "success": "Success!",
-    "error": "Error",
-    "warning": "Warning",
-    "info": "Information"
-  },
-  "templates": {
-    "elemento1_documento_problema": {
-      "title": "Document describing the identified problem",
-      "description": "Main document describing the identified problem, its scope and impact",
-      "criteria": [
-        "Includes the current situation impact",
-        "Establishes the scope",
-        "Includes integration of obtained information", 
-        "Contains interpretation of the problem and its effects"
-      ],
-      "sections": {
-        "resumen_ejecutivo": {
-          "title": "Executive Summary",
-          "placeholder": "Brief description of the identified problem...",
-          "guidance": "Concise summary of the main problem in maximum 200 words"
-        },
-        "descripcion_problema": {
-          "title": "Detailed Problem Description", 
-          "placeholder": "Complete problem description...",
-          "guidance": "Comprehensive description including context, symptoms and manifestations"
-        },
-        "alcance": {
-          "title": "Problem Scope",
-          "placeholder": "Definition of scope and boundaries...",
-          "guidance": "Specify affected areas, processes and people"
-        },
-        "impacto": {
-          "title": "Impact Analysis",
-          "placeholder": "Impact on the organization...",
-          "guidance": "Quantify financial, operational and strategic impacts"
-        },
-        "stakeholders": {
-          "title": "Affected Stakeholders",
-          "placeholder": "Stakeholder identification...",
-          "guidance": "List and describe all parties affected by the problem"
-        }
-      }
-    }
+    "underConstruction": "This feature is under construction",
+    "comingSoon": "Coming soon"
   }
 }

@@ -40,7 +40,7 @@ class ServiceContainer {
       aliases.forEach(alias => this.aliases.set(alias, name));
     }
 
-    console.log(`[ServiceContainer] Registered service: ${name}`);
+    // Service registered successfully
     return this;
   }
 
@@ -87,13 +87,15 @@ class ServiceContainer {
     // Create instance
     let instance;
     
-    if (config.factory) {
-      // Call factory function
-      instance = service.call(this, this);
-    } else if (typeof service === 'function') {
-      // Resolve dependencies and instantiate
-      const dependencies = this.resolveDependencies(actualName);
-      instance = new service(...dependencies);
+    if (typeof service === 'function') {
+      if (config.factory) {
+        // Call factory function
+        instance = service.call(this, this);
+      } else {
+        // Resolve dependencies and instantiate as constructor
+        const dependencies = this.resolveDependencies(actualName);
+        instance = new service(...dependencies);
+      }
     } else {
       // Return object as-is
       instance = service;
@@ -104,7 +106,7 @@ class ServiceContainer {
       this.singletons.set(actualName, instance);
     }
 
-    console.log(`[ServiceContainer] Resolved service: ${actualName}`);
+    // Service resolved successfully
     return instance;
   }
 

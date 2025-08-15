@@ -16,9 +16,9 @@
   },
   "theme": {
     "toggle": "Cambiar tema",
-    "auto": "Tema automático activado",
-    "light": "Tema claro activado", 
-    "dark": "Tema oscuro activado"
+    "auto": "Automático",
+    "light": "Claro", 
+    "dark": "Oscuro"
   },
   "language": {
     "toggle": "Cambiar idioma",
@@ -27,8 +27,8 @@
     "changed": "Idioma cambiado a español"
   },
   "dashboard": {
-    "welcome": "Bienvenido a EC0249",
-    "subtitle": "Tu plataforma integral para la certificación en consultoría general",
+    "welcome": "Panel de Control - EC0249",
+    "subtitle": "Bienvenido a la plataforma educativa para la certificación EC0249 - Proporcionar servicios de consultoría general",
     "quickStart": "Inicio Rápido",
     "continueJourney": "Continúa tu viaje de aprendizaje desde donde lo dejaste",
     "yourProgress": "Tu Progreso",
@@ -115,7 +115,9 @@
     "success": "¡Éxito!",
     "error": "Error",
     "warning": "Advertencia",
-    "info": "Información"
+    "info": "Información",
+    "underConstruction": "Esta funcionalidad está en construcción",
+    "comingSoon": "Próximamente disponible"
   },
   "templates": {
     "elemento1_documento_problema": {
