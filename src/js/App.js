@@ -900,20 +900,8 @@ class EC0249App {
     // Translate all DOM elements with data-i18n attributes
     i18n.translateDOM();
 
-    // Update navigation
-    const navMappings = {
-      'dashboard': 'navigation.dashboard',
-      'modules': 'navigation.modules',
-      'assessment': 'navigation.assessment',
-      'portfolio': 'navigation.portfolio'
-    };
-
-    Object.entries(navMappings).forEach(([view, key]) => {
-      const tab = document.querySelector(`[data-view="${view}"]`);
-      if (tab) {
-        tab.textContent = i18n.t(key);
-      }
-    });
+    // Navigation tabs are already handled by data-i18n attributes in translateDOM()
+    // No manual override needed - let translateDOM() handle all translations
 
     // Update view-specific content
     switch (this.appState.currentView) {
