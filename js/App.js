@@ -11,6 +11,10 @@ import StorageService from './services/StorageService.js';
 import ThemeToggle from './components/ThemeToggle.js';
 import LanguageToggle from './components/LanguageToggle.js';
 import AppConfig, { ConfigManager } from './config/AppConfig.js';
+import ContentEngine from './engines/ContentEngine.js';
+import AssessmentEngine from './engines/AssessmentEngine.js';
+import DocumentEngine from './engines/DocumentEngine.js';
+import SimulationEngine from './engines/SimulationEngine.js';
 
 class EC0249App {
   constructor(config = {}) {
@@ -144,6 +148,23 @@ class EC0249App {
     
     container.singleton('I18nService', I18nService, {
       dependencies: ['StorageService', 'EventBus']
+    });
+
+    // Register engine modules
+    container.singleton('ContentEngine', ContentEngine, {
+      dependencies: ['StateManager', 'I18nService', 'StorageService', 'EventBus']
+    });
+
+    container.singleton('AssessmentEngine', AssessmentEngine, {
+      dependencies: ['StateManager', 'I18nService', 'StorageService', 'EventBus']
+    });
+
+    container.singleton('DocumentEngine', DocumentEngine, {
+      dependencies: ['StateManager', 'I18nService', 'StorageService', 'EventBus']
+    });
+
+    container.singleton('SimulationEngine', SimulationEngine, {
+      dependencies: ['StateManager', 'I18nService', 'StorageService', 'EventBus']
     });
 
     // Register application instance for services that need it
@@ -324,8 +345,34 @@ class EC0249App {
    * Initialize application modules
    */
   async initializeModules() {
-    // This would initialize learning modules, document systems, etc.
-    // For now, we'll keep the existing module system
+    // Initialize ContentEngine for lesson content rendering
+    const contentEngine = container.resolve('ContentEngine');
+    await contentEngine.initialize(container, eventBus);
+    this.modules.set('contentEngine', contentEngine);
+
+    // Initialize AssessmentEngine for knowledge verification
+    const assessmentEngine = container.resolve('AssessmentEngine');
+    await assessmentEngine.initialize(container, eventBus);
+    this.modules.set('assessmentEngine', assessmentEngine);
+
+    // Initialize DocumentEngine for template-based document generation
+    const documentEngine = container.resolve('DocumentEngine');
+    await documentEngine.initialize(container, eventBus);
+    this.modules.set('documentEngine', documentEngine);
+
+    // Initialize SimulationEngine for interview and presentation practice
+    const simulationEngine = container.resolve('SimulationEngine');
+    await simulationEngine.initialize(container, eventBus);
+    this.modules.set('simulationEngine', simulationEngine);
+
+    // Expose engines globally for legacy compatibility
+    if (typeof window !== 'undefined') {
+      window.contentEngine = contentEngine;
+      window.assessmentEngine = assessmentEngine;
+      window.documentEngine = documentEngine;
+      window.simulationEngine = simulationEngine;
+    }
+
     console.log('[App] Modules initialized');
   }
 
