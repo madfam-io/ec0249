@@ -311,6 +311,12 @@ class ContentEngine extends Module {
       contentElement.appendChild(objectives);
     }
 
+    // Add video content if present
+    if (content.video || content.videoId) {
+      const videoSection = this.createVideoSection(content);
+      contentElement.appendChild(videoSection);
+    }
+
     // Add main content sections
     if (content.sections && content.sections.length > 0) {
       for (const section of content.sections) {
@@ -351,6 +357,140 @@ class ContentEngine extends Module {
     }
 
     return contentElement;
+  }
+
+  /**
+   * Create video section for content
+   * @param {Object} content - Content with video information
+   * @returns {HTMLElement} Video section element
+   */
+  createVideoSection(content) {
+    const videoSection = document.createElement('div');
+    videoSection.className = 'lesson-video-section';
+    
+    // Create video container with unique ID
+    const videoId = content.videoId || content.video?.id || content.id + '_video';
+    const videoContainer = document.createElement('div');
+    videoContainer.id = `video-player-${videoId}`;
+    videoContainer.className = 'lesson-video-player';
+    
+    // Create video introduction if video has title/description
+    const videoTitle = content.video?.title || content.videoTitle;
+    const videoDescription = content.video?.description || content.videoDescription;
+    
+    if (videoTitle || videoDescription) {
+      const introDiv = document.createElement('div');
+      introDiv.className = 'lesson-video-introduction';
+      
+      if (videoTitle) {
+        const titleElement = document.createElement('h4');
+        titleElement.textContent = `🎥 ${videoTitle}`;
+        introDiv.appendChild(titleElement);
+      }
+      
+      if (videoDescription) {
+        const descElement = document.createElement('p');
+        descElement.textContent = videoDescription;
+        introDiv.appendChild(descElement);
+      }
+      
+      videoSection.appendChild(introDiv);
+    }
+    
+    videoSection.appendChild(videoContainer);
+    
+    // Schedule video player initialization
+    setTimeout(() => {
+      this.initializeVideoPlayer(videoContainer, content);
+    }, 100);
+    
+    return videoSection;
+  }
+
+  /**
+   * Initialize video player for content
+   * @param {HTMLElement} container - Video container element
+   * @param {Object} content - Content with video configuration
+   */
+  async initializeVideoPlayer(container, content) {
+    try {
+      // Import VideoPlayer dynamically to avoid circular dependencies
+      const { default: VideoPlayer } = await import('../components/VideoPlayer.js');
+      const { getVideoConfig } = await import('../config/VideoConfig.js');
+      
+      // Create video player instance
+      const videoPlayer = new VideoPlayer({
+        placement: 'lesson_content',
+        showTitle: false, // Already shown in introduction
+        showDescription: false,
+        trackProgress: true
+      });
+      
+      // Mount and initialize
+      videoPlayer.mount(container);
+      await videoPlayer.initialize(this.service('ServiceContainer'), this.service('EventBus'));
+      
+      // Load video configuration
+      let videoConfig = null;
+      
+      if (content.video && typeof content.video === 'object') {
+        // Video config provided directly
+        videoConfig = content.video;
+      } else if (content.videoId) {
+        // Look up video by ID in module configuration
+        videoConfig = this.getVideoConfigForContent(content);
+      }
+      
+      if (videoConfig) {
+        videoPlayer.loadVideo(videoConfig);
+        console.log('[ContentEngine] Video player initialized for:', videoConfig.title);
+      } else {
+        console.warn('[ContentEngine] No video configuration found for content:', content.id);
+      }
+      
+    } catch (error) {
+      console.error('[ContentEngine] Failed to initialize video player:', error);
+    }
+  }
+
+  /**
+   * Get video configuration for content
+   * @param {Object} content - Content object
+   * @returns {Object|null} Video configuration
+   */
+  getVideoConfigForContent(content) {
+    try {
+      const { getVideoConfig, getModuleVideos } = require('../config/VideoConfig.js');
+      
+      // Try to match content to video based on module and lesson structure
+      if (content.moduleId && content.lessonId) {
+        return getVideoConfig(content.moduleId, content.lessonId);
+      }
+      
+      // Try to get video by content ID pattern matching
+      if (content.id) {
+        const moduleMatch = content.id.match(/module(\d+)/);
+        const lessonMatch = content.id.match(/lesson(\d+_\d+)/);
+        
+        if (moduleMatch) {
+          const moduleNum = parseInt(moduleMatch[1]);
+          const moduleKey = `module${moduleNum}`;
+          
+          if (lessonMatch) {
+            const lessonKey = `lesson${lessonMatch[1]}`;
+            return getVideoConfig(moduleKey, lessonKey);
+          } else {
+            // Return module overview video
+            return getVideoConfig(moduleKey);
+          }
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('[ContentEngine] Error getting video config:', error);
+      return null;
+    }
   }
 
   /**

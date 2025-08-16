@@ -102,7 +102,8 @@ class DocumentEngine extends Module {
         estimatedTime: template.estimatedTime,
         timeSpent: 0,
         lastSection: null,
-        validationResults: null
+        validationResults: null,
+        videoSupport: template.videoSupport || null
       }
     };
 

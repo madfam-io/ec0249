@@ -101,10 +101,13 @@ class ProgressService extends Module {
     this.progress = {
       overall: 0,
       modules: {
-        module1: { theory: 0, practice: 0, assessment: false, completed: false },
-        module2: { theory: 0, documents: 0, assessment: false, completed: false },
-        module3: { theory: 0, documents: 0, assessment: false, completed: false },
-        module4: { theory: 0, documents: 0, presentation: false, assessment: false, completed: false }
+        module1: { theory: 0, practice: 0, assessment: false, completed: false, videos: {} },
+        module2: { theory: 0, documents: 0, assessment: false, completed: false, videos: {} },
+        module3: { theory: 0, documents: 0, assessment: false, completed: false, videos: {} },
+        module4: { theory: 0, documents: 0, presentation: false, assessment: false, completed: false, videos: {} }
+      },
+      videos: {
+        welcomeVideo: { viewed: false, completed: false, watchTime: 0 }
       },
       achievements: [],
       startDate: null,
@@ -124,6 +127,11 @@ class ProgressService extends Module {
     this.subscribe('document:completed', this.handleDocumentCompleted.bind(this));
     this.subscribe('assessment:completed', this.handleAssessmentCompleted.bind(this));
     this.subscribe('simulation:completed', this.handleSimulationCompleted.bind(this));
+    
+    // Subscribe to video events
+    this.subscribe('video:viewed', this.handleVideoViewed.bind(this));
+    this.subscribe('video:completed', this.handleVideoCompleted.bind(this));
+    this.subscribe('youtube:video_complete', this.handleYouTubeVideoComplete.bind(this));
     
     console.log('[ProgressService] Initialized with overall progress:', this.progress.overall + '%');
   }

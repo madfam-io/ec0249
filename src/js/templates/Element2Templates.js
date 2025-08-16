@@ -14,6 +14,11 @@ const element2Templates = {
     icon: '📈',
     description: 'Análisis comprehensivo de las afectaciones identificadas y su metodología',
     estimatedTime: 60,
+    videoSupport: {
+      id: 'vvVUICOvnRs',
+      title: 'EC0249: 3.1) Reporte de las afectaciones encontradas',
+      description: 'Metodología para crear un reporte detallado de las afectaciones encontradas en la organización'
+    },
     evaluationCriteria: [
       'Describe la metodología aplicada',
       'Define las afectaciones encontradas',
@@ -61,6 +66,11 @@ const element2Templates = {
     icon: '💡',
     description: 'Diseño detallado de la solución propuesta con justificación completa',
     estimatedTime: 90,
+    videoSupport: {
+      id: 'Uqs9pO_XpMs',
+      title: 'EC0249: 3.2) La solución diseñada',
+      description: 'Guía para diseñar soluciones efectivas con justificación detallada y análisis costo-beneficio'
+    },
     evaluationCriteria: [
       'Es congruente con la situación a resolver',
       'Menciona los beneficios de la solución',

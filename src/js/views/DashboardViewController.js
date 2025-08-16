@@ -245,6 +245,15 @@ class DashboardViewController extends BaseViewController {
       case 'view-roadmap':
         this.showRoadmap();
         break;
+      case 'show-welcome-video':
+        this.showWelcomeVideo();
+        break;
+      case 'start-learning':
+        this.startLearning();
+        break;
+      case 'continue-module':
+        this.continueCurrentModule();
+        break;
       default:
         console.warn('[DashboardViewController] Unknown action:', action);
     }
@@ -297,6 +306,77 @@ class DashboardViewController extends BaseViewController {
       this.updateOverallProgress();
       this.updateModuleProgress();
       this.updateRecommendations();
+    }
+  }
+
+  /**
+   * Show welcome video modal
+   */
+  async showWelcomeVideo() {
+    try {
+      const welcomeVideoData = this.i18n.getTranslation('dashboard.welcomeVideo');
+      if (!welcomeVideoData) {
+        console.warn('[DashboardViewController] Welcome video data not found');
+        return;
+      }
+
+      const mediaRenderer = this.getModule('mediaRenderer');
+      if (!mediaRenderer) {
+        console.warn('[DashboardViewController] MediaRenderer not available');
+        return;
+      }
+
+      // Create modal for welcome video
+      const modal = this.createElement('div', ['modal', 'welcome-video-modal']);
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Bienvenido a la Plataforma EC0249</h3>
+            <button class="modal-close" aria-label="Cerrar">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div id="welcomeVideoContainer"></div>
+          </div>
+        </div>
+      `;
+
+      // Create video element
+      const videoContainer = modal.querySelector('#welcomeVideoContainer');
+      const videoElement = await mediaRenderer.createMediaFromSection(welcomeVideoData);
+      videoContainer.appendChild(videoElement);
+
+      // Add to DOM
+      document.body.appendChild(modal);
+
+      // Add event listeners
+      const closeButton = modal.querySelector('.modal-close');
+      closeButton.addEventListener('click', () => {
+        this.closeWelcomeVideo(modal);
+      });
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          this.closeWelcomeVideo(modal);
+        }
+      });
+
+      // Show modal
+      modal.style.display = 'flex';
+      
+    } catch (error) {
+      console.error('[DashboardViewController] Failed to show welcome video:', error);
+    }
+  }
+
+  /**
+   * Close welcome video modal
+   */
+  closeWelcomeVideo(modal) {
+    if (modal && modal.parentNode) {
+      modal.style.display = 'none';
+      setTimeout(() => {
+        modal.parentNode.removeChild(modal);
+      }, 300);
     }
   }
 

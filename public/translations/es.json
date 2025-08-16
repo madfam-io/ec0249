@@ -42,7 +42,22 @@
     "documentGeneration": "Generación de Documentos",
     "documentGenerationDesc": "Plantillas profesionales para todos los entregables EC0249",
     "practiceSimulations": "Simulaciones de Práctica",
-    "practiceSimulationsDesc": "Simulador de Entrevistas, Entrenador de Presentaciones, Evaluación de Conocimientos"
+    "practiceSimulationsDesc": "Simulador de Entrevistas, Entrenador de Presentaciones, Evaluación de Conocimientos",
+    "welcomeVideo": {
+      "type": "youtube",
+      "videoId": "VIDEO_WELCOME_ID",
+      "title": "Bienvenida - Plataforma EC0249",
+      "duration": "15:20",
+      "description": "Video de bienvenida que introduce la plataforma educativa EC0249 y sus características principales",
+      "keyTimestamps": [
+        {"time": "00:00", "topic": "Bienvenida a la plataforma"},
+        {"time": "02:30", "topic": "Objetivos del programa"},
+        {"time": "06:15", "topic": "Navegación de la plataforma"},
+        {"time": "10:45", "topic": "Ruta de certificación"},
+        {"time": "13:30", "topic": "Primeros pasos"}
+      ],
+      "transcript": "Bienvenido a la plataforma educativa EC0249..."
+    }
   },
   "modules": {
     "title": "Sistema de Módulos de Aprendizaje",
@@ -73,6 +88,28 @@
             "Distinguir entre consultoría interna y externa",
             "Conocer las etapas del proceso de consultoría"
           ],
+          "media": {
+            "introVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_1_1_ID",
+              "title": "1.1 - Introducción a la Consultoría",
+              "duration": "25:30",
+              "description": "Video introductorio que explica los fundamentos históricos y características de la consultoría profesional",
+              "learningObjectives": [
+                "Comprender la evolución histórica de la consultoría",
+                "Identificar las características principales de un consultor",
+                "Reconocer los diferentes tipos de consultoría"
+              ],
+              "keyTimestamps": [
+                {"time": "00:00", "topic": "Introducción al módulo"},
+                {"time": "02:15", "topic": "¿Qué es la consultoría?"},
+                {"time": "08:30", "topic": "Evolución histórica"},
+                {"time": "15:45", "topic": "Tipos de consultoría"},
+                {"time": "22:00", "topic": "Características del consultor"}
+              ],
+              "transcript": "Bienvenidos al primer módulo del programa EC0249..."
+            }
+          },
           "content": {
             "introduction": {
               "title": "¿Qué es la Consultoría?",
@@ -189,6 +226,28 @@
             "Implementar acuerdos de privacidad",
             "Tomar decisiones éticas en situaciones complejas"
           ],
+          "media": {
+            "ethicsVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_1_2_ID",
+              "title": "1.2 - Ética y Confidencialidad en Consultoría",
+              "duration": "28:45",
+              "description": "Exploración profunda de los principios éticos fundamentales y manejo de confidencialidad en consultoría profesional",
+              "learningObjectives": [
+                "Conocer el código de ética del consultor",
+                "Aplicar principios de confidencialidad",
+                "Manejar conflictos de interés"
+              ],
+              "keyTimestamps": [
+                {"time": "00:00", "topic": "Introducción a la ética en consultoría"},
+                {"time": "03:20", "topic": "Fundamentos éticos principales"},
+                {"time": "10:15", "topic": "Código de ética del consultor"},
+                {"time": "18:30", "topic": "Manejo de confidencialidad"},
+                {"time": "24:10", "topic": "Gestión de conflictos de interés"}
+              ],
+              "transcript": "La ética en consultoría es fundamental para establecer relaciones de confianza..."
+            }
+          },
           "content": {
             "ethicalFoundations": {
               "title": "Fundamentos Éticos en Consultoría",
@@ -322,6 +381,28 @@
             "Practicar escucha activa y empatía",
             "Gestionar resistencia al cambio"
           ],
+          "media": {
+            "skillsVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_1_3_ID",
+              "title": "1.3 - Habilidades Interpersonales para Consultores",
+              "duration": "32:15",
+              "description": "Desarrollo de competencias comunicativas y relacionales esenciales para consultores profesionales",
+              "learningObjectives": [
+                "Desarrollar habilidades de comunicación efectiva",
+                "Manejar técnicas de facilitación grupal",
+                "Aplicar estrategias de manejo de conflictos"
+              ],
+              "keyTimestamps": [
+                {"time": "00:00", "topic": "Introducción a habilidades interpersonales"},
+                {"time": "04:30", "topic": "Comunicación efectiva"},
+                {"time": "12:45", "topic": "Escucha activa y empatía"},
+                {"time": "20:20", "topic": "Facilitación grupal"},
+                {"time": "27:50", "topic": "Manejo de conflictos"}
+              ],
+              "transcript": "Las habilidades interpersonales son fundamentales para el éxito de cualquier consultor..."
+            }
+          },
           "content": {
             "communication": {
               "title": "Comunicación Efectiva",
@@ -487,15 +568,450 @@
     },
     "module2": {
       "title": "Identificación de Problemas",
-      "description": "Elemento 1: Metodologías para identificar problemas organizacionales y necesidades del cliente."
+      "description": "Elemento 1: Metodologías para identificar problemas organizacionales y necesidades del cliente.",
+      "duration": "12-15 horas",
+      "competencyLevel": "Nivel 5 SNC",
+      "element": "E0875 - Identificar la situación/problema planteado",
+      "overview": {
+        "media": {
+          "introVideo": {
+            "type": "youtube",
+            "videoId": "VIDEO_2_0_ID",
+            "title": "2.0 - Introducción a la Identificación de Problemas",
+            "duration": "22:30",
+            "description": "Introducción al módulo de identificación de problemas organizacionales",
+            "keyTimestamps": [
+              {"time": "00:00", "topic": "Bienvenida al módulo 2"},
+              {"time": "03:15", "topic": "Objetivos del elemento 1"},
+              {"time": "08:45", "topic": "Metodologías de identificación"},
+              {"time": "15:20", "topic": "Competencias a desarrollar"},
+              {"time": "19:00", "topic": "Evaluación y entregables"}
+            ]
+          }
+        }
+      },
+      "lessons": {
+        "lesson2_1": {
+          "title": "Fundamentos de Identificación de Problemas",
+          "overview": "Bases conceptuales para identificar y caracterizar problemas organizacionales",
+          "duration": "45 minutos",
+          "objectives": [
+            "Comprender qué constituye un problema organizacional",
+            "Distinguir entre síntomas y problemas raíz",
+            "Identificar tipos de problemas empresariales"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_2_1_ID",
+              "title": "2.1 - Fundamentos de Identificación de Problemas",
+              "duration": "26:15",
+              "description": "Bases conceptuales para identificar y caracterizar problemas organizacionales"
+            }
+          }
+        },
+        "lesson2_2": {
+          "title": "Técnicas de Recolección de Información",
+          "overview": "Métodos y herramientas para obtener información relevante del cliente",
+          "duration": "50 minutos",
+          "objectives": [
+            "Dominar técnicas de entrevista estructurada",
+            "Aplicar métodos de observación directa",
+            "Utilizar herramientas de recolección de datos"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_2_2_ID",
+              "title": "2.2 - Técnicas de Recolección de Información",
+              "duration": "31:45",
+              "description": "Métodos y herramientas para obtener información relevante del cliente"
+            }
+          }
+        },
+        "lesson2_3": {
+          "title": "Análisis de Stakeholders y Contexto",
+          "overview": "Identificación y análisis de partes interesadas y contexto organizacional",
+          "duration": "40 minutos",
+          "objectives": [
+            "Mapear stakeholders relevantes",
+            "Analizar poder e influencia de actores",
+            "Evaluar contexto organizacional"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_2_3_ID",
+              "title": "2.3 - Análisis de Stakeholders y Contexto",
+              "duration": "28:20",
+              "description": "Identificación y análisis de partes interesadas y contexto organizacional"
+            }
+          }
+        },
+        "lesson2_4": {
+          "title": "Herramientas de Diagnóstico",
+          "overview": "Instrumentos y metodologías para el diagnóstico organizacional",
+          "duration": "55 minutos",
+          "objectives": [
+            "Aplicar herramientas de diagnóstico empresarial",
+            "Utilizar análisis FODA y 5 Por qués",
+            "Implementar diagramas causa-efecto"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_2_4_ID",
+              "title": "2.4 - Herramientas de Diagnóstico",
+              "duration": "33:50",
+              "description": "Instrumentos y metodologías para el diagnóstico organizacional"
+            }
+          }
+        },
+        "lesson2_5": {
+          "title": "Análisis de Procesos y Flujos",
+          "overview": "Técnicas para mapear y analizar procesos organizacionales",
+          "duration": "45 minutos",
+          "objectives": [
+            "Crear mapas de procesos actuales",
+            "Identificar cuellos de botella",
+            "Analizar flujos de información"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_2_5_ID",
+              "title": "2.5 - Análisis de Procesos y Flujos",
+              "duration": "29:35",
+              "description": "Técnicas para mapear y analizar procesos organizacionales"
+            }
+          }
+        },
+        "lesson2_6": {
+          "title": "Evaluación de Impactos y Afectaciones",
+          "overview": "Metodologías para evaluar el impacto de problemas identificados",
+          "duration": "50 minutos",
+          "objectives": [
+            "Cuantificar impactos económicos",
+            "Evaluar afectaciones operacionales",
+            "Medir consecuencias en stakeholders"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_2_6_ID",
+              "title": "2.6 - Evaluación de Impactos y Afectaciones",
+              "duration": "32:10",
+              "description": "Metodologías para evaluar el impacto de problemas identificados"
+            }
+          }
+        },
+        "lesson2_7": {
+          "title": "Priorización de Problemas",
+          "overview": "Técnicas para priorizar problemas según criterios múltiples",
+          "duration": "40 minutos",
+          "objectives": [
+            "Aplicar matrices de priorización",
+            "Evaluar urgencia vs importancia",
+            "Considerar recursos disponibles"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_2_7_ID",
+              "title": "2.7 - Priorización de Problemas",
+              "duration": "27:25",
+              "description": "Técnicas para priorizar problemas según criterios múltiples"
+            }
+          }
+        },
+        "lesson2_8": {
+          "title": "Documentación del Diagnóstico",
+          "overview": "Metodologías para documentar hallazgos y conclusiones del diagnóstico",
+          "duration": "45 minutos",
+          "objectives": [
+            "Estructurar reportes de diagnóstico",
+            "Presentar hallazgos de manera clara",
+            "Documentar evidencias y fuentes"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_2_8_ID",
+              "title": "2.8 - Documentación del Diagnóstico",
+              "duration": "30:40",
+              "description": "Metodologías para documentar hallazgos y conclusiones del diagnóstico"
+            }
+          }
+        },
+        "lesson2_9": {
+          "title": "Validación con el Cliente",
+          "overview": "Procesos para validar diagnósticos y obtener retroalimentación del cliente",
+          "duration": "40 minutos",
+          "objectives": [
+            "Presentar diagnósticos efectivamente",
+            "Obtener validación del cliente",
+            "Incorporar retroalimentación"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_2_9_ID",
+              "title": "2.9 - Validación con el Cliente",
+              "duration": "26:55",
+              "description": "Procesos para validar diagnósticos y obtener retroalimentación del cliente"
+            }
+          }
+        }
+      },
+      "templates": [
+        "problem_description",
+        "affectation_report", 
+        "stakeholder_analysis",
+        "process_mapping",
+        "impact_assessment",
+        "diagnosis_report",
+        "validation_presentation",
+        "action_plan"
+      ]
     },
     "module3": {
-      "title": "Desarrollo de Soluciones", 
-      "description": "Elemento 2: Diseño y desarrollo de propuestas de solución efectivas."
+      "title": "Desarrollo de Soluciones",
+      "description": "Elemento 2: Diseño y desarrollo de propuestas de solución efectivas.",
+      "duration": "8-10 horas",
+      "competencyLevel": "Nivel 5 SNC",
+      "element": "E0876 - Desarrollar la propuesta de solución",
+      "overview": {
+        "media": {
+          "introVideo": {
+            "type": "youtube",
+            "videoId": "VIDEO_3_0_ID",
+            "title": "3.0 - Introducción al Desarrollo de Soluciones",
+            "duration": "20:15",
+            "description": "Introducción al módulo de desarrollo de propuestas de solución",
+            "keyTimestamps": [
+              {"time": "00:00", "topic": "Bienvenida al módulo 3"},
+              {"time": "02:45", "topic": "Objetivos del elemento 2"},
+              {"time": "07:30", "topic": "Metodologías de desarrollo"},
+              {"time": "13:20", "topic": "Criterios de evaluación"},
+              {"time": "17:00", "topic": "Entregables esperados"}
+            ]
+          }
+        }
+      },
+      "lessons": {
+        "lesson3_1": {
+          "title": "Diseño de Soluciones Integrales",
+          "overview": "Metodologías para diseñar soluciones comprehensivas y viables",
+          "duration": "90 minutos",
+          "objectives": [
+            "Aplicar metodologías de diseño de soluciones",
+            "Considerar factores técnicos, económicos y humanos",
+            "Desarrollar alternativas viables",
+            "Evaluar factibilidad de propuestas"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_3_1_ID",
+              "title": "3.1 - Diseño de Soluciones Integrales",
+              "duration": "35:20",
+              "description": "Metodologías para diseñar soluciones comprehensivas y viables",
+              "keyTimestamps": [
+                {"time": "00:00", "topic": "Principios de diseño de soluciones"},
+                {"time": "08:15", "topic": "Análisis de factibilidad"},
+                {"time": "18:30", "topic": "Desarrollo de alternativas"},
+                {"time": "28:45", "topic": "Evaluación de viabilidad"},
+                {"time": "32:10", "topic": "Documentación de propuestas"}
+              ]
+            }
+          }
+        },
+        "lesson3_2": {
+          "title": "Análisis Costo-Beneficio y ROI",
+          "overview": "Técnicas para evaluar la viabilidad económica de las soluciones propuestas",
+          "duration": "75 minutos",
+          "objectives": [
+            "Realizar análisis costo-beneficio",
+            "Calcular retorno de inversión (ROI)",
+            "Evaluar riesgos financieros",
+            "Justificar inversión requerida"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_3_2_ID",
+              "title": "3.2 - Análisis Costo-Beneficio y ROI",
+              "duration": "32:40",
+              "description": "Técnicas para evaluar la viabilidad económica de las soluciones propuestas",
+              "keyTimestamps": [
+                {"time": "00:00", "topic": "Fundamentos del análisis económico"},
+                {"time": "06:45", "topic": "Metodología costo-beneficio"},
+                {"time": "15:20", "topic": "Cálculo de ROI"},
+                {"time": "23:30", "topic": "Análisis de riesgos"},
+                {"time": "29:15", "topic": "Justificación de inversiones"}
+              ]
+            }
+          }
+        }
+      },
+      "templates": [
+        "solution_proposal",
+        "cost_benefit_analysis"
+      ]
     },
     "module4": {
       "title": "Presentación de Propuestas",
-      "description": "Elemento 3: Técnicas de presentación y negociación de propuestas de consultoría."
+      "description": "Elemento 3: Técnicas de presentación y negociación de propuestas de consultoría.",
+      "duration": "10-12 horas",
+      "competencyLevel": "Nivel 5 SNC",
+      "element": "E0877 - Presentar la propuesta de solución",
+      "overview": {
+        "media": {
+          "introVideo": {
+            "type": "youtube",
+            "videoId": "VIDEO_4_0_ID",
+            "title": "4.0 - Introducción a la Presentación de Propuestas",
+            "duration": "24:30",
+            "description": "Introducción al módulo de presentación y negociación de propuestas",
+            "keyTimestamps": [
+              {"time": "00:00", "topic": "Bienvenida al módulo 4"},
+              {"time": "03:20", "topic": "Objetivos del elemento 3"},
+              {"time": "09:15", "topic": "Competencias de presentación"},
+              {"time": "16:45", "topic": "Técnicas de negociación"},
+              {"time": "21:00", "topic": "Criterios de evaluación"}
+            ]
+          }
+        }
+      },
+      "lessons": {
+        "lesson4_1": {
+          "title": "Estructura de Propuestas Efectivas",
+          "overview": "Metodologías para estructurar propuestas de consultoría profesionales",
+          "duration": "60 minutos",
+          "objectives": [
+            "Dominar la estructura de propuestas",
+            "Crear contenido persuasivo",
+            "Adaptar mensaje a la audiencia",
+            "Incluir elementos clave"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_4_1_ID",
+              "title": "4.1 - Estructura de Propuestas Efectivas",
+              "duration": "28:45",
+              "description": "Metodologías para estructurar propuestas de consultoría profesionales"
+            }
+          }
+        },
+        "lesson4_2": {
+          "title": "Técnicas de Presentación Oral",
+          "overview": "Desarrollo de habilidades para presentaciones orales efectivas",
+          "duration": "65 minutos",
+          "objectives": [
+            "Dominar técnicas de oratoria",
+            "Manejar nervios y ansiedad",
+            "Utilizar apoyos visuales efectivos",
+            "Interactuar con la audiencia"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_4_2_ID",
+              "title": "4.2 - Técnicas de Presentación Oral",
+              "duration": "31:20",
+              "description": "Desarrollo de habilidades para presentaciones orales efectivas"
+            }
+          }
+        },
+        "lesson4_3": {
+          "title": "Manejo de Objeciones",
+          "overview": "Estrategias para manejar objeciones y resistencia del cliente",
+          "duration": "50 minutos",
+          "objectives": [
+            "Identificar tipos de objeciones",
+            "Aplicar técnicas de respuesta",
+            "Convertir resistencia en oportunidad",
+            "Mantener relación profesional"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_4_3_ID",
+              "title": "4.3 - Manejo de Objeciones",
+              "duration": "26:35",
+              "description": "Estrategias para manejar objeciones y resistencia del cliente"
+            }
+          }
+        },
+        "lesson4_4": {
+          "title": "Técnicas de Negociación",
+          "overview": "Principios y técnicas de negociación para consultores",
+          "duration": "70 minutos",
+          "objectives": [
+            "Aplicar principios de negociación",
+            "Identificar posiciones e intereses",
+            "Crear soluciones ganar-ganar",
+            "Cerrar acuerdos efectivamente"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_4_4_ID",
+              "title": "4.4 - Técnicas de Negociación",
+              "duration": "33:15",
+              "description": "Principios y técnicas de negociación para consultores"
+            }
+          }
+        },
+        "lesson4_5": {
+          "title": "Presentaciones Virtuales",
+          "overview": "Adaptación de técnicas para presentaciones en entornos virtuales",
+          "duration": "45 minutos",
+          "objectives": [
+            "Dominar herramientas virtuales",
+            "Mantener engagement en línea",
+            "Manejar aspectos técnicos",
+            "Crear interacción efectiva"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_4_5_ID",
+              "title": "4.5 - Presentaciones Virtuales",
+              "duration": "29:50",
+              "description": "Adaptación de técnicas para presentaciones en entornos virtuales"
+            }
+          }
+        },
+        "lesson4_6": {
+          "title": "Cierre y Seguimiento",
+          "overview": "Técnicas para cerrar ventas y dar seguimiento post-presentación",
+          "duration": "55 minutos",
+          "objectives": [
+            "Identificar señales de compra",
+            "Aplicar técnicas de cierre",
+            "Planificar seguimiento efectivo",
+            "Mantener relación post-venta"
+          ],
+          "media": {
+            "lessonVideo": {
+              "type": "youtube",
+              "videoId": "VIDEO_4_6_ID",
+              "title": "4.6 - Cierre y Seguimiento",
+              "duration": "27:40",
+              "description": "Técnicas para cerrar ventas y dar seguimiento post-presentación"
+            }
+          }
+        }
+      },
+      "templates": [
+        "proposal_presentation",
+        "executive_summary",
+        "negotiation_strategy",
+        "follow_up_plan",
+        "contract_agreement"
+      ]
     }
   },
   "assessment": {

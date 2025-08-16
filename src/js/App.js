@@ -58,7 +58,9 @@ import RouterService from './services/RouterService.js';
 import ProgressService from './services/ProgressService.js';
 import ThemeToggle from './components/ThemeToggle.js';
 import LanguageToggle from './components/LanguageToggle.js';
+import VideoPlayer from './components/VideoPlayer.js';
 import AppConfig, { ConfigManager } from './config/AppConfig.js';
+import { getVideoConfig } from './config/VideoConfig.js';
 import ContentEngine from './engines/ContentEngine.js';
 import AssessmentEngine from './engines/AssessmentEngine.js';
 import DocumentEngine from './engines/DocumentEngine.js';
@@ -386,6 +388,31 @@ class EC0249App {
         console.log('[App] LanguageToggle component initialized');
       } else {
         console.warn('[App] LanguageToggle element not found');
+      }
+
+      // Initialize welcome video player
+      const welcomeVideoElement = document.getElementById('dashboardWelcomeVideo');
+      if (welcomeVideoElement) {
+        const welcomeVideoPlayer = new VideoPlayer({
+          placement: 'dashboard',
+          showTitle: true,
+          showDescription: true,
+          trackProgress: true
+        });
+        
+        welcomeVideoPlayer.mount(welcomeVideoElement);
+        await welcomeVideoPlayer.initialize(container, eventBus);
+        
+        // Load welcome video
+        const welcomeVideoConfig = getVideoConfig('welcome');
+        if (welcomeVideoConfig) {
+          welcomeVideoPlayer.loadVideo(welcomeVideoConfig);
+        }
+        
+        this.components.set('welcomeVideoPlayer', welcomeVideoPlayer);
+        console.log('[App] Welcome video player initialized');
+      } else {
+        console.warn('[App] Welcome video element not found');
       }
 
       console.log('[App] UI components initialized');

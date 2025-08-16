@@ -14,6 +14,11 @@ const element1Templates = {
     icon: '📋',
     description: 'Documento comprehensivo que describe la situación problemática identificada',
     estimatedTime: 45,
+    videoSupport: {
+      id: 'AM5hrNAbMn8',
+      title: 'EC0249: 2.2) El documento elaborado que describe el problema planteado',
+      description: 'Video explicativo sobre cómo elaborar correctamente el documento que describe el problema planteado'
+    },
     evaluationCriteria: [
       'Incluye la afectación de la situación actual',
       'Establece el alcance del problema',
@@ -160,6 +165,11 @@ const element1Templates = {
     icon: '📊',
     description: 'Descripción completa de la metodología utilizada para la identificación del problema',
     estimatedTime: 90,
+    videoSupport: {
+      id: '03iWP4RsGCU',
+      title: 'EC0249: 2.5) Reporte de la metodología empleada',
+      description: 'Guía detallada para crear un reporte completo de la metodología utilizada en la identificación del problema'
+    },
     evaluationCriteria: [
       'Incluye la definición de la situación y/o problema',
       'Incluye el establecimiento de un programa de entrevistas',
@@ -263,6 +273,11 @@ const element1Templates = {
     icon: '🎤',
     description: 'Guía estructurada para conducir entrevistas efectivas',
     estimatedTime: 40,
+    videoSupport: {
+      id: 'vgkklaQJpbg',
+      title: 'EC0249: 2.6) Guía de entrevistas',
+      description: 'Aprende a diseñar y estructurar guías de entrevista efectivas para la recolección de información'
+    },
     evaluationCriteria: [
       'Contiene el propósito de la entrevista',
       'Establece la solicitud de la descripción de actividades y responsabilidades',

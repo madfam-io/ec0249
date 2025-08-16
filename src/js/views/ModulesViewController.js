@@ -146,8 +146,8 @@ class ModulesViewController extends BaseViewController {
       // Clear existing content
       contentContainer.innerHTML = '';
       
-      // Render module overview
-      const overviewSection = this.createModuleOverview();
+      // Render module overview (now async due to video content)
+      const overviewSection = await this.createModuleOverview();
       contentContainer.appendChild(overviewSection);
       
       // Render lessons list
@@ -167,7 +167,7 @@ class ModulesViewController extends BaseViewController {
   /**
    * Create module overview section
    */
-  createModuleOverview() {
+  async createModuleOverview() {
     const section = this.createElement('section', ['module-overview']);
     
     const title = this.createElement('h2', ['module-title']);
@@ -180,11 +180,20 @@ class ModulesViewController extends BaseViewController {
     metadata.innerHTML = `
       <span class="duration">⏱️ ${this.moduleContent.duration || 'N/A'}</span>
       <span class="level">📊 ${this.moduleContent.competencyLevel || 'Nivel 5'}</span>
+      ${this.moduleContent.element ? `<span class="element">🎯 ${this.moduleContent.element}</span>` : ''}
     `;
     
     section.appendChild(title);
     section.appendChild(description);
     section.appendChild(metadata);
+
+    // Add module intro video if available
+    if (this.moduleContent.overview && this.moduleContent.overview.media && this.moduleContent.overview.media.introVideo) {
+      const videoSection = await this.createVideoSection(this.moduleContent.overview.media);
+      if (videoSection) {
+        section.appendChild(videoSection);
+      }
+    }
     
     return section;
   }
@@ -224,12 +233,24 @@ class ModulesViewController extends BaseViewController {
     const isCompleted = this.isLessonCompleted(lessonId);
     progressIndicator.innerHTML = isCompleted ? '✅' : '⏳';
     
+    // Video indicator if lesson has video content
+    const hasVideo = lesson.media && (lesson.media.introVideo || lesson.media.lessonVideo || lesson.media.ethicsVideo || lesson.media.skillsVideo);
+    if (hasVideo) {
+      const videoIndicator = this.createElement('div', ['video-indicator']);
+      videoIndicator.innerHTML = '🎥';
+      videoIndicator.title = 'Esta lección incluye contenido en video';
+      card.appendChild(videoIndicator);
+    }
+    
     // Lesson info
     const info = this.createElement('div', ['lesson-info']);
     info.innerHTML = `
       <h4 class="lesson-title">${lesson.title}</h4>
       <p class="lesson-overview">${lesson.overview || ''}</p>
-      <span class="lesson-duration">🕒 ${lesson.duration || 'N/A'}</span>
+      <div class="lesson-metadata">
+        <span class="lesson-duration">🕒 ${lesson.duration || 'N/A'}</span>
+        ${hasVideo ? '<span class="video-badge">🎥 Con Video</span>' : ''}
+      </div>
     `;
     
     // Action button
@@ -338,6 +359,18 @@ class ModulesViewController extends BaseViewController {
       if (lessonContent) {
         contentContainer.innerHTML = '';
         
+        // Add lesson header
+        const lessonHeader = this.createLessonHeader(lessonContent);
+        contentContainer.appendChild(lessonHeader);
+
+        // Render video content first if available
+        if (lessonContent.media) {
+          const videoSection = await this.createVideoSection(lessonContent.media);
+          if (videoSection) {
+            contentContainer.appendChild(videoSection);
+          }
+        }
+        
         // Render lesson sections
         if (lessonContent.content) {
           Object.entries(lessonContent.content).forEach(([sectionId, section]) => {
@@ -345,11 +378,130 @@ class ModulesViewController extends BaseViewController {
             contentContainer.appendChild(sectionElement);
           });
         }
+
+        // Add objectives if available
+        if (lessonContent.objectives && lessonContent.objectives.length > 0) {
+          const objectivesSection = this.createObjectivesSection(lessonContent.objectives);
+          contentContainer.appendChild(objectivesSection);
+        }
+
+        // Add activities if available
+        if (lessonContent.activities && lessonContent.activities.length > 0) {
+          const activitiesSection = this.createLessonActivitiesSection(lessonContent.activities);
+          contentContainer.appendChild(activitiesSection);
+        }
       }
     } catch (error) {
       console.error('[ModulesViewController] Failed to render lesson:', error);
       contentContainer.innerHTML = '<div class="error-message">Error al cargar la lección</div>';
     }
+  }
+
+  /**
+   * Create lesson header
+   */
+  createLessonHeader(lessonContent) {
+    const header = this.createElement('div', ['lesson-header']);
+    
+    const title = this.createElement('h2', ['lesson-title']);
+    title.textContent = lessonContent.title;
+    
+    const overview = this.createElement('p', ['lesson-overview']);
+    overview.textContent = lessonContent.overview || '';
+    
+    const metadata = this.createElement('div', ['lesson-metadata']);
+    metadata.innerHTML = `
+      <span class="duration">⏱️ ${lessonContent.duration || 'N/A'}</span>
+      <span class="module">${this.currentModule.toUpperCase()}</span>
+    `;
+    
+    header.appendChild(title);
+    header.appendChild(overview);
+    header.appendChild(metadata);
+    
+    return header;
+  }
+
+  /**
+   * Create video section from media content
+   */
+  async createVideoSection(mediaContent) {
+    if (!mediaContent) return null;
+
+    const mediaRenderer = this.getModule('mediaRenderer');
+    if (!mediaRenderer) {
+      console.warn('[ModulesViewController] MediaRenderer not available');
+      return null;
+    }
+
+    const videoSection = this.createElement('section', ['video-section']);
+    
+    // Handle different video types
+    for (const [mediaKey, mediaData] of Object.entries(mediaContent)) {
+      if (mediaData && mediaData.type === 'youtube') {
+        try {
+          const videoElement = await mediaRenderer.createMediaFromSection(mediaData);
+          videoSection.appendChild(videoElement);
+          break; // Only show first video found
+        } catch (error) {
+          console.error('[ModulesViewController] Failed to create video element:', error);
+        }
+      }
+    }
+
+    return videoSection.children.length > 0 ? videoSection : null;
+  }
+
+  /**
+   * Create objectives section
+   */
+  createObjectivesSection(objectives) {
+    const section = this.createElement('section', ['objectives-section']);
+    
+    const title = this.createElement('h3', ['section-title']);
+    title.textContent = 'Objetivos de Aprendizaje';
+    
+    const list = this.createElement('ul', ['objectives-list']);
+    objectives.forEach(objective => {
+      const item = this.createElement('li', ['objective-item']);
+      item.textContent = objective;
+      list.appendChild(item);
+    });
+    
+    section.appendChild(title);
+    section.appendChild(list);
+    
+    return section;
+  }
+
+  /**
+   * Create activities section for lessons
+   */
+  createLessonActivitiesSection(activities) {
+    const section = this.createElement('section', ['lesson-activities-section']);
+    
+    const title = this.createElement('h3', ['section-title']);
+    title.textContent = 'Actividades de la Lección';
+    
+    const activitiesList = this.createElement('div', ['lesson-activities-list']);
+    
+    activities.forEach(activity => {
+      const activityCard = this.createElement('div', ['activity-card']);
+      activityCard.innerHTML = `
+        <div class="activity-header">
+          <h4 class="activity-title">${activity.title}</h4>
+          <span class="activity-type">${activity.type}</span>
+        </div>
+        <p class="activity-description">${activity.description}</p>
+        <button class="btn btn-outline activity-btn">Realizar Actividad</button>
+      `;
+      activitiesList.appendChild(activityCard);
+    });
+    
+    section.appendChild(title);
+    section.appendChild(activitiesList);
+    
+    return section;
   }
 
   /**

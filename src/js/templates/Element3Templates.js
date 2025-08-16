@@ -14,6 +14,11 @@ const element3Templates = {
     icon: '📋',
     description: 'Propuesta formal de trabajo con todos los componentes requeridos',
     estimatedTime: 120,
+    videoSupport: {
+      id: 'jFYxjh1H_P8',
+      title: 'EC0249: 4.2) Elaborar la propuesta de trabajo',
+      description: 'Aprende a estructurar y elaborar propuestas de trabajo completas y profesionales'
+    },
     evaluationCriteria: [
       'Incluye los antecedentes y/o el diagnóstico',
       'Incluye la síntesis descriptiva del proyecto propuesto',
