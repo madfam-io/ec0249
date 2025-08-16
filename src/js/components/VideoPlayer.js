@@ -141,13 +141,23 @@ class VideoPlayer extends BaseComponent {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             ${config.allowFullscreen ? 'allowfullscreen' : ''}
             style="${dimensions.iframeStyle}"
-            loading="lazy">
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin">
           </iframe>
           
           <div class="video-overlay" style="display: none;">
             <div class="video-loading">
               <div class="loading-spinner"></div>
               <span>Cargando video...</span>
+            </div>
+          </div>
+          
+          <div class="video-error" style="display: none;">
+            <div class="error-content">
+              <div class="error-icon">⚠️</div>
+              <h4>Video no disponible</h4>
+              <p>El video no pudo cargarse. Esto puede deberse a bloqueadores de contenido o problemas de conectividad.</p>
+              <button class="btn btn-secondary retry-video">Reintentar</button>
             </div>
           </div>
         </div>
@@ -263,9 +273,23 @@ class VideoPlayer extends BaseComponent {
       this.onVideoReady();
     });
 
+    // Listen for iframe error
+    iframe.addEventListener('error', () => {
+      this.onVideoError();
+    });
+
+    // Set up retry button
+    const retryButton = this.element.querySelector('.retry-video');
+    if (retryButton) {
+      retryButton.addEventListener('click', () => {
+        this.retryVideo();
+      });
+    }
+
     // Listen for video events via postMessage (YouTube IFrame API)
+    // Note: youtube-nocookie.com origin for privacy mode
     window.addEventListener('message', (event) => {
-      if (event.origin !== 'https://www.youtube.com') return;
+      if (!event.origin.includes('youtube')) return;
       
       try {
         const data = JSON.parse(event.data);
@@ -284,6 +308,9 @@ class VideoPlayer extends BaseComponent {
   onVideoReady() {
     console.log('[VideoPlayer] Video ready:', this.videoId);
     
+    // Hide error overlay if shown
+    this.hideVideoError();
+    
     // Try to get video duration (requires YouTube API)
     this.updateVideoDuration();
     
@@ -294,6 +321,74 @@ class VideoPlayer extends BaseComponent {
       });
     } catch (error) {
       console.warn('[VideoPlayer] Failed to emit video:ready event:', error);
+    }
+  }
+
+  /**
+   * Handle video error event
+   */
+  onVideoError() {
+    console.warn('[VideoPlayer] Video failed to load:', this.videoId);
+    this.showVideoError();
+    
+    try {
+      this.emit('video:error', {
+        videoId: this.videoId,
+        title: this.videoTitle,
+        error: 'Failed to load video'
+      });
+    } catch (error) {
+      console.warn('[VideoPlayer] Failed to emit video:error event:', error);
+    }
+  }
+
+  /**
+   * Show video error overlay
+   */
+  showVideoError() {
+    const errorOverlay = this.element.querySelector('.video-error');
+    const iframe = this.element.querySelector('.video-iframe');
+    
+    if (errorOverlay) {
+      errorOverlay.style.display = 'flex';
+    }
+    if (iframe) {
+      iframe.style.display = 'none';
+    }
+  }
+
+  /**
+   * Hide video error overlay
+   */
+  hideVideoError() {
+    const errorOverlay = this.element.querySelector('.video-error');
+    const iframe = this.element.querySelector('.video-iframe');
+    
+    if (errorOverlay) {
+      errorOverlay.style.display = 'none';
+    }
+    if (iframe) {
+      iframe.style.display = 'block';
+    }
+  }
+
+  /**
+   * Retry video loading
+   */
+  retryVideo() {
+    console.log('[VideoPlayer] Retrying video load:', this.videoId);
+    
+    // Hide error and reload iframe
+    this.hideVideoError();
+    
+    const iframe = this.element.querySelector('.video-iframe');
+    if (iframe) {
+      // Force reload by setting src again
+      const currentSrc = iframe.src;
+      iframe.src = '';
+      setTimeout(() => {
+        iframe.src = currentSrc;
+      }, 100);
     }
   }
 

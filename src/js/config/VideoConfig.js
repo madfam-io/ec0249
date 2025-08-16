@@ -232,19 +232,18 @@ const VIDEO_PLACEMENTS = {
  * YouTube player configuration
  */
 const YOUTUBE_CONFIG = {
-  // YouTube player parameters
+  // YouTube player parameters - optimized for privacy and performance
   playerVars: {
-    autoplay: 0,
-    controls: 1,
-    disablekb: 0,
-    enablejsapi: 1,
-    fs: 1,
-    iv_load_policy: 3,
-    modestbranding: 1,
-    playsinline: 1,
-    rel: 0,
-    showinfo: 0,
-    origin: window.location.origin
+    autoplay: 0,          // No autoplay for better UX
+    controls: 1,          // Show player controls
+    disablekb: 0,         // Allow keyboard controls
+    fs: 1,                // Allow fullscreen
+    iv_load_policy: 3,    // Hide video annotations
+    modestbranding: 1,    // Minimal YouTube branding
+    playsinline: 1,       // Inline playback on mobile
+    rel: 0,               // Don't show related videos
+    showinfo: 0,          // Hide video info overlay
+    // Removed enablejsapi and origin to reduce tracking and blocked requests
   },
   
   // Player events to track
@@ -317,7 +316,8 @@ function getModuleVideos(module) {
  * Generate YouTube embed URL
  */
 function generateEmbedUrl(videoId, options = {}) {
-  const baseUrl = 'https://www.youtube.com/embed/';
+  // Use youtube-nocookie.com for enhanced privacy and reduced tracking
+  const baseUrl = 'https://www.youtube-nocookie.com/embed/';
   const params = new URLSearchParams({
     ...YOUTUBE_CONFIG.playerVars,
     ...options
