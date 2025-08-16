@@ -100,18 +100,28 @@ class ProgressService extends Module {
 
     this.progress = {
       overall: 0,
+      xp: 0,
+      level: 1,
+      streak: 0,
+      lastActiveDate: null,
       modules: {
-        module1: { theory: 0, practice: 0, assessment: false, completed: false, videos: {} },
-        module2: { theory: 0, documents: 0, assessment: false, completed: false, videos: {} },
-        module3: { theory: 0, documents: 0, assessment: false, completed: false, videos: {} },
-        module4: { theory: 0, documents: 0, presentation: false, assessment: false, completed: false, videos: {} }
+        module1: { theory: 0, practice: 0, assessment: false, completed: false, videos: {}, lessons: {} },
+        module2: { theory: 0, documents: 0, assessment: false, completed: false, videos: {}, lessons: {} },
+        module3: { theory: 0, documents: 0, assessment: false, completed: false, videos: {}, lessons: {} },
+        module4: { theory: 0, documents: 0, presentation: false, assessment: false, completed: false, videos: {}, lessons: {} }
       },
       videos: {
         welcomeVideo: { viewed: false, completed: false, watchTime: 0 }
       },
       achievements: [],
+      badges: [],
       startDate: null,
-      lastActivity: null
+      lastActivity: null,
+      dailyGoals: {
+        lessonsTarget: 2,
+        lessonsCompleted: 0,
+        lastResetDate: null
+      }
     };
   }
 
@@ -387,6 +397,126 @@ class ProgressService extends Module {
   }
 
   /**
+   * Calculate progress percentage for a specific module
+   * @param {string} moduleId - Module identifier
+   * @returns {number} Progress percentage (0-100)
+   */
+  calculateModuleProgress(moduleId) {
+    const moduleData = this.progress.modules[moduleId];
+    if (!moduleData) return 0;
+
+    const criteria = this.getConfig('completionCriteria')[moduleId];
+    if (!criteria) return 0;
+
+    let totalWeight = 0;
+    let completedWeight = 0;
+
+    // Calculate weighted progress based on completion criteria
+    Object.entries(criteria).forEach(([key, requirement]) => {
+      if (key === 'assessment' || key === 'presentation') {
+        totalWeight += 30; // Assessments/presentations worth 30 points
+        if (moduleData[key] === true) {
+          completedWeight += 30;
+        }
+      } else if (typeof requirement === 'number') {
+        totalWeight += requirement;
+        const current = moduleData[key] || 0;
+        completedWeight += Math.min(current, requirement);
+      }
+    });
+
+    return totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
+  }
+
+  /**
+   * Check if a module is completed
+   * @param {string} moduleId - Module identifier
+   * @returns {boolean} Whether module is completed
+   */
+  isModuleCompleted(moduleId) {
+    const moduleData = this.progress.modules[moduleId];
+    return moduleData ? moduleData.completed : false;
+  }
+
+  /**
+   * Check if a lesson is completed
+   * @param {string} moduleId - Module identifier
+   * @param {string} lessonId - Lesson identifier
+   * @returns {boolean} Whether lesson is completed
+   */
+  isLessonCompleted(moduleId, lessonId) {
+    const moduleData = this.progress.modules[moduleId];
+    if (!moduleData || !moduleData.lessons) return false;
+    
+    const lessonData = moduleData.lessons[lessonId];
+    return lessonData ? lessonData.completed : false;
+  }
+
+  /**
+   * Get lesson progress
+   * @param {string} moduleId - Module identifier
+   * @param {string} lessonId - Lesson identifier
+   * @returns {number} Progress percentage (0-100)
+   */
+  getLessonProgress(moduleId, lessonId) {
+    const moduleData = this.progress.modules[moduleId];
+    if (!moduleData || !moduleData.lessons) return 0;
+    
+    const lessonData = moduleData.lessons[lessonId];
+    return lessonData ? lessonData.progress : 0;
+  }
+
+  /**
+   * Mark lesson as started
+   * @param {string} moduleId - Module identifier
+   * @param {string} lessonId - Lesson identifier
+   */
+  markLessonStarted(moduleId, lessonId) {
+    // TODO: Implement lesson tracking
+    console.log(`[ProgressService] Lesson started: ${moduleId}/${lessonId}`);
+  }
+
+  /**
+   * Mark lesson as completed
+   * @param {string} moduleId - Module identifier
+   * @param {string} lessonId - Lesson identifier
+   */
+  markLessonCompleted(moduleId, lessonId) {
+    console.log(`[ProgressService] Lesson completed: ${moduleId}/${lessonId}`);
+    
+    // Track lesson completion
+    if (!this.progress.modules[moduleId].lessons[lessonId]) {
+      this.progress.modules[moduleId].lessons[lessonId] = {
+        completed: true,
+        completedDate: new Date().toISOString(),
+        progress: 100
+      };
+      
+      // Award XP for lesson completion
+      this.awardXP(25, `Lección completada: ${lessonId}`);
+      
+      // Update daily streak
+      this.updateStreak();
+      
+      // Check for first lesson achievement
+      const totalLessonsCompleted = Object.keys(this.progress.modules)
+        .reduce((total, moduleKey) => {
+          return total + Object.keys(this.progress.modules[moduleKey].lessons).length;
+        }, 0);
+      
+      if (totalLessonsCompleted === 1) {
+        this.unlockAchievement('first_lesson');
+      }
+      
+      // Update theory progress (simplified for now)
+      this.updateTheoryProgress(moduleId, 25); // Each lesson worth 25% in a 4-lesson module
+      
+      // Check achievements
+      this.checkAchievements();
+    }
+  }
+
+  /**
    * Get overall progress data
    * @returns {Object} Progress summary
    */
@@ -403,6 +533,138 @@ class ProgressService extends Module {
       startDate: this.progress.startDate,
       lastActivity: this.progress.lastActivity
     };
+  }
+
+  /**
+   * Award XP points and check for level ups
+   * @param {number} points - XP points to award
+   * @param {string} reason - Reason for XP award
+   */
+  awardXP(points, reason = 'Activity completed') {
+    const oldLevel = this.progress.level;
+    this.progress.xp += points;
+    
+    // Calculate new level (100 XP per level)
+    const newLevel = Math.floor(this.progress.xp / 100) + 1;
+    
+    if (newLevel > oldLevel) {
+      this.progress.level = newLevel;
+      this.emit('level:up', { 
+        oldLevel, 
+        newLevel, 
+        totalXP: this.progress.xp 
+      });
+      console.log(`[ProgressService] Level up! Now level ${newLevel}`);
+    }
+    
+    this.emit('xp:awarded', { 
+      points, 
+      reason, 
+      totalXP: this.progress.xp, 
+      level: this.progress.level 
+    });
+    
+    console.log(`[ProgressService] Awarded ${points} XP for: ${reason}`);
+    this.saveProgress();
+  }
+
+  /**
+   * Update daily streak
+   */
+  updateStreak() {
+    const today = new Date().toDateString();
+    const lastActiveDate = this.progress.lastActiveDate;
+    
+    if (lastActiveDate === today) {
+      // Already active today, no change
+      return;
+    }
+    
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = yesterday.toDateString();
+    
+    if (lastActiveDate === yesterdayString) {
+      // Consecutive day, increment streak
+      this.progress.streak += 1;
+    } else if (lastActiveDate && lastActiveDate !== today) {
+      // Streak broken, reset to 1
+      this.progress.streak = 1;
+    } else {
+      // First day or no previous activity
+      this.progress.streak = 1;
+    }
+    
+    this.progress.lastActiveDate = today;
+    
+    // Check for streak achievements
+    this.checkStreakAchievements();
+    
+    console.log(`[ProgressService] Daily streak: ${this.progress.streak} days`);
+    this.saveProgress();
+  }
+
+  /**
+   * Check for streak-based achievements
+   */
+  checkStreakAchievements() {
+    const achievements = [];
+    
+    if (this.progress.streak >= 3 && !this.progress.achievements.includes('streak_3')) {
+      achievements.push('streak_3');
+    }
+    if (this.progress.streak >= 7 && !this.progress.achievements.includes('streak_7')) {
+      achievements.push('streak_7');
+    }
+    if (this.progress.streak >= 14 && !this.progress.achievements.includes('streak_14')) {
+      achievements.push('streak_14');
+    }
+    
+    achievements.forEach(achievement => {
+      this.unlockAchievement(achievement);
+    });
+  }
+
+  /**
+   * Unlock an achievement
+   * @param {string} achievementId - Achievement identifier
+   */
+  unlockAchievement(achievementId) {
+    if (this.progress.achievements.includes(achievementId)) return;
+    
+    this.progress.achievements.push(achievementId);
+    
+    const achievementData = this.getAchievementData(achievementId);
+    this.awardXP(achievementData.xp, `Achievement: ${achievementData.title}`);
+    
+    this.emit('achievement:unlocked', { 
+      achievement: achievementId, 
+      data: achievementData 
+    });
+    
+    console.log(`[ProgressService] Achievement unlocked: ${achievementData.title}`);
+  }
+
+  /**
+   * Get achievement data
+   * @param {string} achievementId - Achievement identifier
+   * @returns {Object} Achievement data
+   */
+  getAchievementData(achievementId) {
+    const achievements = {
+      first_lesson: { title: 'Primera Lección', description: 'Completaste tu primera lección', xp: 50, icon: '🌟' },
+      first_module: { title: 'Primer Módulo', description: 'Completaste tu primer módulo', xp: 200, icon: '🎯' },
+      halfway: { title: 'A Medio Camino', description: 'Completaste el 50% del curso', xp: 300, icon: '⭐' },
+      completion: { title: 'Graduado', description: 'Completaste todo el curso EC0249', xp: 500, icon: '🎓' },
+      streak_3: { title: 'Constancia', description: '3 días consecutivos de estudio', xp: 100, icon: '🔥' },
+      streak_7: { title: 'Dedicación', description: '7 días consecutivos de estudio', xp: 250, icon: '💪' },
+      streak_14: { title: 'Maestría', description: '14 días consecutivos de estudio', xp: 500, icon: '👑' },
+      video_watcher: { title: 'Observador', description: 'Viste 5 videos completos', xp: 150, icon: '👀' },
+      quick_learner: { title: 'Aprendiz Rápido', description: 'Completaste 3 lecciones en un día', xp: 200, icon: '⚡' },
+      perfectionist: { title: 'Perfeccionista', description: 'Obtuviste 100% en todas las evaluaciones', xp: 400, icon: '💯' }
+    };
+    
+    return achievements[achievementId] || { title: 'Logro Desconocido', description: '', xp: 0, icon: '🏆' };
   }
 
   /**
@@ -429,11 +691,39 @@ class ProgressService extends Module {
       newAchievements.push('completion');
     }
     
-    // Add new achievements
+    // Unlock new achievements
     newAchievements.forEach(achievement => {
-      this.progress.achievements.push(achievement);
-      this.emit('achievement:unlocked', { achievement });
+      this.unlockAchievement(achievement);
     });
+  }
+
+  /**
+   * Get user stats for gamification display
+   * @returns {Object} User stats
+   */
+  getUserStats() {
+    return {
+      level: this.progress.level,
+      xp: this.progress.xp,
+      xpToNextLevel: (this.progress.level * 100) - this.progress.xp,
+      streak: this.progress.streak,
+      achievementsCount: this.progress.achievements.length,
+      totalAchievements: 10, // Total possible achievements
+      badges: this.progress.badges.length,
+      overallProgress: this.progress.overall
+    };
+  }
+
+  /**
+   * Get achievements list with data
+   * @returns {Array} Achievements with full data
+   */
+  getAchievements() {
+    return this.progress.achievements.map(id => ({
+      id,
+      ...this.getAchievementData(id),
+      unlockedDate: new Date().toISOString() // TODO: Store actual unlock dates
+    }));
   }
 
   /**

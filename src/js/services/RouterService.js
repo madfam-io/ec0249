@@ -15,11 +15,14 @@ class RouterService extends Module {
         '/': 'dashboard',
         '/dashboard': 'dashboard',
         '/modules': 'modules',
-        '/modules/:moduleId': 'modules',
-        '/modules/:sectionId': 'modules',
+        '/modules/module1': 'modules',
+        '/modules/module2': 'modules',
+        '/modules/module3': 'modules',
+        '/modules/module4': 'modules',
         '/assessment': 'assessment',
         '/portfolio': 'portfolio',
-        '/portfolio/:sectionId': 'portfolio'
+        '/portfolio/documents': 'portfolio',
+        '/portfolio/progress': 'portfolio'
       }
     });
 
@@ -233,10 +236,11 @@ class RouterService extends Module {
   handleSectionChange(data) {
     if (this.navigationInProgress) return;
     
-    // Update URL with section parameter if applicable
+    // Update URL with section parameter using proper path logic
     const currentPath = window.location.pathname;
     const newPath = this.addSectionToPath(currentPath, data.section);
     
+    // Only navigate if the path actually changes
     if (newPath !== currentPath) {
       this.navigate(newPath, { silent: true });
     }
@@ -266,10 +270,17 @@ class RouterService extends Module {
    * @returns {string} Updated path
    */
   addSectionToPath(path, section) {
-    // For now, use query parameters for sections
-    const url = new URL(window.location);
-    url.searchParams.set('section', section);
-    return url.pathname + url.search;
+    // Generate proper URL paths based on section type
+    if (section.startsWith('module')) {
+      return `/modules/${section}`;
+    } else if (section === 'documents' || section === 'progress') {
+      return `/portfolio/${section}`;
+    } else if (section === 'overview') {
+      return '/dashboard';
+    } else {
+      // Default fallback - keep current path
+      return path;
+    }
   }
 
   /**

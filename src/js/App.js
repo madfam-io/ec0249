@@ -738,17 +738,11 @@ class EC0249App {
       value: sectionName
     });
 
-    // Update URL via RouterService  
+    // Update URL via RouterService using consistent path logic
     const router = container.resolve('RouterService');
     if (router) {
-      let sectionPath;
-      if (sectionName.startsWith('module')) {
-        sectionPath = `/modules/${sectionName}`;
-      } else if (sectionName === 'documents' || sectionName === 'progress') {
-        sectionPath = `/portfolio/${sectionName}`;
-      } else {
-        sectionPath = `/dashboard`; // Default for overview
-      }
+      const currentPath = window.location.pathname;
+      const sectionPath = router.addSectionToPath(currentPath, sectionName);
       router.navigate(sectionPath, { silent: true });
     }
 
@@ -1473,14 +1467,59 @@ class EC0249App {
   handleRouterNavigate(data) {
     console.log(`[App] Router navigate to: ${data.path}`);
     
-    // Update app view based on route
-    if (data.route && data.route !== this.appState.currentView) {
-      this.switchView(data.route);
+    // Prevent circular navigation by checking if this is a programmatic navigation
+    if (data.options?.silent) {
+      return; // Don't trigger app view changes for silent navigation
     }
     
-    // Handle section parameters
-    if (data.params.section) {
-      this.switchSection(data.params.section);
+    // Update app view based on route without triggering router navigation
+    if (data.route && data.route !== this.appState.currentView) {
+      // Update state directly without router navigation
+      this.appState.currentView = data.route;
+      this.state.dispatch('SET_PROPERTY', {
+        path: 'currentView',
+        value: data.route
+      });
+      
+      // Use ViewManager for view switching without router update
+      if (this.viewManager) {
+        this.viewManager.showView(data.route);
+      } else {
+        this.renderCurrentView();
+      }
+      
+      // Emit event without triggering router update
+      eventBus.publish('app:view-change', {
+        view: data.route,
+        fromRouter: true
+      });
+    }
+    
+    // Handle section parameters from URL path
+    const pathParts = data.path.split('/');
+    if (pathParts.length >= 3) {
+      const potentialSection = pathParts[2];
+      if (potentialSection && potentialSection !== this.appState.currentSection) {
+        // Update state directly without router navigation
+        this.appState.currentSection = potentialSection;
+        this.state.dispatch('SET_PROPERTY', {
+          path: 'currentSection',
+          value: potentialSection
+        });
+        
+        // Use ViewManager for section switching without router update
+        if (this.viewManager) {
+          this.viewManager.showSection(potentialSection);
+        } else {
+          this.loadSectionContent(potentialSection);
+        }
+        
+        // Emit event without triggering router update
+        eventBus.publish('app:section-change', {
+          section: potentialSection,
+          fromRouter: true
+        });
+      }
     }
   }
 
@@ -1491,14 +1530,43 @@ class EC0249App {
   handleRouterPopstate(data) {
     console.log(`[App] Router popstate to: ${data.route}`);
     
-    // Update app view based on route
+    // Update app view based on route (popstate is always from user action)
     if (data.route && data.route !== this.appState.currentView) {
-      this.switchView(data.route);
+      // Update state without triggering router navigation to prevent loops
+      this.appState.currentView = data.route;
+      this.state.dispatch('SET_PROPERTY', {
+        path: 'currentView',
+        value: data.route
+      });
+      
+      // Use ViewManager for view switching without router update
+      if (this.viewManager) {
+        this.viewManager.showView(data.route);
+      } else {
+        this.renderCurrentView();
+      }
     }
     
-    // Handle section parameters
-    if (data.params.section) {
-      this.switchSection(data.params.section);
+    // Handle section parameters from URL path
+    const currentPath = window.location.pathname;
+    const pathParts = currentPath.split('/');
+    if (pathParts.length >= 3) {
+      const potentialSection = pathParts[2];
+      if (potentialSection && potentialSection !== this.appState.currentSection) {
+        // Update state without triggering router navigation
+        this.appState.currentSection = potentialSection;
+        this.state.dispatch('SET_PROPERTY', {
+          path: 'currentSection',
+          value: potentialSection
+        });
+        
+        // Use ViewManager for section switching without router update
+        if (this.viewManager) {
+          this.viewManager.showSection(potentialSection);
+        } else {
+          this.loadSectionContent(potentialSection);
+        }
+      }
     }
   }
 

@@ -64,19 +64,29 @@ class ModulesViewController extends BaseViewController {
   }
 
   async onShow() {
-    // Ensure content is loaded for current module
-    await this.loadModuleContent();
+    // Check if we should show module overview grid or specific module content
+    if (!this.currentModule || this.currentModule === 'overview') {
+      await this.renderModuleGrid();
+    } else {
+      // Ensure content is loaded for current module
+      await this.loadModuleContent();
+    }
   }
 
   async onRender() {
-    // Update module navigation
-    this.updateModuleNavigation();
-    
-    // Render current module content
-    await this.renderCurrentModule();
-    
-    // Update progress indicators
-    this.updateProgressIndicators();
+    // Check if we should show module overview grid or specific module content
+    if (!this.currentModule || this.currentModule === 'overview') {
+      await this.renderModuleGrid();
+    } else {
+      // Update module navigation
+      this.updateModuleNavigation();
+      
+      // Render current module content
+      await this.renderCurrentModule();
+      
+      // Update progress indicators
+      this.updateProgressIndicators();
+    }
   }
 
   /**
@@ -105,16 +115,39 @@ class ModulesViewController extends BaseViewController {
    * Show a specific lesson within the current module
    */
   async showLesson(lessonId) {
+    if (!this.currentModule || !this.moduleContent) {
+      console.warn('[ModulesViewController] Cannot show lesson without current module');
+      return;
+    }
+
     this.currentLesson = lessonId;
     
+    // Find lesson data
+    let lessonData = null;
+    if (Array.isArray(this.moduleContent.lessons)) {
+      lessonData = this.moduleContent.lessons.find(lesson => lesson.id === lessonId);
+    } else if (this.moduleContent.lessons) {
+      lessonData = this.moduleContent.lessons[lessonId];
+    }
+
+    if (!lessonData) {
+      console.warn(`[ModulesViewController] Lesson ${lessonId} not found in module ${this.currentModule}`);
+      return;
+    }
+    
     // Render lesson content
-    await this.renderLessonContent(lessonId);
+    await this.renderLessonContent(lessonId, lessonData);
     
     // Update lesson navigation
     this.updateLessonNavigation();
     
     // Track progress
     this.trackLessonProgress(lessonId);
+    
+    // Update URL to include lesson
+    this.emit('app:state-change', { 
+      currentSection: `${this.currentModule}/${lessonId}` 
+    });
   }
 
   /**
@@ -155,24 +188,39 @@ class ModulesViewController extends BaseViewController {
    * Render the current module content
    */
   async renderCurrentModule() {
-    const contentContainer = this.findElement('.module-content');
+    // Use the modules-grid container for module content as well
+    const contentContainer = this.findElement('.modules-grid');
     if (!contentContainer || !this.moduleContent) return;
 
     try {
       // Clear existing content
       contentContainer.innerHTML = '';
       
+      // Create module content wrapper
+      const moduleWrapper = this.createElement('div', ['module-content-wrapper']);
+      
+      // Add back button
+      const backButton = this.createElement('button', ['btn', 'btn-secondary', 'back-button']);
+      backButton.innerHTML = '← Volver a Módulos';
+      backButton.addEventListener('click', () => {
+        this.currentModule = null;
+        this.renderModuleGrid();
+      });
+      moduleWrapper.appendChild(backButton);
+      
       // Render module overview (now async due to video content)
       const overviewSection = await this.createModuleOverview();
-      contentContainer.appendChild(overviewSection);
+      moduleWrapper.appendChild(overviewSection);
       
       // Render lessons list
       const lessonsSection = this.createLessonsSection();
-      contentContainer.appendChild(lessonsSection);
+      moduleWrapper.appendChild(lessonsSection);
       
       // Render module activities
       const activitiesSection = this.createActivitiesSection();
-      contentContainer.appendChild(activitiesSection);
+      moduleWrapper.appendChild(activitiesSection);
+      
+      contentContainer.appendChild(moduleWrapper);
       
     } catch (error) {
       console.error('[ModulesViewController] Failed to render module:', error);
@@ -227,10 +275,18 @@ class ModulesViewController extends BaseViewController {
     const lessonsList = this.createElement('div', ['lessons-list']);
     
     if (this.moduleContent.lessons) {
-      Object.entries(this.moduleContent.lessons).forEach(([lessonId, lesson]) => {
-        const lessonCard = this.createLessonCard(lessonId, lesson);
-        lessonsList.appendChild(lessonCard);
-      });
+      // Handle both array and object formats
+      if (Array.isArray(this.moduleContent.lessons)) {
+        this.moduleContent.lessons.forEach((lesson, index) => {
+          const lessonCard = this.createLessonCard(lesson.id || `lesson${index + 1}`, lesson);
+          lessonsList.appendChild(lessonCard);
+        });
+      } else {
+        Object.entries(this.moduleContent.lessons).forEach(([lessonId, lesson]) => {
+          const lessonCard = this.createLessonCard(lessonId, lesson);
+          lessonsList.appendChild(lessonCard);
+        });
+      }
     }
     
     section.appendChild(lessonsList);
@@ -250,7 +306,7 @@ class ModulesViewController extends BaseViewController {
     progressIndicator.innerHTML = isCompleted ? '✅' : '⏳';
     
     // Video indicator if lesson has video content
-    const hasVideo = lesson.media && (lesson.media.introVideo || lesson.media.lessonVideo || lesson.media.ethicsVideo || lesson.media.skillsVideo);
+    const hasVideo = lesson.videoId || (lesson.media && (lesson.media.introVideo || lesson.media.lessonVideo || lesson.media.ethicsVideo || lesson.media.skillsVideo));
     if (hasVideo) {
       const videoIndicator = this.createElement('div', ['video-indicator']);
       videoIndicator.innerHTML = '🎥';
@@ -258,13 +314,20 @@ class ModulesViewController extends BaseViewController {
       card.appendChild(videoIndicator);
     }
     
+    // Lesson type indicator
+    const typeIndicator = this.createElement('div', ['lesson-type']);
+    const typeIcon = lesson.type === 'practice' ? '💪' : (lesson.type === 'theory' ? '📚' : '📝');
+    typeIndicator.innerHTML = typeIcon;
+    typeIndicator.title = lesson.type === 'practice' ? 'Práctica' : (lesson.type === 'theory' ? 'Teoría' : 'Evaluación');
+    
     // Lesson info
     const info = this.createElement('div', ['lesson-info']);
     info.innerHTML = `
       <h4 class="lesson-title">${lesson.title}</h4>
-      <p class="lesson-overview">${lesson.overview || ''}</p>
+      <p class="lesson-overview">${lesson.description || lesson.overview || ''}</p>
       <div class="lesson-metadata">
         <span class="lesson-duration">🕒 ${lesson.duration || 'N/A'}</span>
+        <span class="lesson-type-badge">${typeIcon} ${lesson.type === 'practice' ? 'Práctica' : (lesson.type === 'theory' ? 'Teoría' : 'Evaluación')}</span>
         ${hasVideo ? '<span class="video-badge">🎥 Con Video</span>' : ''}
       </div>
     `;
@@ -278,8 +341,16 @@ class ModulesViewController extends BaseViewController {
     });
     
     card.appendChild(progressIndicator);
+    card.appendChild(typeIndicator);
     card.appendChild(info);
     card.appendChild(actionButton);
+    
+    // Make card clickable
+    card.addEventListener('click', (e) => {
+      if (!e.target.closest('button')) {
+        this.showLesson(lessonId);
+      }
+    });
     
     return card;
   }
@@ -365,52 +436,367 @@ class ModulesViewController extends BaseViewController {
   /**
    * Render lesson content
    */
-  async renderLessonContent(lessonId) {
-    const contentContainer = this.findElement('.lesson-content');
+  async renderLessonContent(lessonId, lessonData) {
+    // Use the modules-grid container for lesson content
+    const contentContainer = this.findElement('.modules-grid');
     if (!contentContainer) return;
 
     try {
-      const lessonContent = await this.contentEngine.getLessonContent(this.currentModule, lessonId);
+      // Clear existing content
+      contentContainer.innerHTML = '';
       
-      if (lessonContent) {
-        contentContainer.innerHTML = '';
-        
-        // Add lesson header
-        const lessonHeader = this.createLessonHeader(lessonContent);
-        contentContainer.appendChild(lessonHeader);
+      // Create lesson content wrapper
+      const lessonWrapper = this.createElement('div', ['lesson-content-wrapper']);
+      
+      // Add navigation breadcrumb
+      const breadcrumb = this.createElement('div', ['lesson-breadcrumb']);
+      breadcrumb.innerHTML = `
+        <button class="btn btn-link" data-action="back-to-modules">Módulos</button>
+        <span class="breadcrumb-separator">></span>
+        <button class="btn btn-link" data-action="back-to-module">${this.moduleContent.title}</button>
+        <span class="breadcrumb-separator">></span>
+        <span class="current-lesson">${lessonData.title}</span>
+      `;
+      lessonWrapper.appendChild(breadcrumb);
+      
+      // Add lesson header
+      const lessonHeader = this.createLessonHeader(lessonData);
+      lessonWrapper.appendChild(lessonHeader);
 
-        // Render video content first if available
-        if (lessonContent.media) {
-          const videoSection = await this.createVideoSection(lessonContent.media);
-          if (videoSection) {
-            contentContainer.appendChild(videoSection);
-          }
-        }
-        
-        // Render lesson sections
-        if (lessonContent.content) {
-          Object.entries(lessonContent.content).forEach(([sectionId, section]) => {
-            const sectionElement = this.createContentSection(sectionId, section);
-            contentContainer.appendChild(sectionElement);
-          });
-        }
+      // Add lesson progress indicator
+      const progressSection = this.createLessonProgressSection(lessonId);
+      lessonWrapper.appendChild(progressSection);
 
-        // Add objectives if available
-        if (lessonContent.objectives && lessonContent.objectives.length > 0) {
-          const objectivesSection = this.createObjectivesSection(lessonContent.objectives);
-          contentContainer.appendChild(objectivesSection);
-        }
-
-        // Add activities if available
-        if (lessonContent.activities && lessonContent.activities.length > 0) {
-          const activitiesSection = this.createLessonActivitiesSection(lessonContent.activities);
-          contentContainer.appendChild(activitiesSection);
+      // Render video content if available
+      if (lessonData.videoId) {
+        const videoSection = await this.createLessonVideoSection(lessonData);
+        if (videoSection) {
+          lessonWrapper.appendChild(videoSection);
         }
       }
+      
+      // Render lesson content sections
+      if (lessonData.content) {
+        const contentSection = this.createLessonContentSection(lessonData.content);
+        lessonWrapper.appendChild(contentSection);
+      }
+
+      // Add lesson activities
+      const activitiesSection = this.createLessonActivitiesSection(lessonId, lessonData);
+      lessonWrapper.appendChild(activitiesSection);
+
+      // Add lesson navigation (previous/next)
+      const navigationSection = this.createLessonNavigationSection(lessonId);
+      lessonWrapper.appendChild(navigationSection);
+      
+      contentContainer.appendChild(lessonWrapper);
+      
+      // Bind navigation events
+      this.bindLessonNavigationEvents();
+      
     } catch (error) {
       console.error('[ModulesViewController] Failed to render lesson:', error);
       contentContainer.innerHTML = '<div class="error-message">Error al cargar la lección</div>';
     }
+  }
+
+  /**
+   * Create lesson progress section
+   */
+  createLessonProgressSection(lessonId) {
+    const section = this.createElement('div', ['lesson-progress-section']);
+    
+    const progressService = this.getService('ProgressService');
+    const progress = progressService ? progressService.getLessonProgress(this.currentModule, lessonId) : 0;
+    const isCompleted = this.isLessonCompleted(lessonId);
+    
+    section.innerHTML = `
+      <div class="lesson-progress-bar">
+        <div class="progress-label">Progreso de la lección</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${progress}%"></div>
+        </div>
+        <div class="progress-text">${progress}% completado</div>
+      </div>
+      <div class="lesson-status ${isCompleted ? 'completed' : 'in-progress'}">
+        ${isCompleted ? '✅ Completado' : '⏳ En progreso'}
+      </div>
+    `;
+    
+    return section;
+  }
+
+  /**
+   * Create lesson video section
+   */
+  async createLessonVideoSection(lessonData) {
+    if (!lessonData.videoId) return null;
+    
+    const section = this.createElement('div', ['lesson-video-section']);
+    
+    const videoIntro = this.createElement('div', ['lesson-video-introduction']);
+    videoIntro.innerHTML = `
+      <h4>🎥 Video de la Lección</h4>
+      <p>${lessonData.title}</p>
+    `;
+    
+    const videoContainer = this.createElement('div', ['lesson-video-player']);
+    videoContainer.id = `video-player-${lessonData.id}`;
+    
+    section.appendChild(videoIntro);
+    section.appendChild(videoContainer);
+    
+    // Initialize video player
+    setTimeout(() => {
+      this.initializeVideoPlayer(videoContainer, {
+        videoId: lessonData.videoId,
+        title: lessonData.title,
+        id: lessonData.id
+      });
+    }, 100);
+    
+    return section;
+  }
+
+  /**
+   * Create lesson content section
+   */
+  createLessonContentSection(contentData) {
+    const section = this.createElement('div', ['lesson-content-section']);
+    
+    if (Array.isArray(contentData)) {
+      contentData.forEach(item => {
+        const contentItem = this.createElement('div', ['content-item']);
+        contentItem.innerHTML = `
+          <h4>${item.title || ''}</h4>
+          <p>${item.text || ''}</p>
+        `;
+        section.appendChild(contentItem);
+      });
+    } else if (typeof contentData === 'object') {
+      Object.entries(contentData).forEach(([key, item]) => {
+        const contentItem = this.createElement('div', ['content-item']);
+        contentItem.innerHTML = `
+          <h4>${item.title || key}</h4>
+          <p>${item.text || ''}</p>
+        `;
+        section.appendChild(contentItem);
+      });
+    }
+    
+    return section;
+  }
+
+  /**
+   * Create lesson activities section
+   */
+  createLessonActivitiesSection(lessonId, lessonData) {
+    const section = this.createElement('div', ['lesson-activities-section']);
+    
+    const title = this.createElement('h3');
+    title.textContent = 'Actividades de la Lección';
+    section.appendChild(title);
+    
+    const activitiesList = this.createElement('div', ['activities-list']);
+    
+    // Knowledge check activity
+    const knowledgeCheck = this.createElement('div', ['activity-card']);
+    knowledgeCheck.innerHTML = `
+      <div class="activity-icon">📝</div>
+      <div class="activity-info">
+        <h4>Verificación de Conocimientos</h4>
+        <p>Responde algunas preguntas sobre el contenido de esta lección</p>
+      </div>
+      <button class="btn btn-primary" data-action="start-quiz" data-lesson="${lessonId}">Iniciar Quiz</button>
+    `;
+    
+    // Notes activity
+    const notesActivity = this.createElement('div', ['activity-card']);
+    notesActivity.innerHTML = `
+      <div class="activity-icon">📓</div>
+      <div class="activity-info">
+        <h4>Tomar Notas</h4>
+        <p>Anota tus reflexiones y puntos importantes de la lección</p>
+      </div>
+      <button class="btn btn-secondary" data-action="take-notes" data-lesson="${lessonId}">Abrir Notas</button>
+    `;
+    
+    activitiesList.appendChild(knowledgeCheck);
+    activitiesList.appendChild(notesActivity);
+    section.appendChild(activitiesList);
+    
+    return section;
+  }
+
+  /**
+   * Create lesson navigation section
+   */
+  createLessonNavigationSection(lessonId) {
+    const section = this.createElement('div', ['lesson-navigation-section']);
+    
+    const prevLesson = this.getPreviousLesson(lessonId);
+    const nextLesson = this.getNextLesson(lessonId);
+    
+    const navigation = this.createElement('div', ['lesson-navigation']);
+    
+    // Previous lesson button
+    if (prevLesson) {
+      const prevButton = this.createElement('button', ['btn', 'btn-secondary', 'prev-lesson']);
+      prevButton.innerHTML = `← ${prevLesson.title}`;
+      prevButton.addEventListener('click', () => this.showLesson(prevLesson.id));
+      navigation.appendChild(prevButton);
+    }
+    
+    // Complete lesson button
+    const completeButton = this.createElement('button', ['btn', 'btn-success', 'complete-lesson']);
+    completeButton.innerHTML = '✅ Marcar como Completado';
+    completeButton.addEventListener('click', () => this.completeLessonAndNext());
+    navigation.appendChild(completeButton);
+    
+    // Next lesson button
+    if (nextLesson) {
+      const nextButton = this.createElement('button', ['btn', 'btn-primary', 'next-lesson']);
+      nextButton.innerHTML = `${nextLesson.title} →`;
+      nextButton.addEventListener('click', () => this.showLesson(nextLesson.id));
+      navigation.appendChild(nextButton);
+    }
+    
+    section.appendChild(navigation);
+    return section;
+  }
+
+  /**
+   * Get previous lesson
+   */
+  getPreviousLesson(currentLessonId) {
+    if (!this.moduleContent.lessons) return null;
+    
+    const lessons = Array.isArray(this.moduleContent.lessons) 
+      ? this.moduleContent.lessons 
+      : Object.values(this.moduleContent.lessons);
+    
+    const currentIndex = lessons.findIndex(lesson => lesson.id === currentLessonId);
+    return currentIndex > 0 ? lessons[currentIndex - 1] : null;
+  }
+
+  /**
+   * Get next lesson
+   */
+  getNextLesson(currentLessonId) {
+    if (!this.moduleContent.lessons) return null;
+    
+    const lessons = Array.isArray(this.moduleContent.lessons) 
+      ? this.moduleContent.lessons 
+      : Object.values(this.moduleContent.lessons);
+    
+    const currentIndex = lessons.findIndex(lesson => lesson.id === currentLessonId);
+    return currentIndex >= 0 && currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
+  }
+
+  /**
+   * Bind lesson navigation events
+   */
+  bindLessonNavigationEvents() {
+    // Breadcrumb navigation
+    this.findElements('[data-action="back-to-modules"]').forEach(button => {
+      button.addEventListener('click', () => {
+        this.currentModule = null;
+        this.currentLesson = null;
+        this.renderModuleGrid();
+      });
+    });
+
+    this.findElements('[data-action="back-to-module"]').forEach(button => {
+      button.addEventListener('click', () => {
+        this.currentLesson = null;
+        this.renderCurrentModule();
+      });
+    });
+
+    // Activity buttons
+    this.findElements('[data-action="start-quiz"]').forEach(button => {
+      button.addEventListener('click', () => {
+        const lessonId = button.dataset.lesson;
+        this.startLessonQuiz(lessonId);
+      });
+    });
+
+    this.findElements('[data-action="take-notes"]').forEach(button => {
+      button.addEventListener('click', () => {
+        const lessonId = button.dataset.lesson;
+        this.openLessonNotes(lessonId);
+      });
+    });
+  }
+
+  /**
+   * Start lesson quiz
+   */
+  startLessonQuiz(lessonId) {
+    this.showNotification('Quiz de lección en desarrollo', 'info');
+    // TODO: Implement lesson quiz functionality
+  }
+
+  /**
+   * Open lesson notes
+   */
+  openLessonNotes(lessonId) {
+    this.showNotification('Sistema de notas en desarrollo', 'info');
+    // TODO: Implement lesson notes functionality
+  }
+
+  /**
+   * Initialize video player for lesson content
+   */
+  async initializeVideoPlayer(container, videoData) {
+    try {
+      // Get MediaRenderer for video initialization
+      const mediaRenderer = this.getModule('mediaRenderer');
+      if (!mediaRenderer) {
+        console.warn('[ModulesViewController] MediaRenderer not available for video');
+        this.showVideoFallback(container, videoData);
+        return;
+      }
+
+      // Create video configuration
+      const videoConfig = {
+        id: videoData.videoId,
+        title: videoData.title,
+        type: 'youtube',
+        placement: 'lesson_content'
+      };
+
+      // Create video element
+      const videoElement = await mediaRenderer.createMediaFromSection(videoConfig);
+      if (videoElement) {
+        container.appendChild(videoElement);
+        console.log('[ModulesViewController] Video player initialized for lesson:', videoData.title);
+      } else {
+        this.showVideoFallback(container, videoData);
+      }
+    } catch (error) {
+      console.error('[ModulesViewController] Failed to initialize video player:', error);
+      this.showVideoFallback(container, videoData);
+    }
+  }
+
+  /**
+   * Show video fallback content
+   */
+  showVideoFallback(container, videoData) {
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="video-fallback">
+        <div class="video-placeholder">
+          <div class="placeholder-content">
+            <div class="placeholder-icon">🎥</div>
+            <h4>Video temporalmente no disponible</h4>
+            <p>El contenido del video "${videoData.title}" estará disponible próximamente.</p>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   /**
@@ -743,7 +1129,219 @@ class ModulesViewController extends BaseViewController {
   async showSection(sectionId) {
     if (sectionId.startsWith('module')) {
       await this.showModule(sectionId);
+    } else if (sectionId === 'overview') {
+      this.currentModule = null;
+      await this.renderModuleGrid();
     }
+  }
+
+  /**
+   * Render module overview grid
+   */
+  async renderModuleGrid() {
+    const modulesGrid = this.findElement('.modules-grid');
+    if (!modulesGrid) {
+      console.warn('[ModulesViewController] Module grid container not found');
+      return;
+    }
+
+    try {
+      // Get progress service for dynamic progress data
+      const progressService = this.getService('ProgressService');
+      
+      // Get ContentEngine for module data
+      const contentEngine = this.getModule('contentEngine') || this.app.modules?.get('contentEngine');
+      
+      // Module definitions with enhanced data
+      const moduleDefinitions = [
+        {
+          id: 'module1',
+          number: 1,
+          title: 'Fundamentos de Consultoría',
+          description: 'Conceptos básicos, ética y habilidades interpersonales necesarias para la consultoría profesional.',
+          icon: '🎯',
+          lessons: 3,
+          color: 'green',
+          duration: '2-3 horas',
+          competencyLevel: 'Nivel 5'
+        },
+        {
+          id: 'module2',
+          number: 2,
+          title: 'Identificación del Problema',
+          description: 'Elemento 1: Técnicas de entrevista, cuestionarios e investigación de campo para identificar situaciones problemáticas.',
+          icon: '🔍',
+          templates: 8,
+          color: 'blue',
+          duration: '4-5 horas',
+          competencyLevel: 'Nivel 5'
+        },
+        {
+          id: 'module3',
+          number: 3,
+          title: 'Desarrollo de Soluciones',
+          description: 'Elemento 2: Análisis de impacto y diseño de soluciones efectivas con justificación costo-beneficio.',
+          icon: '💡',
+          templates: 2,
+          color: 'purple',
+          duration: '3-4 horas',
+          competencyLevel: 'Nivel 5'
+        },
+        {
+          id: 'module4',
+          number: 4,
+          title: 'Presentación de Propuestas',
+          description: 'Elemento 3: Preparación y presentación profesional de propuestas de solución.',
+          icon: '📋',
+          templates: 5,
+          color: 'orange',
+          duration: '3-4 horas',
+          competencyLevel: 'Nivel 5'
+        }
+      ];
+
+      // Get dynamic progress data
+      const modules = moduleDefinitions.map(module => {
+        let status = 'available';
+        let progress = 0;
+        let isUnlocked = true;
+        
+        if (progressService) {
+          status = progressService.getModuleStatus(module.id) || 'available';
+          progress = progressService.calculateModuleProgress(module.id) || 0;
+          isUnlocked = progressService.isModuleUnlocked(module.id);
+        }
+        
+        // Module 1 is always unlocked, others depend on previous module completion
+        if (module.number === 1) {
+          isUnlocked = true;
+        } else if (progressService) {
+          const previousModuleId = `module${module.number - 1}`;
+          isUnlocked = progressService.isModuleCompleted(previousModuleId);
+        }
+        
+        return { ...module, status, progress, isUnlocked };
+      });
+
+      // Render module grid
+      modulesGrid.innerHTML = modules.map(module => this.createModuleCard(module)).join('');
+      
+      // Add click handlers for module cards
+      this.bindModuleCardEvents();
+      
+      console.log('[ModulesViewController] Module grid rendered with', modules.length, 'modules');
+    } catch (error) {
+      console.error('[ModulesViewController] Failed to render module grid:', error);
+      modulesGrid.innerHTML = '<div class="error-message">Error al cargar los módulos</div>';
+    }
+  }
+
+  /**
+   * Create module card HTML
+   */
+  createModuleCard(module) {
+    const statusInfo = this.getModuleStatusInfo(module.status, module.isUnlocked);
+    const resourceText = module.lessons ? `${module.lessons} lecciones` : `${module.templates} plantillas`;
+    
+    return `
+      <div class="module-card module-${module.number} ${module.isUnlocked ? '' : 'locked'}" data-module="${module.number}">
+        <div class="module-header">
+          <div class="module-icon ${module.color}">${module.icon}</div>
+          <div class="module-status ${module.status}"></div>
+          ${!module.isUnlocked ? '<div class="lock-overlay">🔒</div>' : ''}
+        </div>
+        <div class="module-content">
+          <h3 class="module-title">Módulo ${module.number}: ${module.title}</h3>
+          <p class="module-description">${module.description}</p>
+          <div class="module-metadata">
+            <span class="duration">⏱️ ${module.duration}</span>
+            <span class="level">📊 ${module.competencyLevel}</span>
+          </div>
+          <div class="module-stats">
+            <span>${resourceText}</span>
+            <span class="status-text ${statusInfo.class}">
+              ${statusInfo.text}
+            </span>
+          </div>
+          <div class="module-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${module.progress}%"></div>
+            </div>
+            <span class="progress-text">${module.progress}% completado</span>
+          </div>
+          <div class="module-actions">
+            ${this.getModuleActionButton(module)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Get module status information
+   */
+  getModuleStatusInfo(status, isUnlocked) {
+    if (!isUnlocked) {
+      return { text: 'Bloqueado', class: 'text-secondary' };
+    }
+    
+    switch (status) {
+      case 'completed':
+        return { text: 'Completado', class: 'text-success' };
+      case 'in_progress':
+        return { text: 'En progreso', class: 'text-warning' };
+      case 'available':
+      default:
+        return { text: 'Disponible', class: 'text-info' };
+    }
+  }
+
+  /**
+   * Get module action button
+   */
+  getModuleActionButton(module) {
+    if (!module.isUnlocked) {
+      return '<button class="btn btn-secondary" disabled>🔒 Bloqueado</button>';
+    }
+    
+    switch (module.status) {
+      case 'completed':
+        return `<button class="btn btn-outline" data-action="enter-module" data-module="${module.id}">Revisar</button>`;
+      case 'in_progress':
+        return `<button class="btn btn-primary" data-action="enter-module" data-module="${module.id}">Continuar</button>`;
+      case 'available':
+      default:
+        return `<button class="btn btn-primary" data-action="enter-module" data-module="${module.id}">Comenzar</button>`;
+    }
+  }
+
+  /**
+   * Bind module card click events
+   */
+  bindModuleCardEvents() {
+    // Module card clicks
+    this.findElements('.module-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        // Don't trigger if clicking on button
+        if (e.target.closest('button')) return;
+        
+        const moduleNum = card.dataset.module;
+        if (moduleNum && !card.classList.contains('locked')) {
+          this.showModule(`module${moduleNum}`);
+        }
+      });
+    });
+
+    // Action buttons
+    this.findElements('[data-action="enter-module"]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const moduleId = button.dataset.module;
+        if (moduleId) {
+          this.showModule(moduleId);
+        }
+      });
+    });
   }
 
   onLanguageUpdate() {
