@@ -1,7 +1,48 @@
 /**
- * Assessment Engine - Knowledge verification and quiz management system
- * Handles interactive assessments, progress tracking, and competency evaluation
- * Refactored for better modularity with extracted components
+ * Assessment Engine - Comprehensive Knowledge Verification and Testing System
+ * 
+ * @description The AssessmentEngine provides a complete assessment management system
+ * for the EC0249 educational platform. It handles question presentation, response
+ * collection, scoring, progress tracking, and result analysis with support for
+ * multiple question types and assessment strategies.
+ * 
+ * @class AssessmentEngine
+ * @extends Module
+ * 
+ * Key Features:
+ * - Multiple question types (multiple choice, true/false, short answer, essay)
+ * - Timer-based assessments with time limits
+ * - Advanced scoring algorithms with weighted results
+ * - Progress tracking and attempt management
+ * - Question randomization and answer shuffling
+ * - Comprehensive result analysis and feedback
+ * - Session management with pause/resume capability
+ * - Integration with EC0249 competency standards
+ * 
+ * Assessment Types:
+ * - Knowledge assessments: Theoretical understanding
+ * - Performance assessments: Practical skills
+ * - Portfolio assessments: Work sample evaluation
+ * 
+ * Scoring Methods:
+ * - Standard scoring: Correct/incorrect evaluation
+ * - Weighted scoring: Different question values
+ * - Partial credit: Graduated scoring for complex answers
+ * - Competency mapping: Alignment with EC0249 standards
+ * 
+ * @example
+ * // Start an assessment
+ * const session = await assessmentEngine.startAssessment('module1-quiz', {
+ *   timeLimit: 3600, // 1 hour
+ *   shuffleQuestions: true
+ * });
+ * 
+ * @example
+ * // Submit answers and get results
+ * await assessmentEngine.submitAnswer(sessionId, questionId, answer);
+ * const results = await assessmentEngine.completeAssessment(sessionId);
+ * 
+ * @since 2.0.0
  */
 import Module from '../core/Module.js';
 import QuestionTypes from '../assessment/QuestionTypes.js';
@@ -9,6 +50,25 @@ import AssessmentDefinitions from '../assessment/AssessmentDefinitions.js';
 import ScoringEngine from '../assessment/ScoringEngine.js';
 
 class AssessmentEngine extends Module {
+  /**
+   * Create a new AssessmentEngine instance
+   * 
+   * @description Initializes the AssessmentEngine with comprehensive configuration
+   * for assessment management, scoring, and evaluation. Sets up the foundation
+   * for question types, timing, and result processing.
+   * 
+   * Configuration Options:
+   * - autoSave: Enables automatic progress saving during assessments
+   * - saveInterval: Auto-save interval in milliseconds
+   * - minPassingScore: Minimum score required to pass (percentage)
+   * - maxAttempts: Maximum allowed attempts per assessment
+   * - questionTypes: Supported question type formats
+   * - shuffleQuestions: Randomize question order
+   * - shuffleOptions: Randomize answer options
+   * 
+   * @constructor
+   * @since 2.0.0
+   */
   constructor() {
     super('AssessmentEngine', ['StateManager', 'I18nService', 'StorageService'], {
       autoSave: true,
@@ -81,10 +141,41 @@ class AssessmentEngine extends Module {
   }
 
   /**
-   * Start an assessment
-   * @param {string} assessmentId - Assessment ID
-   * @param {Object} options - Assessment options
-   * @returns {Object} Assessment session data
+   * Start a new assessment session
+   * 
+   * @description Initiates a new assessment session with question preparation,
+   * timer setup, and session state management. Validates user eligibility,
+   * prepares questions according to configuration, and sets up the assessment
+   * environment for user interaction.
+   * 
+   * @param {string} assessmentId - Unique assessment identifier
+   * @param {Object} [options={}] - Assessment session options
+   * @param {boolean} [options.shuffleQuestions] - Override global shuffle setting
+   * @param {boolean} [options.shuffleOptions] - Override global shuffle setting
+   * @param {number} [options.timeLimit] - Override assessment time limit
+   * @param {string} [options.scoringMethod='standard'] - Scoring algorithm to use
+   * 
+   * @returns {Promise<Object>} Assessment session data
+   * @returns {string} returns.sessionId - Unique session identifier
+   * @returns {Object} returns.assessment - Assessment configuration
+   * @returns {Object} returns.firstQuestion - First question to display
+   * @returns {number} returns.totalQuestions - Total number of questions
+   * @returns {number} returns.timeLimit - Session time limit in seconds
+   * 
+   * @throws {Error} Throws if assessment not found
+   * @throws {Error} Throws if maximum attempts exceeded
+   * @throws {Error} Throws if user not eligible for assessment
+   * 
+   * @fires AssessmentEngine#assessment:started - Emitted when session starts
+   * 
+   * @example
+   * const session = await assessmentEngine.startAssessment('module1-quiz', {
+   *   timeLimit: 1800, // 30 minutes
+   *   shuffleQuestions: true,
+   *   scoringMethod: 'weighted'
+   * });
+   * 
+   * @since 2.0.0
    */
   async startAssessment(assessmentId, options = {}) {
     const assessment = this.assessments.get(assessmentId);

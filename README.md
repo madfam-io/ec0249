@@ -87,12 +87,18 @@ pdflatex manual-academico-ec0249.tex
 ec0249/
 ├── 🌐 index.html                    # Aplicación principal
 ├── 📚 manual-academico-ec0249.tex   # Manual académico LaTeX
-├── 📋 CLAUDE.md                     # Documentación técnica
-├── 🗂️ js/                          # Arquitectura JavaScript
-│   ├── modules.js                   # Sistema de módulos
-│   ├── document-templates.js        # Plantillas de documentos
-│   ├── assessment-portfolio.js      # Evaluaciones y portafolio
-│   └── simulation-system.js         # Simuladores interactivos
+├── 📋 CLAUDE.md                     # Guía para asistentes IA
+├── 🏗️ ARCHITECTURE.md              # Documentación de arquitectura
+├── 🤝 CONTRIBUTING.md               # Guía de contribución
+├── 📊 API.md                        # Documentación de APIs
+├── 🏃 DEVELOPMENT.md                # Guía de desarrollo
+├── 🗂️ src/js/                      # Arquitectura JavaScript modular
+│   ├── core/                        # Sistema base (ServiceContainer, Module, EventBus)
+│   ├── engines/                     # Motores de negocio (Content, Assessment, etc.)
+│   ├── services/                    # Servicios aplicación (I18n, Storage, etc.)
+│   ├── components/                  # Componentes UI reutilizables
+│   ├── views/                       # Controladores de vista
+│   └── translations/                # Archivos de internacionalización
 └── 📚 reference/                    # Materiales de referencia
     ├── content_analysis_report.md   # Análisis de contenido
     ├── competency_mapping.md        # Mapeo de competencias
@@ -186,6 +192,31 @@ ec0249/
 - 📱 Aplicación móvil nativa
 - 🌐 Integración con sistemas LMS
 - 📊 Analytics avanzados
+
+---
+
+## 📖 Documentación Completa
+
+### 🎯 **Documentación para Usuarios**
+- **[README.md](README.md)**: Guía principal y características
+- **[DEVELOPMENT.md](DEVELOPMENT.md)**: Configuración e instalación
+- **Manual Académico**: Contenido teórico completo en LaTeX
+
+### 🏗️ **Documentación Técnica**
+- **[ARCHITECTURE.md](ARCHITECTURE.md)**: Arquitectura del sistema y patrones de diseño
+- **[API.md](API.md)**: Documentación completa de APIs y ejemplos de integración
+- **[CONTRIBUTING.md](CONTRIBUTING.md)**: Guía de contribución y estándares de código
+
+### 👩‍💻 **Documentación para Desarrolladores**
+- **Código Fuente**: JSDoc completo en todas las clases y métodos
+- **Arquitectura Modular**: Documentación de ServiceContainer, EventBus, y Module
+- **Guías de Integración**: Ejemplos completos para extender la plataforma
+- **Estándares de Código**: Convenciones y mejores prácticas
+
+### 🤖 **Documentación para IA**
+- **[CLAUDE.md](CLAUDE.md)**: Contexto completo para asistentes de IA
+- **Patrones de Arquitectura**: Documentación de decisiones de diseño
+- **Ejemplos de Uso**: Casos de uso y patrones de implementación
 
 ---
 

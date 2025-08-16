@@ -1,6 +1,63 @@
 /**
- * Base Component - Foundation for all UI components
- * Provides lifecycle management, event handling, and templating
+ * BaseComponent - Foundation for All UI Components
+ * 
+ * @description The BaseComponent class provides a comprehensive foundation for all
+ * UI components in the EC0249 platform. It implements common patterns for component
+ * lifecycle management, event handling, templating, reactive data binding, and
+ * styling encapsulation. All UI components should extend this base class.
+ * 
+ * @class BaseComponent
+ * @extends Module
+ * 
+ * Key Features:
+ * - Component lifecycle management (mount, unmount, render)
+ * - Reactive data binding with automatic re-rendering
+ * - Template-based rendering with variable interpolation
+ * - Event handling with automatic cleanup
+ * - CSS encapsulation and scoped styling
+ * - Shadow DOM support for true encapsulation
+ * - Parent-child component relationships
+ * - State management and persistence
+ * 
+ * Component Lifecycle:
+ * 1. Construction: Component setup and configuration
+ * 2. Mounting: DOM attachment and initialization
+ * 3. Rendering: Template processing and DOM updates
+ * 4. Operation: User interaction and state changes
+ * 5. Unmounting: Cleanup and resource release
+ * 
+ * Template Features:
+ * - Function-based templates with data injection
+ * - String templates with variable interpolation
+ * - Reactive updates on data changes
+ * - Conditional rendering support
+ * 
+ * @example
+ * // Basic component implementation
+ * class UserCard extends BaseComponent {
+ *   constructor(element, options) {
+ *     super('UserCard', element, {
+ *       template: this.template,
+ *       events: {
+ *         'click .edit-btn': 'handleEdit',
+ *         'change .user-input': 'handleInputChange'
+ *       },
+ *       reactive: true
+ *     });
+ *   }
+ * 
+ *   template(data) {
+ *     return `
+ *       <div class="user-card">
+ *         <h3>${data.name}</h3>
+ *         <p>${data.email}</p>
+ *         <button class="edit-btn">Edit</button>
+ *       </div>
+ *     `;
+ *   }
+ * }
+ * 
+ * @since 1.0.0
  */
 import Module from '../core/Module.js';
 
@@ -34,9 +91,27 @@ class BaseComponent extends Module {
   }
 
   /**
-   * Mount component to DOM
-   * @param {HTMLElement} element - Target element (optional)
-   * @returns {Promise} Mount promise
+   * Mount component to DOM element
+   * 
+   * @description Attaches the component to a DOM element and initializes all
+   * component features including rendering, event binding, and child component
+   * mounting. This method should be called to activate the component.
+   * 
+   * @param {HTMLElement} [element=null] - Target DOM element (uses constructor element if null)
+   * 
+   * @returns {Promise<void>} Promise that resolves when mounting is complete
+   * 
+   * @throws {Error} Throws if component is already mounted
+   * @throws {Error} Throws if no target element is available
+   * @throws {Error} Throws if mounting process fails
+   * 
+   * @fires BaseComponent#component:mounted - Emitted when mounting completes
+   * 
+   * @example
+   * const component = new UserCard();
+   * await component.mount(document.getElementById('user-container'));
+   * 
+   * @since 1.0.0
    */
   async mount(element = null) {
     if (this.mounted) {
@@ -134,8 +209,25 @@ class BaseComponent extends Module {
   }
 
   /**
-   * Render component
-   * @returns {Promise} Render promise
+   * Render component template and update DOM
+   * 
+   * @description Processes the component template, applies data binding,
+   * updates the DOM content, and applies styling. This method is called
+   * automatically during mounting and can be called manually for updates.
+   * 
+   * @returns {Promise<void>} Promise that resolves when rendering is complete
+   * 
+   * @throws {Error} Throws if component is not mounted to an element
+   * @throws {Error} Throws if template processing fails
+   * 
+   * @fires BaseComponent#component:rendered - Emitted when rendering completes
+   * 
+   * @example
+   * // Manual re-render after data change
+   * component.setData('name', 'New Name');
+   * await component.render();
+   * 
+   * @since 1.0.0
    */
   async render() {
     if (!this.element) {
@@ -324,9 +416,28 @@ class BaseComponent extends Module {
   }
 
   /**
-   * Set component data
-   * @param {string|Object} key - Data key or data object
-   * @param {*} value - Data value
+   * Set component data with automatic re-rendering
+   * 
+   * @description Updates component data and triggers re-rendering if reactive
+   * mode is enabled. Supports both single key-value updates and bulk object
+   * updates for efficient data management.
+   * 
+   * @param {string|Object} key - Data key in dot notation or data object for bulk update
+   * @param {*} [value=null] - Data value (ignored if key is an object)
+   * 
+   * @example
+   * // Single value update
+   * component.setData('user.name', 'John Doe');
+   * 
+   * @example
+   * // Bulk update
+   * component.setData({
+   *   'user.name': 'John Doe',
+   *   'user.email': 'john@example.com',
+   *   'user.active': true
+   * });
+   * 
+   * @since 1.0.0
    */
   setData(key, value = null) {
     if (typeof key === 'object') {

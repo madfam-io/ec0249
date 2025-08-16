@@ -1,8 +1,40 @@
 /**
- * Content Engine - Interactive lesson content rendering and management
- * Handles dynamic content display, multimedia integration, and interactive elements
- * Refactored for better modularity with extracted renderers and loaders
- */
+ * Content Engine - Interactive Educational Content Rendering and Management
+ * 
+ * @description The ContentEngine is responsible for loading, rendering, and managing
+ * interactive educational content for the EC0249 platform. It provides a comprehensive
+ * system for handling multimedia content, interactive elements, activities, and assessments
+ * with support for multiple content types and rendering strategies.
+ * 
+ * @class ContentEngine
+ * @extends Module
+ * 
+ * Key Features:
+ * - Dynamic content loading with caching and progress tracking
+ * - Multi-format content rendering (text, video, audio, interactive)
+ * - Modular renderer architecture (SectionRenderer, MediaRenderer, etc.)
+ * - Content transition effects and animations
+ * - Automatic content history and analytics tracking
+ * - Progress persistence and state management
+ * - Responsive design and accessibility support
+ * 
+ * Content Types Supported:
+ * - Lesson content with structured sections
+ * - Interactive multimedia elements
+ * - Activities and exercises
+ * - Assessment integration
+ * - Navigation and progress tracking
+ * 
+ * Renderer Components:
+ * - SectionRenderer: Handles content sections and text formatting
+ * - MediaRenderer: Manages video, audio, and image content
+ * - InteractiveRenderer: Handles interactive elements and widgets
+ * - ActivityRenderer: Renders activities and exercises
+ * - ContentLoader: Handles content fetching and caching
+ * 
+ * @example
+ * // Load and render lesson content
+ * const contentConfig = {\n *   id: 'module1-lesson1',\n *   type: 'lesson',\n *   title: 'Introduction to Consulting',\n *   sections: [...],\n *   activities: [...]\n * };\n * \n * await contentEngine.loadContent(contentConfig);\n * await contentEngine.renderContent(containerElement);\n * \n * @example\n * // Listen for content events\n * contentEngine.subscribe('content:loaded', (data) => {\n *   console.log('Content loaded:', data.content.id);\n * });\n * \n * @since 2.0.0\n */"}
 import Module from '../core/Module.js';
 import SectionRenderer from '../renderers/SectionRenderer.js';
 import MediaRenderer from '../renderers/MediaRenderer.js';
@@ -11,6 +43,24 @@ import ActivityRenderer from '../renderers/ActivityRenderer.js';
 import ContentLoader from '../loaders/ContentLoader.js';
 
 class ContentEngine extends Module {
+  /**
+   * Create a new ContentEngine instance
+   * 
+   * @description Initializes the ContentEngine with configuration for content rendering,
+   * media handling, transitions, and auto-save functionality. Sets up the foundation
+   * for modular content rendering with specialized renderer components.
+   * 
+   * @constructor
+   * 
+   * Configuration Options:
+   * - autoSave: Enables automatic progress saving
+   * - saveInterval: Auto-save interval in milliseconds
+   * - renderTimeout: Maximum time for rendering operations
+   * - defaultTransition: Default transition effect for content changes
+   * - supportedMediaTypes: Array of supported media formats
+   * 
+   * @since 2.0.0
+   */
   constructor() {
     super('ContentEngine', ['StateManager', 'I18nService', 'StorageService'], {
       autoSave: true,
@@ -62,9 +112,39 @@ class ContentEngine extends Module {
   }
 
   /**
-   * Load and render lesson content
-   * @param {Object} contentConfig - Content configuration
-   * @returns {Promise} Load promise
+   * Load educational content from configuration
+   * 
+   * @description Loads content data using the ContentLoader, handles caching,
+   * progress tracking, and content history management. The loaded content
+   * is prepared for rendering and stored in the engine state.
+   * 
+   * @param {Object} contentConfig - Content configuration object
+   * @param {string} contentConfig.id - Unique content identifier
+   * @param {string} contentConfig.type - Content type ('lesson', 'activity', 'assessment')
+   * @param {string} [contentConfig.title] - Content title
+   * @param {string} [contentConfig.overview] - Content overview/description
+   * @param {Array} [contentConfig.sections] - Content sections array
+   * @param {Array} [contentConfig.activities] - Activities array
+   * @param {Object} [contentConfig.assessment] - Assessment configuration
+   * 
+   * @returns {Promise<Object>} Promise that resolves to the loaded content object
+   * 
+   * @throws {Error} Throws if content configuration is invalid
+   * @throws {Error} Throws if content loading fails
+   * 
+   * @fires ContentEngine#content:loading - Emitted when loading starts
+   * @fires ContentEngine#content:loaded - Emitted when loading completes
+   * @fires ContentEngine#content:error - Emitted if loading fails
+   * 
+   * @example
+   * // Load lesson content
+   * const content = await contentEngine.loadContent({
+   *   id: 'module1-lesson1',
+   *   type: 'lesson',
+   *   title: 'Introduction to Consulting Ethics'
+   * });
+   * 
+   * @since 2.0.0
    */
   async loadContent(contentConfig) {
     try {
@@ -101,11 +181,35 @@ class ContentEngine extends Module {
   }
 
   /**
-   * Render content in target container
-   * @param {HTMLElement} container - Target container
-   * @param {Object} content - Content to render
-   * @param {Object} options - Render options
-   * @returns {Promise} Render promise
+   * Render content in target DOM container
+   * 
+   * @description Renders loaded content into the specified DOM container using
+   * the modular renderer architecture. Handles content structure creation,
+   * transition effects, interactive element initialization, and media setup.
+   * 
+   * @param {HTMLElement} container - Target DOM container element
+   * @param {Object} [content=null] - Content object to render (uses current content if null)
+   * @param {Object} [options={}] - Rendering options
+   * @param {string} [options.transition] - Transition effect ('fadeIn', 'slideIn')
+   * @param {boolean} [options.clearContainer=true] - Whether to clear container first
+   * @param {boolean} [options.initializeInteractive=true] - Whether to initialize interactive elements
+   * 
+   * @returns {Promise<void>} Promise that resolves when rendering is complete
+   * 
+   * @throws {Error} Throws if container is not a valid DOM element
+   * @throws {Error} Throws if no content is available to render
+   * @throws {Error} Throws if rendering fails
+   * 
+   * @fires ContentEngine#content:rendering - Emitted when rendering starts
+   * @fires ContentEngine#content:rendered - Emitted when rendering completes
+   * 
+   * @example
+   * // Render with custom transition
+   * await contentEngine.renderContent(containerElement, null, {
+   *   transition: 'slideIn'
+   * });
+   * 
+   * @since 2.0.0
    */
   async renderContent(container, content = null, options = {}) {
     if (this.isRendering) {

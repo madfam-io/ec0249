@@ -1,6 +1,52 @@
 /**
- * EC0249 Educational Platform - Modular Application Bootstrap
- * Main application class that orchestrates all modules and services
+ * EC0249 Educational Platform - Main Application Bootstrap
+ * 
+ * @description The EC0249App class serves as the main application controller that orchestrates
+ * the entire educational platform. It manages service registration, module initialization,
+ * view management, and application lifecycle. This class follows the modular architecture
+ * pattern with dependency injection and event-driven communication.
+ * 
+ * @class EC0249App
+ * 
+ * Key Responsibilities:
+ * - Service container setup and dependency injection
+ * - Module lifecycle management (ContentEngine, AssessmentEngine, etc.)
+ * - Application state management and persistence
+ * - View controller coordination and routing
+ * - Event handling and inter-module communication
+ * - User interface component initialization
+ * - Configuration management and environment setup
+ * 
+ * Architecture Features:
+ * - Modular service-oriented architecture
+ * - Dependency injection via ServiceContainer
+ * - Event-driven communication via EventBus
+ * - Centralized state management
+ * - View controller pattern with ViewManager
+ * - Internationalization support
+ * - Theme management
+ * - Progress tracking and persistence
+ * 
+ * @example
+ * // Initialize the application
+ * const app = new EC0249App({
+ *   theme: { defaultTheme: 'auto' },
+ *   i18n: { defaultLanguage: 'es' }
+ * });
+ * 
+ * await app.initialize();
+ * 
+ * @example
+ * // Access services after initialization
+ * const i18nService = app.getService('I18nService');
+ * const progressService = app.getService('ProgressService');
+ * 
+ * @example
+ * // Switch views programmatically
+ * await app.switchView('modules');
+ * await app.switchSection('module2');
+ * 
+ * @since 2.0.0
  */
 import { container } from './core/ServiceContainer.js';
 import { eventBus } from './core/EventBus.js';
@@ -20,14 +66,52 @@ import SimulationEngine from './engines/SimulationEngine.js';
 import ViewManager from './views/ViewManager.js';
 
 class EC0249App {
+  /**
+   * Create a new EC0249App instance
+   * 
+   * @description Initializes the main application with configuration management,
+   * service registries, and initial state setup. The constructor prepares the
+   * application for initialization but does not start any services.
+   * 
+   * @param {Object} [config={}] - Application configuration overrides
+   * @param {Object} [config.theme] - Theme configuration overrides
+   * @param {Object} [config.i18n] - Internationalization configuration
+   * @param {Object} [config.storage] - Storage configuration
+   * @param {Object} [config.state] - State management configuration
+   * 
+   * @example
+   * // Create app with custom configuration
+   * const app = new EC0249App({
+   *   theme: { defaultTheme: 'dark' },
+   *   i18n: { defaultLanguage: 'en' },
+   *   state: { enableHistory: false }
+   * });
+   * 
+   * @since 2.0.0
+   */
   constructor(config = {}) {
+    /** @private {ConfigManager} config - Application configuration manager */
     this.config = new ConfigManager({ ...AppConfig, ...config });
+    
+    /** @private {StateManager|null} state - Application state manager */
     this.state = null;
+    
+    /** @private {Map<string, Object>} services - Service instances registry */
     this.services = new Map();
+    
+    /** @private {Map<string, Object>} components - UI component instances registry */
     this.components = new Map();
+    
+    /** @private {Map<string, Object>} modules - Module instances registry */
     this.modules = new Map();
+    
+    /** @private {ViewManager|null} viewManager - View controller manager */
     this.viewManager = null;
+    
+    /** @public {boolean} initialized - Application initialization status */
     this.initialized = false;
+    
+    /** @public {boolean} destroyed - Application destruction status */
     this.destroyed = false;
     
     // Navigation state management
@@ -55,8 +139,32 @@ class EC0249App {
   }
 
   /**
-   * Initialize the application
-   * @returns {Promise} Initialization promise
+   * Initialize the application and all its components
+   * 
+   * @description Performs the complete application initialization sequence including:
+   * - Core system setup
+   * - Service registration and dependency injection
+   * - Module initialization
+   * - UI component setup
+   * - View management initialization
+   * - User data loading
+   * - Event listener binding
+   * 
+   * This method should be called once after creating the application instance.
+   * 
+   * @returns {Promise<void>} Promise that resolves when initialization is complete
+   * 
+   * @throws {Error} Throws if application is already initialized
+   * @throws {Error} Throws if any critical service fails to initialize
+   * 
+   * @fires EC0249App#app:initialized - Emitted when initialization completes
+   * 
+   * @example
+   * const app = new EC0249App();
+   * await app.initialize();
+   * console.log('Application ready!');
+   * 
+   * @since 2.0.0
    */
   async initialize() {
     if (this.initialized) {
@@ -508,8 +616,29 @@ class EC0249App {
   }
 
   /**
-   * Switch application view
-   * @param {string} viewName - View name
+   * Switch to a different application view
+   * 
+   * @description Changes the current application view with proper state management,
+   * navigation debouncing, and event emission. Handles view transitions through
+   * the ViewManager when available, with fallback to legacy rendering.
+   * 
+   * @param {string} viewName - Target view name ('dashboard', 'modules', 'assessment', 'portfolio')
+   * 
+   * @returns {Promise<void>} Promise that resolves when view switch is complete
+   * 
+   * @throws {Error} Throws if view name is invalid
+   * 
+   * @fires EC0249App#app:view-change - Emitted when view changes
+   * 
+   * @example
+   * // Switch to modules view
+   * await app.switchView('modules');
+   * 
+   * @example
+   * // Switch to assessment view
+   * await app.switchView('assessment');
+   * 
+   * @since 2.0.0
    */
   async switchView(viewName) {
     if (this.appState.currentView === viewName) return;

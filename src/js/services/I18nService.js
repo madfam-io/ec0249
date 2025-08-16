@@ -1,6 +1,50 @@
 /**
- * I18n Service - Modular internationalization service
- * Handles translations, language switching, and localization
+ * I18nService - Comprehensive Internationalization and Localization Service
+ * 
+ * @description The I18nService provides complete internationalization support for the
+ * EC0249 educational platform. It handles translation management, language switching,
+ * locale-specific formatting, and dynamic DOM translation with advanced features like
+ * variable interpolation, fallback language support, and browser language detection.
+ * 
+ * @class I18nService
+ * @extends Module
+ * 
+ * Key Features:
+ * - Multi-language support with dynamic loading
+ * - Real-time DOM translation with data-i18n attributes
+ * - Variable interpolation in translations
+ * - Fallback language chain for missing translations
+ * - Browser language auto-detection
+ * - Persistent language preferences
+ * - Locale-specific number and date formatting
+ * - Translation caching and optimization
+ * 
+ * Supported Features:
+ * - Translation files in JSON format
+ * - Nested translation keys with dot notation
+ * - Placeholder interpolation with {{variable}} syntax
+ * - DOM element translation via data-i18n attributes
+ * - Form placeholder translation
+ * - Title and tooltip translation
+ * - Language change event notifications
+ * 
+ * @example
+ * // Basic translation usage
+ * const message = i18n.t('user.welcome', { name: 'John' });
+ * // Result: "Welcome, John!" or "¡Bienvenido, John!"
+ * 
+ * @example
+ * // Language switching
+ * await i18n.setLanguage('en');
+ * i18n.translatePage(); // Updates all DOM elements
+ * 
+ * @example
+ * // Listen for language changes
+ * i18n.addLanguageChangeListener((data) => {
+ *   console.log('Language changed to:', data.language);
+ * });
+ * 
+ * @since 1.0.0
  */
 import Module from '../core/Module.js';
 
@@ -251,11 +295,36 @@ class I18nService extends Module {
   }
 
   /**
-   * Translate a key
-   * @param {string} key - Translation key (dot notation)
-   * @param {Object} variables - Interpolation variables
-   * @param {string} language - Language code (optional)
-   * @returns {string} Translated text
+   * Translate a key to localized text
+   * 
+   * @description Main translation method that resolves translation keys to localized text
+   * with support for variable interpolation, fallback languages, and nested key resolution.
+   * This is the primary method for getting translated content in the application.
+   * 
+   * @param {string} key - Translation key in dot notation (e.g., 'user.profile.title')
+   * @param {Object} [variables={}] - Variables for interpolation in the translation
+   * @param {string} [language=null] - Target language code (uses current if null)
+   * 
+   * @returns {string} Translated and interpolated text, or the key if translation not found
+   * 
+   * @example
+   * // Simple translation
+   * const title = i18n.t('app.title');
+   * 
+   * @example
+   * // Translation with variables
+   * const greeting = i18n.t('user.greeting', { 
+   *   name: 'Maria',
+   *   time: 'morning'
+   * });
+   * // Template: "Good {{time}}, {{name}}!"
+   * // Result: "Good morning, Maria!"
+   * 
+   * @example
+   * // Specific language translation
+   * const spanishTitle = i18n.t('app.title', {}, 'es');
+   * 
+   * @since 1.0.0
    */
   t(key, variables = {}, language = null) {
     const lang = language || this.currentLanguage;

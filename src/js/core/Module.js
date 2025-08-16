@@ -1,25 +1,128 @@
 /**
  * Base Module Class - Foundation for all application modules
- * Provides common lifecycle, dependency injection, and event handling
+ * 
+ * @description The Module class provides a standardized foundation for all application modules,
+ * implementing common patterns for lifecycle management, dependency injection, event handling,
+ * and hierarchical module organization. All application modules should extend this base class.
+ * 
+ * @class Module
+ * 
+ * Features:
+ * - Automatic dependency injection and resolution
+ * - Event-driven communication via EventBus integration
+ * - Hierarchical module structure with parent/child relationships
+ * - Standardized initialization and destruction lifecycle
+ * - Configuration management with nested property access
+ * - Subscription management for automatic cleanup
+ * 
+ * @example
+ * // Basic module implementation
+ * class UserModule extends Module {
+ *   constructor() {
+ *     super('UserModule', ['DatabaseService', 'LoggerService'], {
+ *       cacheTimeout: 300000,
+ *       validateUsers: true
+ *     });
+ *   }
+ * 
+ *   async onInitialize() {
+ *     this.db = this.service('DatabaseService');
+ *     this.logger = this.service('LoggerService');
+ *     
+ *     this.subscribe('user:created', this.handleUserCreated.bind(this));
+ *   }
+ * 
+ *   async handleUserCreated(userData) {
+ *     this.logger.info('New user created:', userData.id);
+ *   }
+ * }
+ * 
+ * @example
+ * // Module with child modules
+ * class PaymentModule extends Module {
+ *   async onInitialize() {
+ *     // Add child modules
+ *     this.addChild(new PaymentProcessorModule());
+ *     this.addChild(new PaymentValidatorModule());
+ *   }
+ * }
+ * 
+ * @since 1.0.0
  */
 class Module {
+  /**
+   * Create a new Module instance
+   * 
+   * @description Initializes a new module with the specified name, dependencies, and configuration.
+   * Sets up the module state and prepares it for initialization within the application.
+   * 
+   * @param {string} name - Unique module name identifier
+   * @param {Array<string>} [dependencies=[]] - Array of service names this module depends on
+   * @param {Object} [config={}] - Module configuration object
+   * 
+   * @example
+   * // Basic module with dependencies
+   * constructor() {
+   *   super('PaymentModule', ['DatabaseService', 'LoggerService'], {
+   *     timeout: 30000,
+   *     retryCount: 3
+   *   });
+   * }
+   * 
+   * @since 1.0.0
+   */
   constructor(name, dependencies = [], config = {}) {
+    /** @public {string} name - Module name identifier */
     this.name = name;
+    
+    /** @public {Array<string>} dependencies - Required service dependencies */
     this.dependencies = dependencies;
+    
+    /** @public {Object} config - Module configuration object */
     this.config = config;
-    this.state = 'uninitialized'; // uninitialized, initializing, initialized, destroyed
+    
+    /** @public {string} state - Current module state (uninitialized, initializing, initialized, destroyed) */
+    this.state = 'uninitialized';
+    
+    /** @private {ServiceContainer|null} container - Service container reference */
     this.container = null;
+    
+    /** @private {EventBus|null} eventBus - Event bus reference */
     this.eventBus = null;
+    
+    /** @private {Array<Function>} subscriptions - Active event subscriptions for cleanup */
     this.subscriptions = [];
+    
+    /** @private {Map<string, Module>} childModules - Child modules registry */
     this.childModules = new Map();
+    
+    /** @private {Module|null} parent - Parent module reference */
     this.parent = null;
   }
 
   /**
-   * Initialize the module
-   * @param {ServiceContainer} container - Service container
-   * @param {EventBus} eventBus - Event bus
-   * @returns {Promise} Initialization promise
+   * Initialize the module and its dependencies
+   * 
+   * @description Performs the complete module initialization sequence, including dependency
+   * resolution, custom initialization logic, and child module initialization. This method
+   * should be called by the application framework and not directly by user code.
+   * 
+   * @param {ServiceContainer} container - Application service container
+   * @param {EventBus} eventBus - Application event bus
+   * 
+   * @returns {Promise<void>} Promise that resolves when initialization is complete
+   * 
+   * @throws {Error} Throws if module is already initialized
+   * @throws {Error} Throws if dependencies cannot be resolved
+   * @throws {Error} Throws if custom initialization fails
+   * 
+   * @fires Module#module:initialized - Emitted when initialization completes
+   * 
+   * @example
+   * // Typically called by the application framework
+   * await userModule.initialize(container, eventBus);
+   * 
+   * @since 1.0.0
    */
   async initialize(container, eventBus) {
     if (this.state !== 'uninitialized') {
@@ -53,7 +156,29 @@ class Module {
 
   /**
    * Custom initialization hook - override in subclasses
-   * @returns {Promise} Initialization promise
+   * 
+   * @description Override this method in subclasses to implement custom initialization logic.
+   * This method is called after dependencies are resolved but before child modules are initialized.
+   * Use this method to set up services, configure the module, and subscribe to events.
+   * 
+   * @abstract
+   * @returns {Promise<void>} Promise that resolves when custom initialization is complete
+   * 
+   * @example
+   * async onInitialize() {
+   *   // Get required services
+   *   this.database = this.service('DatabaseService');
+   *   this.logger = this.service('LoggerService');
+   *   
+   *   // Subscribe to events
+   *   this.subscribe('user:login', this.handleUserLogin.bind(this));
+   *   
+   *   // Perform initialization
+   *   await this.database.connect();
+   *   this.logger.info(`${this.name} initialized successfully`);
+   * }
+   * 
+   * @since 1.0.0
    */
   async onInitialize() {
     // Override in subclasses
@@ -130,8 +255,25 @@ class Module {
   }
 
   /**
-   * Add a child module
-   * @param {Module} module - Child module
+   * Add a child module to this module
+   * 
+   * @description Adds a child module and establishes parent-child relationship.
+   * If the parent module is already initialized, the child module will be
+   * initialized immediately.
+   * 
+   * @param {Module} module - Child module instance to add
+   * 
+   * @throws {TypeError} Throws if module is not a Module instance
+   * @throws {Error} Throws if module name conflicts with existing child
+   * 
+   * @example
+   * // Add child modules during initialization
+   * async onInitialize() {
+   *   this.addChild(new UserAuthModule());
+   *   this.addChild(new UserProfileModule());
+   * }
+   * 
+   * @since 1.0.0
    */
   addChild(module) {
     module.parent = this;
@@ -158,9 +300,27 @@ class Module {
   }
 
   /**
-   * Get a service from the container
-   * @param {string} name - Service name
-   * @returns {*} Service instance
+   * Resolve a service from the container
+   * 
+   * @description Convenience method to resolve services from the dependency injection container.
+   * This method provides a clean interface for accessing registered services within modules.
+   * 
+   * @param {string} name - Service name or alias to resolve
+   * 
+   * @returns {*} The resolved service instance
+   * 
+   * @throws {Error} Throws if module is not initialized
+   * @throws {Error} Throws if service is not registered
+   * 
+   * @example
+   * // In onInitialize() method
+   * async onInitialize() {
+   *   this.userService = this.service('UserService');
+   *   this.logger = this.service('Logger');
+   *   this.config = this.service('ConfigService');
+   * }
+   * 
+   * @since 1.0.0
    */
   service(name) {
     if (!this.container) {
@@ -170,11 +330,33 @@ class Module {
   }
 
   /**
-   * Subscribe to an event
-   * @param {string} event - Event name
-   * @param {Function} callback - Event callback
-   * @param {Object} options - Subscription options
-   * @returns {Function} Unsubscribe function
+   * Subscribe to an event with automatic cleanup
+   * 
+   * @description Subscribes to an event on the application event bus and automatically
+   * tracks the subscription for cleanup during module destruction. This prevents
+   * memory leaks and ensures proper cleanup.
+   * 
+   * @param {string} event - Event name to subscribe to
+   * @param {Function} callback - Event handler function
+   * @param {Object} [options={}] - Subscription options
+   * @param {boolean} [options.once=false] - Whether to automatically unsubscribe after first event
+   * @param {number} [options.priority=0] - Event handler priority
+   * 
+   * @returns {Function} Unsubscribe function for manual cleanup
+   * 
+   * @throws {Error} Throws if module is not initialized
+   * 
+   * @example
+   * // Subscribe to user events
+   * this.subscribe('user:created', (userData) => {
+   *   console.log('New user:', userData.id);
+   * });
+   * 
+   * @example
+   * // One-time subscription
+   * this.subscribe('app:ready', this.handleAppReady.bind(this), { once: true });
+   * 
+   * @since 1.0.0
    */
   subscribe(event, callback, options = {}) {
     if (!this.eventBus) {
@@ -187,10 +369,35 @@ class Module {
   }
 
   /**
-   * Emit an event
-   * @param {string} event - Event name
-   * @param {*} data - Event data
-   * @returns {Promise} Publication promise
+   * Emit an event on the application event bus
+   * 
+   * @description Publishes an event to the application event bus, allowing other modules
+   * and components to react to module state changes or actions. Handles cases where
+   * the event bus is not yet available during initialization.
+   * 
+   * @param {string} event - Event name to emit
+   * @param {*} [data] - Event data payload
+   * 
+   * @returns {Promise<void>} Promise that resolves when event is published
+   * 
+   * @throws {Error} Throws if module is not initialized (except during initialization)
+   * 
+   * @example
+   * // Emit user action event
+   * await this.emit('user:action', {
+   *   userId: user.id,
+   *   action: 'login',
+   *   timestamp: Date.now()
+   * });
+   * 
+   * @example
+   * // Emit module status change
+   * await this.emit('module:status-changed', {
+   *   module: this.name,
+   *   status: 'ready'
+   * });
+   * 
+   * @since 1.0.0
    */
   emit(event, data) {
     if (!this.eventBus) {
@@ -213,10 +420,27 @@ class Module {
   }
 
   /**
-   * Get module configuration value
-   * @param {string} key - Configuration key
-   * @param {*} defaultValue - Default value
-   * @returns {*} Configuration value
+   * Get module configuration value with dot notation support
+   * 
+   * @description Retrieves configuration values using dot notation for nested objects.
+   * Provides a convenient way to access deeply nested configuration properties
+   * with fallback to default values.
+   * 
+   * @param {string} key - Configuration key in dot notation (e.g., 'database.connection.timeout')
+   * @param {*} [defaultValue=null] - Default value if key is not found
+   * 
+   * @returns {*} Configuration value or default value
+   * 
+   * @example
+   * // Access nested configuration
+   * const timeout = this.getConfig('api.timeout', 5000);
+   * const dbHost = this.getConfig('database.host', 'localhost');
+   * 
+   * @example
+   * // Access top-level configuration
+   * const enabled = this.getConfig('enabled', true);
+   * 
+   * @since 1.0.0
    */
   getConfig(key, defaultValue = null) {
     const keys = key.split('.');
