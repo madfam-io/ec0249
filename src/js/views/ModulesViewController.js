@@ -1139,11 +1139,13 @@ class ModulesViewController extends BaseViewController {
    * Render module overview grid
    */
   async renderModuleGrid() {
+    console.log('[ModulesViewController] renderModuleGrid() called');
     const modulesGrid = this.findElement('.modules-grid');
     if (!modulesGrid) {
       console.warn('[ModulesViewController] Module grid container not found');
       return;
     }
+    console.log('[ModulesViewController] Found modules grid container:', modulesGrid);
 
     try {
       // Get progress service for dynamic progress data
@@ -1224,7 +1226,9 @@ class ModulesViewController extends BaseViewController {
       });
 
       // Render module grid
-      modulesGrid.innerHTML = modules.map(module => this.createModuleCard(module)).join('');
+      const moduleCards = modules.map(module => this.createModuleCard(module)).join('');
+      console.log('[ModulesViewController] Generated module cards HTML:', moduleCards.substring(0, 200) + '...');
+      modulesGrid.innerHTML = moduleCards;
       
       // Add click handlers for module cards
       this.bindModuleCardEvents();
