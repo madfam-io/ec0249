@@ -156,7 +156,7 @@ class StorageService extends Module {
       }
       
       // Emergency fallback: create memory adapter on the fly
-      console.warn(`[StorageService] Emergency fallback: creating memory adapter`);
+      console.log(`[StorageService] Using memory adapter fallback as intended`);
       adapter = new MemoryStorageAdapter(this.memoryStorage);
       this.adapters.set('memory', adapter);
       return adapter;

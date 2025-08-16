@@ -90,18 +90,18 @@ class VideoPlayer extends BaseComponent {
    * Render the video player
    */
   render() {
-    if (!this.container) {
-      console.warn('[VideoPlayer] No container available for rendering');
+    if (!this.element) {
+      console.warn('[VideoPlayer] No element available for rendering');
       return;
     }
 
     if (!this.videoId) {
-      this.container.innerHTML = this.createPlaceholder();
+      this.element.innerHTML = this.createPlaceholder();
       return;
     }
 
     const playerHtml = this.createPlayerHTML();
-    this.container.innerHTML = playerHtml;
+    this.element.innerHTML = playerHtml;
     
     // Setup event listeners
     this.setupEventListeners();
@@ -255,7 +255,7 @@ class VideoPlayer extends BaseComponent {
    * Setup event listeners
    */
   setupEventListeners() {
-    const iframe = this.container.querySelector('.video-iframe');
+    const iframe = this.element.querySelector('.video-iframe');
     if (!iframe) return;
 
     // Listen for iframe load
@@ -367,8 +367,8 @@ class VideoPlayer extends BaseComponent {
    * Update progress display
    */
   updateProgressDisplay() {
-    const currentTimeEl = this.container.querySelector('.current-time');
-    const percentageEl = this.container.querySelector('.watched-percent');
+    const currentTimeEl = this.element.querySelector('.current-time');
+    const percentageEl = this.element.querySelector('.watched-percent');
     
     if (currentTimeEl) {
       currentTimeEl.textContent = this.formatTime(this.currentTime);
@@ -387,7 +387,7 @@ class VideoPlayer extends BaseComponent {
     // For now, set a default duration
     this.duration = 600; // 10 minutes default
     
-    const durationEl = this.container.querySelector(`#video-duration-${this.videoId}`);
+    const durationEl = this.element.querySelector(`#video-duration-${this.videoId}`);
     if (durationEl) {
       durationEl.textContent = this.formatTime(this.duration);
     }

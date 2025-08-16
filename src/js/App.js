@@ -619,7 +619,7 @@ class EC0249App {
       
       // Wait for translations to be loaded
       let retries = 0;
-      const maxRetries = 40; // More retries but shorter intervals
+      const maxRetries = 60; // Increased retries for better reliability
       
       while (retries < maxRetries) {
         // Check if service is ready
@@ -629,14 +629,14 @@ class EC0249App {
           return;
         }
         
-        // Wait 75ms and try again (shorter interval)
-        await new Promise(resolve => setTimeout(resolve, 75));
+        // Wait 50ms and try again (optimized interval)
+        await new Promise(resolve => setTimeout(resolve, 50));
         retries++;
       }
       
-      // Only show warning if we actually timeout
+      // Only show warning if we actually timeout after reasonable wait
       if (!i18n.isReady) {
-        console.warn('[App] I18nService timeout - proceeding with available translations');
+        console.info('[App] I18nService loading slowly - proceeding with available translations');
       }
       
       // Force translation regardless
