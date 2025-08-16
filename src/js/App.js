@@ -695,6 +695,13 @@ class EC0249App {
         value: viewName
       });
 
+      // Update URL via RouterService
+      const router = container.resolve('RouterService');
+      if (router) {
+        const viewPath = `/${viewName}`;
+        router.navigate(viewPath, { silent: true }); // Silent to prevent circular navigation
+      }
+
       // Use ViewManager for view switching
       if (this.viewManager) {
         await this.viewManager.showView(viewName);
@@ -730,6 +737,20 @@ class EC0249App {
       path: 'currentSection',
       value: sectionName
     });
+
+    // Update URL via RouterService  
+    const router = container.resolve('RouterService');
+    if (router) {
+      let sectionPath;
+      if (sectionName.startsWith('module')) {
+        sectionPath = `/modules/${sectionName}`;
+      } else if (sectionName === 'documents' || sectionName === 'progress') {
+        sectionPath = `/portfolio/${sectionName}`;
+      } else {
+        sectionPath = `/dashboard`; // Default for overview
+      }
+      router.navigate(sectionPath, { silent: true });
+    }
 
     // Use ViewManager for section switching
     if (this.viewManager) {

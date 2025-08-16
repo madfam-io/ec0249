@@ -13,10 +13,13 @@ class ModulesViewController extends BaseViewController {
   }
 
   async onInitialize() {
-    // Get content engine
-    this.contentEngine = this.getModule('contentEngine');
+    // Get content engine from app modules or service container
+    this.contentEngine = this.getModule('contentEngine') || this.app.modules?.get('contentEngine');
+    
     if (!this.contentEngine) {
-      console.warn('[ModulesViewController] ContentEngine not available yet - will be available after modules initialization');
+      console.warn('[ModulesViewController] ContentEngine not available yet - will retry during module loading');
+    } else {
+      console.log('[ModulesViewController] ContentEngine successfully retrieved');
     }
   }
 
@@ -118,16 +121,29 @@ class ModulesViewController extends BaseViewController {
    * Load content for the current module
    */
   async loadModuleContent() {
-    if (!this.contentEngine) return;
+    // Retry getting ContentEngine if not available during initialization
+    if (!this.contentEngine) {
+      this.contentEngine = this.getModule('contentEngine') || this.app.modules?.get('contentEngine');
+    }
+    
+    if (!this.contentEngine) {
+      console.error('[ModulesViewController] ContentEngine not available - cannot load module content');
+      this.showNotification('Error: ContentEngine no disponible', 'error');
+      return;
+    }
     
     try {
+      console.log(`[ModulesViewController] Loading content for ${this.currentModule}`);
+      
       // Load module content from ContentEngine
       const moduleContent = await this.contentEngine.getModuleContent(this.currentModule);
       
       if (moduleContent) {
         this.moduleContent = moduleContent;
+        console.log(`[ModulesViewController] Successfully loaded content for ${this.currentModule}:`, moduleContent.title);
       } else {
         console.warn(`[ModulesViewController] No content found for ${this.currentModule}`);
+        this.showNotification(`No se encontró contenido para ${this.currentModule}`, 'warning');
       }
     } catch (error) {
       console.error(`[ModulesViewController] Failed to load ${this.currentModule}:`, error);

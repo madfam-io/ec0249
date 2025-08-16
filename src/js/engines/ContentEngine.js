@@ -618,6 +618,224 @@ class ContentEngine extends Module {
   }
 
   /**
+   * Get module content by module ID
+   * @param {string} moduleId - Module identifier (module1, module2, etc.)
+   * @returns {Promise<Object|null>} Module content or null if not found
+   */
+  async getModuleContent(moduleId) {
+    try {
+      const moduleData = this.getModuleData(moduleId);
+      if (!moduleData) {
+        console.warn(`[ContentEngine] No content found for module: ${moduleId}`);
+        return null;
+      }
+
+      // Track content access
+      this.trackContentView({
+        id: moduleId,
+        type: 'module',
+        title: moduleData.title
+      });
+
+      return moduleData;
+    } catch (error) {
+      console.error(`[ContentEngine] Failed to get module content for ${moduleId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Get static module data structure
+   * @param {string} moduleId - Module identifier
+   * @returns {Object|null} Module data structure
+   */
+  getModuleData(moduleId) {
+    const moduleContent = {
+      module1: {
+        id: 'module1',
+        title: 'Módulo 1: Fundamentos de Consultoría',
+        description: 'Conceptos básicos, ética y habilidades interpersonales necesarias para la consultoría profesional.',
+        duration: '2-3 horas',
+        objectives: [
+          'Comprender los conceptos fundamentales de la consultoría',
+          'Dominar los principios éticos del consultor profesional',
+          'Desarrollar habilidades interpersonales clave',
+          'Conocer los diferentes tipos de servicios de consultoría'
+        ],
+        lessons: [
+          {
+            id: 'lesson1_1',
+            title: 'Introducción a los Servicios de Consultoría',
+            duration: '30 min',
+            type: 'theory',
+            description: 'Definición, tipos y características de la consultoría profesional.',
+            videoId: 'k_T7rmWpwd8',
+            content: [
+              {
+                type: 'overview',
+                title: 'Conceptos Fundamentales',
+                text: 'La consultoría es un servicio profesional que ayuda a las organizaciones a mejorar su rendimiento y resolver problemas específicos.'
+              }
+            ]
+          },
+          {
+            id: 'lesson1_2', 
+            title: 'Ética y Confidencialidad',
+            duration: '25 min',
+            type: 'theory',
+            description: 'Principios éticos y normas de confidencialidad en consultoría.',
+            videoId: 'fXhSlqGJU8s',
+            content: [
+              {
+                type: 'overview',
+                title: 'Código de Ética',
+                text: 'Los consultores deben mantener altos estándares éticos y proteger la confidencialidad de la información del cliente.'
+              }
+            ]
+          },
+          {
+            id: 'lesson1_3',
+            title: 'Habilidades Interpersonales',
+            duration: '35 min', 
+            type: 'practice',
+            description: 'Desarrollo de habilidades de comunicación y relación con clientes.',
+            videoId: 'Q73vPkE8n3k',
+            content: [
+              {
+                type: 'skills',
+                title: 'Comunicación Efectiva',
+                text: 'Las habilidades interpersonales son fundamentales para establecer relaciones de confianza con los clientes.'
+              }
+            ]
+          }
+        ],
+        activities: [
+          {
+            id: 'activity1_1',
+            title: 'Casos de Estudio Éticos',
+            type: 'case_study',
+            description: 'Analiza situaciones éticas comunes en consultoría'
+          }
+        ],
+        assessment: {
+          id: 'assessment1',
+          title: 'Evaluación Módulo 1',
+          questions: 10,
+          passingScore: 80
+        }
+      },
+      module2: {
+        id: 'module2',
+        title: 'Módulo 2: Identificación del Problema',
+        description: 'Elemento 1: Identificar la situación/problema planteado. 8 productos requeridos.',
+        duration: '4-5 horas',
+        objectives: [
+          'Identificar y analizar problemas organizacionales',
+          'Aplicar metodologías de diagnóstico',
+          'Elaborar documentos de identificación del problema',
+          'Preparar entrevistas con clientes potenciales'
+        ],
+        lessons: [
+          {
+            id: 'lesson2_1',
+            title: 'Metodologías de Diagnóstico',
+            duration: '45 min',
+            type: 'theory',
+            description: 'Técnicas y herramientas para identificar problemas organizacionales.',
+            videoId: 'ztP58PpCuzs',
+            content: [
+              {
+                type: 'methodology',
+                title: 'Herramientas de Diagnóstico',
+                text: 'Existen diversas metodologías para identificar y analizar problemas en las organizaciones.'
+              }
+            ]
+          }
+        ],
+        templates: [
+          'brief_service_description',
+          'client_interview_guide', 
+          'problem_description_document',
+          'information_request_document',
+          'interview_activity_document',
+          'field_visit_document',
+          'situation_analysis_document',
+          'client_interview_document'
+        ]
+      },
+      module3: {
+        id: 'module3', 
+        title: 'Módulo 3: Desarrollo de Soluciones',
+        description: 'Elemento 2: Desarrollar opciones de solución. 2 productos requeridos.',
+        duration: '3-4 horas',
+        objectives: [
+          'Desarrollar opciones de solución viables',
+          'Realizar análisis costo-beneficio',
+          'Crear propuestas de solución profesionales'
+        ],
+        lessons: [
+          {
+            id: 'lesson3_1',
+            title: 'Generación de Alternativas',
+            duration: '40 min',
+            type: 'theory',
+            description: 'Técnicas para desarrollar múltiples opciones de solución.',
+            videoId: 'rJQbxkkN_fY',
+            content: [
+              {
+                type: 'strategy',
+                title: 'Desarrollo de Soluciones',
+                text: 'Es importante desarrollar múltiples alternativas de solución para ofrecer al cliente.'
+              }
+            ]
+          }
+        ],
+        templates: [
+          'solution_proposal_document',
+          'cost_benefit_document'
+        ]
+      },
+      module4: {
+        id: 'module4',
+        title: 'Módulo 4: Presentación de la Propuesta',
+        description: 'Elemento 3: Presentar la propuesta de solución. 5 productos requeridos.',
+        duration: '3-4 horas', 
+        objectives: [
+          'Preparar presentaciones profesionales',
+          'Manejar objeciones y negociaciones',
+          'Cerrar acuerdos de consultoría'
+        ],
+        lessons: [
+          {
+            id: 'lesson4_1',
+            title: 'Técnicas de Presentación',
+            duration: '35 min',
+            type: 'theory',
+            description: 'Habilidades para presentar propuestas de manera efectiva.',
+            videoId: 'n0HvLAhKy5I',
+            content: [
+              {
+                type: 'presentation',
+                title: 'Presentación Efectiva',
+                text: 'Una presentación clara y convincente es clave para el éxito de la propuesta.'
+              }
+            ]
+          }
+        ],
+        templates: [
+          'presentation_document',
+          'proposal_presentation_visual_aids',
+          'negotiation_document', 
+          'work_proposal_document',
+          'service_proposal_document'
+        ]
+      }
+    };
+
+    return moduleContent[moduleId] || null;
+  }
+
+  /**
    * Event Handlers
    */
   async handleContentLoad(data) {

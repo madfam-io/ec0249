@@ -16,8 +16,10 @@ class RouterService extends Module {
         '/dashboard': 'dashboard',
         '/modules': 'modules',
         '/modules/:moduleId': 'modules',
+        '/modules/:sectionId': 'modules',
         '/assessment': 'assessment',
-        '/portfolio': 'portfolio'
+        '/portfolio': 'portfolio',
+        '/portfolio/:sectionId': 'portfolio'
       }
     });
 
