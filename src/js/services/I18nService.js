@@ -67,6 +67,7 @@ class I18nService extends Module {
     this.changeListeners = new Set();
     this.isReady = false;
     this.readyPromise = null;
+    this.pendingTranslation = false;
   }
 
   async onInitialize() {
@@ -458,7 +459,8 @@ class I18nService extends Module {
    */
   translatePage() {
     if (!this.isReady) {
-      console.warn('[I18nService] translatePage called before service is ready');
+      // Schedule translation for when service is ready
+      this.scheduleTranslation();
       return;
     }
     
@@ -467,6 +469,32 @@ class I18nService extends Module {
     this.translatePlaceholders();
     this.translateTitles();
     console.log('[I18nService] Page translation complete');
+  }
+
+  /**
+   * Schedule translation for when service is ready
+   */
+  scheduleTranslation() {
+    if (this.pendingTranslation) {
+      return; // Already scheduled
+    }
+    
+    this.pendingTranslation = true;
+    
+    // Wait for service to be ready, then translate
+    const checkReady = () => {
+      if (this.isReady) {
+        this.pendingTranslation = false;
+        console.log('[I18nService] Executing scheduled translation');
+        this.translateDOM();
+        this.translatePlaceholders();
+        this.translateTitles();
+      } else {
+        setTimeout(checkReady, 50); // Check again in 50ms
+      }
+    };
+    
+    setTimeout(checkReady, 10); // Start checking after a short delay
   }
 
   /**

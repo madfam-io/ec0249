@@ -71,6 +71,7 @@ class StorageService extends Module {
   async onInitialize() {
     // Register memory adapter first (always works)
     this.registerAdapter('memory', new MemoryStorageAdapter(this.memoryStorage));
+    console.log('[StorageService] Memory adapter registered');
     
     // Try to register localStorage adapter
     try {
@@ -149,15 +150,16 @@ class StorageService extends Module {
         }
       }
       
-      // Last resort: create memory adapter on the fly
-      if (!this.adapters.has('memory')) {
-        console.warn(`[StorageService] No adapters available, creating memory adapter`);
-        adapter = new MemoryStorageAdapter(this.memoryStorage);
-        this.adapters.set('memory', adapter);
-        return adapter;
+      // Last resort: use memory adapter (should already be registered)
+      if (this.adapters.has('memory')) {
+        return this.adapters.get('memory');
       }
       
-      throw new Error(`Storage adapter '${adapterName}' not found and no fallbacks available`);
+      // Emergency fallback: create memory adapter on the fly
+      console.warn(`[StorageService] Emergency fallback: creating memory adapter`);
+      adapter = new MemoryStorageAdapter(this.memoryStorage);
+      this.adapters.set('memory', adapter);
+      return adapter;
     }
     
     return adapter;

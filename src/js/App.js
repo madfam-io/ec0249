@@ -583,32 +583,36 @@ class EC0249App {
     try {
       const i18n = container.resolve('I18nService');
       
+      // First check if already ready
+      if (i18n.isReady) {
+        console.log('[App] I18nService already ready');
+        i18n.translatePage();
+        return;
+      }
+      
       // Wait for translations to be loaded
       let retries = 0;
-      const maxRetries = 20; // Increased retries
+      const maxRetries = 40; // More retries but shorter intervals
       
       while (retries < maxRetries) {
-        // Check multiple keys to ensure translations are properly loaded
-        const testKeys = ['app.title', 'navigation.dashboard', 'dashboard.welcome', 'modules.title'];
-        const allLoaded = testKeys.every(key => {
-          const translation = i18n.t(key);
-          return translation !== key && translation.length > 0;
-        });
-        
-        if (allLoaded) {
-          console.log('[App] I18nService ready with all translations loaded');
-          // Force initial DOM translation
+        // Check if service is ready
+        if (i18n.isReady) {
+          console.log('[App] I18nService ready after', retries, 'attempts');
           i18n.translatePage();
           return;
         }
         
-        // Wait 150ms and try again
-        await new Promise(resolve => setTimeout(resolve, 150));
+        // Wait 75ms and try again (shorter interval)
+        await new Promise(resolve => setTimeout(resolve, 75));
         retries++;
       }
       
-      console.warn('[App] I18nService timeout - proceeding with available translations');
-      // Force translation even if timeout
+      // Only show warning if we actually timeout
+      if (!i18n.isReady) {
+        console.warn('[App] I18nService timeout - proceeding with available translations');
+      }
+      
+      // Force translation regardless
       i18n.translatePage();
     } catch (error) {
       console.error('[App] Error waiting for I18nService:', error);
