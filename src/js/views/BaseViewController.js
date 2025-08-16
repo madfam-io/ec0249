@@ -222,6 +222,20 @@ class BaseViewController {
   }
 
   /**
+   * Show specific section within this view
+   * @param {string} sectionId - Section identifier
+   * Default implementation - override in subclasses for specific behavior
+   */
+  async showSection(sectionId) {
+    console.log(`[${this.constructor.name}] Default showSection called for: ${sectionId}`);
+    
+    // Default behavior: just log the section change
+    // Subclasses should override this method for specific section handling
+    
+    return Promise.resolve();
+  }
+
+  /**
    * Destroy the view controller
    */
   destroy() {

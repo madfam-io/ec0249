@@ -216,9 +216,22 @@ class ViewManager {
   async showSection(sectionId) {
     if (!this.currentController) return;
 
+    console.log(`[ViewManager] Showing section: ${sectionId} (current view: ${this.currentView})`);
+
+    // Determine which view this section belongs to
+    const targetView = this.getSectionView(sectionId);
+    
+    // Switch to target view if not already there
+    if (targetView && targetView !== this.currentView) {
+      console.log(`[ViewManager] Switching from ${this.currentView} to ${targetView} for section ${sectionId}`);
+      await this.showView(targetView);
+    }
+
     // Update section-specific content
     if (typeof this.currentController.showSection === 'function') {
       await this.currentController.showSection(sectionId);
+    } else {
+      console.warn(`[ViewManager] Current controller (${this.currentView}) does not support showSection for ${sectionId}`);
     }
 
     // Update app state
@@ -234,6 +247,33 @@ class ViewManager {
       section: sectionId, 
       view: this.currentView 
     });
+  }
+
+  /**
+   * Determine which view a section belongs to
+   * @param {string} sectionId - Section identifier
+   * @returns {string|null} View identifier or null if section stays on current view
+   */
+  getSectionView(sectionId) {
+    // Section-to-view mapping
+    const sectionViewMap = {
+      // Module sections go to modules view
+      'module1': 'modules',
+      'module2': 'modules', 
+      'module3': 'modules',
+      'module4': 'modules',
+      
+      // Document sections go to portfolio view
+      'documents': 'portfolio',
+      
+      // Progress section goes to portfolio view
+      'progress': 'portfolio',
+      
+      // Overview stays on dashboard
+      'overview': 'dashboard'
+    };
+
+    return sectionViewMap[sectionId] || null;
   }
 
   /**
