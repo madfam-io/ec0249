@@ -7,7 +7,7 @@ import BaseViewController from './BaseViewController.js';
 class ModulesViewController extends BaseViewController {
   constructor(viewId, app) {
     super(viewId, app);
-    this.currentModule = 'module1';
+    this.currentModule = null; // Start with no module selected to show grid
     this.currentLesson = null;
     this.contentEngine = null;
   }
