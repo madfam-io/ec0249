@@ -413,12 +413,24 @@ class ContentEngine extends Module {
    * @param {Object} content - Content with video configuration
    */
   async initializeVideoPlayer(container, content) {
+    // Defensive check for container and content
+    if (!container || !content) {
+      console.warn('[ContentEngine] Invalid container or content for video player initialization');
+      return;
+    }
+
+    // Check if module is properly initialized
+    if (!this.container || !this.eventBus) {
+      console.warn('[ContentEngine] Module not properly initialized, skipping video player setup');
+      return;
+    }
+
     try {
       // Import VideoPlayer dynamically to avoid circular dependencies
       const { default: VideoPlayer } = await import('../components/VideoPlayer.js');
       const { getVideoConfig } = await import('../config/VideoConfig.js');
       
-      // Create video player instance
+      // Create video player instance with error boundary
       const videoPlayer = new VideoPlayer({
         placement: 'lesson_content',
         showTitle: false, // Already shown in introduction
@@ -426,9 +438,16 @@ class ContentEngine extends Module {
         trackProgress: true
       });
       
-      // Mount and initialize
-      videoPlayer.mount(container);
-      await videoPlayer.initialize(this.service('ServiceContainer'), this.service('EventBus'));
+      // Mount and initialize with proper error handling
+      try {
+        videoPlayer.mount(container);
+        await videoPlayer.initialize(this.container, this.eventBus);
+      } catch (initError) {
+        console.error('[ContentEngine] Failed to mount/initialize video player:', initError);
+        // Show fallback content
+        this.showVideoFallback(container, content);
+        return;
+      }
       
       // Load video configuration
       let videoConfig = null;
@@ -438,19 +457,55 @@ class ContentEngine extends Module {
         videoConfig = content.video;
       } else if (content.videoId) {
         // Look up video by ID in module configuration
-        videoConfig = this.getVideoConfigForContent(content);
+        try {
+          videoConfig = await this.getVideoConfigForContent(content);
+        } catch (configError) {
+          console.warn('[ContentEngine] Failed to get video config:', configError);
+        }
       }
       
-      if (videoConfig) {
-        videoPlayer.loadVideo(videoConfig);
-        console.log('[ContentEngine] Video player initialized for:', videoConfig.title);
+      if (videoConfig && videoConfig.id) {
+        try {
+          videoPlayer.loadVideo(videoConfig);
+          console.log('[ContentEngine] Video player initialized for:', videoConfig.title);
+        } catch (loadError) {
+          console.error('[ContentEngine] Failed to load video:', loadError);
+          this.showVideoFallback(container, content, videoConfig);
+        }
       } else {
-        console.warn('[ContentEngine] No video configuration found for content:', content.id);
+        console.warn('[ContentEngine] No valid video configuration found for content:', content.id);
+        this.showVideoFallback(container, content);
       }
       
     } catch (error) {
       console.error('[ContentEngine] Failed to initialize video player:', error);
+      this.showVideoFallback(container, content);
     }
+  }
+
+  /**
+   * Show fallback content when video player fails
+   * @param {HTMLElement} container - Video container element
+   * @param {Object} content - Content object
+   * @param {Object} [videoConfig] - Video configuration if available
+   */
+  showVideoFallback(container, content, videoConfig = null) {
+    if (!container) return;
+
+    const fallbackHtml = `
+      <div class="video-fallback">
+        <div class="video-placeholder">
+          <div class="placeholder-content">
+            <div class="placeholder-icon">🎥</div>
+            <h4>Video temporalmente no disponible</h4>
+            <p>El contenido del video estará disponible próximamente.</p>
+            ${videoConfig ? `<p class="video-title">${videoConfig.title}</p>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    container.innerHTML = fallbackHtml;
   }
 
   /**
@@ -458,9 +513,10 @@ class ContentEngine extends Module {
    * @param {Object} content - Content object
    * @returns {Object|null} Video configuration
    */
-  getVideoConfigForContent(content) {
+  async getVideoConfigForContent(content) {
     try {
-      const { getVideoConfig, getModuleVideos } = require('../config/VideoConfig.js');
+      // Use dynamic import instead of require() for ES modules
+      const { getVideoConfig, getModuleVideos } = await import('../config/VideoConfig.js');
       
       // Try to match content to video based on module and lesson structure
       if (content.moduleId && content.lessonId) {

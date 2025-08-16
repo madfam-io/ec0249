@@ -42,9 +42,15 @@ class VideoPlayer extends BaseComponent {
   }
 
   async onInitialize() {
-    this.eventBus = this.service('EventBus');
-    
-    console.log('[VideoPlayer] Initialized');
+    try {
+      this.eventBus = this.service('EventBus');
+      
+      console.log('[VideoPlayer] Initialized');
+    } catch (error) {
+      console.warn('[VideoPlayer] Failed to initialize service dependencies:', error);
+      // Continue without EventBus if needed
+      this.eventBus = null;
+    }
   }
 
   /**
@@ -69,11 +75,15 @@ class VideoPlayer extends BaseComponent {
     this.render();
     
     // Emit video loaded event
-    this.emit('video:loaded', {
-      videoId: this.videoId,
-      title: this.videoTitle,
-      component: this.name
-    });
+    try {
+      this.emit('video:loaded', {
+        videoId: this.videoId,
+        title: this.videoTitle,
+        component: this.name
+      });
+    } catch (error) {
+      console.warn('[VideoPlayer] Failed to emit video:loaded event:', error);
+    }
   }
 
   /**
@@ -277,10 +287,14 @@ class VideoPlayer extends BaseComponent {
     // Try to get video duration (requires YouTube API)
     this.updateVideoDuration();
     
-    this.emit('video:ready', {
-      videoId: this.videoId,
-      title: this.videoTitle
-    });
+    try {
+      this.emit('video:ready', {
+        videoId: this.videoId,
+        title: this.videoTitle
+      });
+    } catch (error) {
+      console.warn('[VideoPlayer] Failed to emit video:ready event:', error);
+    }
   }
 
   /**
@@ -331,12 +345,16 @@ class VideoPlayer extends BaseComponent {
       this.updateProgressDisplay();
       
       // Emit progress event
-      this.emit('video:progress', {
-        videoId: this.videoId,
-        currentTime: this.currentTime,
-        duration: this.duration,
-        percentage: this.watchedPercentage
-      });
+      try {
+        this.emit('video:progress', {
+          videoId: this.videoId,
+          currentTime: this.currentTime,
+          duration: this.duration,
+          percentage: this.watchedPercentage
+        });
+      } catch (error) {
+        console.warn('[VideoPlayer] Failed to emit video:progress event:', error);
+      }
       
       // Mark as completed if watched 80% or more
       if (this.watchedPercentage >= 80) {
@@ -382,12 +400,16 @@ class VideoPlayer extends BaseComponent {
     if (this.watchedPercentage >= 80) {
       console.log('[VideoPlayer] Video completed:', this.videoId);
       
-      this.emit('video:completed', {
-        videoId: this.videoId,
-        title: this.videoTitle,
-        watchedPercentage: this.watchedPercentage,
-        totalTime: this.currentTime
-      });
+      try {
+        this.emit('video:completed', {
+          videoId: this.videoId,
+          title: this.videoTitle,
+          watchedPercentage: this.watchedPercentage,
+          totalTime: this.currentTime
+        });
+      } catch (error) {
+        console.warn('[VideoPlayer] Failed to emit video:completed event:', error);
+      }
     }
   }
 
@@ -414,7 +436,11 @@ class VideoPlayer extends BaseComponent {
    */
   play() {
     this.isPlaying = true;
-    this.emit('video:play', { videoId: this.videoId });
+    try {
+      this.emit('video:play', { videoId: this.videoId });
+    } catch (error) {
+      console.warn('[VideoPlayer] Failed to emit video:play event:', error);
+    }
   }
 
   /**
@@ -422,7 +448,11 @@ class VideoPlayer extends BaseComponent {
    */
   pause() {
     this.isPlaying = false;
-    this.emit('video:pause', { videoId: this.videoId });
+    try {
+      this.emit('video:pause', { videoId: this.videoId });
+    } catch (error) {
+      console.warn('[VideoPlayer] Failed to emit video:pause event:', error);
+    }
   }
 
   /**
