@@ -462,8 +462,9 @@ class SimulationEngine extends Module {
     // Update session state
     this.updateSessionState(action, response);
 
-    // Evaluate performance
-    this.evaluateAction(action, simulation);
+    // Evaluate performance using EvaluationEngine
+    const evaluation = this.evaluationEngine.evaluateAction(action, simulation, this.activeSession);
+    this.updateSessionPerformance(evaluation);
 
     this.emit('simulation:action', {
       sessionId: this.activeSession.id,
@@ -668,28 +669,51 @@ class SimulationEngine extends Module {
   }
 
   /**
-   * Evaluate action against criteria
+   * Update session performance with evaluation results
    */
-  evaluateAction(action, simulation) {
-    const criteria = simulation.evaluationCriteria;
-    
-    criteria.forEach(criterion => {
-      if (this.activeSession.performance.criteriaCompleted.includes(criterion.id)) {
-        return; // Already completed
-      }
+  updateSessionPerformance(evaluation) {
+    if (!this.activeSession || !evaluation) return;
 
-      // Check if action fulfills criterion
-      if (this.actionFulfillsCriterion(action, criterion)) {
-        this.activeSession.performance.criteriaCompleted.push(criterion.id);
-        this.activeSession.performance.score += criterion.weight;
-        this.activeSession.performance.feedback.push({
-          criterion: criterion.id,
-          title: criterion.title,
-          achieved: true,
+    // Add evaluation to session performance
+    this.activeSession.performance.feedback.push(evaluation.feedback);
+    
+    // Update criteria completion
+    evaluation.criteriaEvaluated.forEach(criteria => {
+      const existingIndex = this.activeSession.performance.criteriaCompleted.findIndex(c => c.id === criteria.id);
+      
+      if (existingIndex >= 0) {
+        // Update existing criteria if score is better
+        if (criteria.score > this.activeSession.performance.criteriaCompleted[existingIndex].score) {
+          this.activeSession.performance.criteriaCompleted[existingIndex] = {
+            ...criteria,
+            timestamp: Date.now()
+          };
+        }
+      } else {
+        // Add new criteria
+        this.activeSession.performance.criteriaCompleted.push({
+          ...criteria,
           timestamp: Date.now()
         });
       }
     });
+
+    // Update overall session score
+    this.updateSessionScore();
+  }
+
+  /**
+   * Update session performance score
+   */
+  updateSessionScore() {
+    if (!this.activeSession || !this.activeSession.performance.criteriaCompleted.length) return;
+
+    const simulation = this.simulations.get(this.activeSession.simulationId);
+    if (!simulation) return;
+
+    // Use EvaluationEngine to calculate overall performance
+    const performance = this.evaluationEngine.calculateSessionPerformance(this.activeSession, simulation);
+    this.activeSession.performance.score = performance.score;
   }
 
   /**
@@ -1203,10 +1227,14 @@ class SimulationEngine extends Module {
     }
     
     this.simulations.clear();
-    this.scenarios.clear();
     this.sessionHistory.clear();
     this.performanceMetrics.clear();
     this.activeSession = null;
+    
+    // Clear external components
+    if (this.scenarioLoader) {
+      this.scenarioLoader.clear();
+    }
   }
 }
 

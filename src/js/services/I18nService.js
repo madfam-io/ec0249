@@ -21,6 +21,8 @@ class I18nService extends Module {
     this.loadedLanguages = new Set();
     this.loadingPromises = new Map();
     this.changeListeners = new Set();
+    this.isReady = false;
+    this.readyPromise = null;
   }
 
   async onInitialize() {
@@ -34,6 +36,7 @@ class I18nService extends Module {
       console.log(`[I18nService] Loading primary language: ${this.currentLanguage}`);
       await this.loadLanguage(this.currentLanguage);
       console.log(`[I18nService] Successfully loaded primary language: ${this.currentLanguage}`);
+      this.isReady = true;
     } catch (error) {
       console.error(`[I18nService] Failed to load primary language ${this.currentLanguage}:`, error);
       console.warn(`[I18nService] Using fallback translations for ${this.currentLanguage}`);
@@ -46,6 +49,7 @@ class I18nService extends Module {
         common: { underConstruction: 'Under Construction', comingSoon: 'Coming Soon' }
       });
       this.loadedLanguages.add(this.currentLanguage);
+      this.isReady = true;
     }
     
     // Preload fallback if different
@@ -163,6 +167,9 @@ class I18nService extends Module {
 
     // Notify listeners
     this.notifyLanguageChange(previousLanguage);
+
+    // Translate page immediately after language change
+    this.translatePage();
 
     // Emit event
     this.emit('language:changed', {
@@ -327,18 +334,32 @@ class I18nService extends Module {
    * Translate DOM elements with data-i18n attributes
    */
   translateDOM() {
+    if (!this.isReady) {
+      console.warn('[I18nService] translateDOM called before service is ready');
+      return;
+    }
+    
     const elements = document.querySelectorAll('[data-i18n]');
+    console.log(`[I18nService] Translating ${elements.length} DOM elements`);
+    
+    let translated = 0;
     elements.forEach(element => {
       const key = element.getAttribute('data-i18n');
       const translation = this.t(key);
       
-      const attrKey = element.getAttribute('data-i18n-attr');
-      if (attrKey) {
-        element.setAttribute(attrKey, translation);
-      } else {
-        element.textContent = translation;
+      // Only update if we have a real translation (not just the key)
+      if (translation !== key) {
+        const attrKey = element.getAttribute('data-i18n-attr');
+        if (attrKey) {
+          element.setAttribute(attrKey, translation);
+        } else {
+          element.textContent = translation;
+        }
+        translated++;
       }
     });
+    
+    console.log(`[I18nService] Successfully translated ${translated}/${elements.length} elements`);
   }
 
   /**
@@ -367,9 +388,16 @@ class I18nService extends Module {
    * Translate entire page
    */
   translatePage() {
+    if (!this.isReady) {
+      console.warn('[I18nService] translatePage called before service is ready');
+      return;
+    }
+    
+    console.log('[I18nService] Translating entire page');
     this.translateDOM();
     this.translatePlaceholders();
     this.translateTitles();
+    console.log('[I18nService] Page translation complete');
   }
 
   /**

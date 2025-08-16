@@ -17,6 +17,7 @@ import ContentEngine from './engines/ContentEngine.js';
 import AssessmentEngine from './engines/AssessmentEngine.js';
 import DocumentEngine from './engines/DocumentEngine.js';
 import SimulationEngine from './engines/SimulationEngine.js';
+import ViewManager from './views/ViewManager.js';
 
 class EC0249App {
   constructor(config = {}) {
@@ -25,6 +26,7 @@ class EC0249App {
     this.services = new Map();
     this.components = new Map();
     this.modules = new Map();
+    this.viewManager = null;
     this.initialized = false;
     this.destroyed = false;
     
@@ -91,6 +93,15 @@ class EC0249App {
       
       // Ensure I18nService is ready before rendering
       await this.waitForI18nService();
+      
+      // Initialize view management
+      await this.initializeViewManager();
+      
+      // Final translation pass before rendering
+      const i18n = this.getService('I18nService');
+      if (i18n) {
+        i18n.translatePage();
+      }
       
       // Render initial view
       this.renderCurrentView();
@@ -386,6 +397,8 @@ class EC0249App {
     eventBus.subscribe('app:section-change', this.handleSectionChange.bind(this));
     eventBus.subscribe('theme:changed', this.handleThemeChange.bind(this));
     eventBus.subscribe('language:changed', this.handleLanguageChange.bind(this));
+    eventBus.subscribe('view:changed', this.handleViewManagerChange.bind(this));
+    eventBus.subscribe('section:changed', this.handleSectionManagerChange.bind(this));
 
     // Subscribe to router events
     eventBus.subscribe('router:navigate', this.handleRouterNavigate.bind(this));
@@ -442,6 +455,20 @@ class EC0249App {
   }
 
   /**
+   * Initialize view manager and controllers
+   */
+  async initializeViewManager() {
+    try {
+      this.viewManager = new ViewManager(this);
+      await this.viewManager.initialize();
+      console.log('[App] ViewManager initialized');
+    } catch (error) {
+      console.error('[App] Failed to initialize ViewManager:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Wait for I18nService to be fully loaded
    */
   async waitForI18nService() {
@@ -450,22 +477,31 @@ class EC0249App {
       
       // Wait for translations to be loaded
       let retries = 0;
-      const maxRetries = 10;
+      const maxRetries = 20; // Increased retries
       
       while (retries < maxRetries) {
-        // Check if translations are loaded by testing a key
-        const testTranslation = i18n.t('app.title');
-        if (testTranslation !== 'app.title') {
-          console.log('[App] I18nService ready with translations loaded');
+        // Check multiple keys to ensure translations are properly loaded
+        const testKeys = ['app.title', 'navigation.dashboard', 'dashboard.welcome', 'modules.title'];
+        const allLoaded = testKeys.every(key => {
+          const translation = i18n.t(key);
+          return translation !== key && translation.length > 0;
+        });
+        
+        if (allLoaded) {
+          console.log('[App] I18nService ready with all translations loaded');
+          // Force initial DOM translation
+          i18n.translatePage();
           return;
         }
         
-        // Wait 100ms and try again
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Wait 150ms and try again
+        await new Promise(resolve => setTimeout(resolve, 150));
         retries++;
       }
       
-      console.warn('[App] I18nService timeout - proceeding with fallback translations');
+      console.warn('[App] I18nService timeout - proceeding with available translations');
+      // Force translation even if timeout
+      i18n.translatePage();
     } catch (error) {
       console.error('[App] Error waiting for I18nService:', error);
     }
@@ -499,13 +535,13 @@ class EC0249App {
         value: viewName
       });
 
-      // Update navigation UI immediately
-      document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.view === viewName);
-      });
-
-      // Render new view
-      this.renderCurrentView();
+      // Use ViewManager for view switching
+      if (this.viewManager) {
+        await this.viewManager.showView(viewName);
+      } else {
+        // Fallback to legacy rendering
+        this.renderCurrentView();
+      }
 
       // Emit view change event with correct previous value
       eventBus.publish('app:view-change', {
@@ -535,13 +571,18 @@ class EC0249App {
       value: sectionName
     });
 
-    // Update sidebar UI immediately
-    document.querySelectorAll('.sidebar-nav a').forEach(link => {
-      link.classList.toggle('active', link.dataset.section === sectionName);
-    });
-
-    // Handle section-specific content loading
-    await this.loadSectionContent(sectionName);
+    // Use ViewManager for section switching
+    if (this.viewManager) {
+      await this.viewManager.showSection(sectionName);
+    } else {
+      // Fallback to legacy section loading
+      await this.loadSectionContent(sectionName);
+      
+      // Update sidebar UI immediately
+      document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.classList.toggle('active', link.dataset.section === sectionName);
+      });
+    }
 
     // Emit section change event with correct previous value
     eventBus.publish('app:section-change', {
@@ -858,6 +899,13 @@ class EC0249App {
    * Render current view
    */
   renderCurrentView() {
+    // Use ViewManager if available
+    if (this.viewManager) {
+      // ViewManager handles all view rendering
+      return;
+    }
+    
+    // Fallback to legacy rendering
     // Hide all views
     document.querySelectorAll('.view').forEach(view => {
       view.classList.add('hidden');
@@ -897,13 +945,7 @@ class EC0249App {
     // Update footer with dynamic year
     this.updateFooter();
 
-    // Translate all DOM elements with data-i18n attributes
-    i18n.translateDOM();
-
-    // Navigation tabs are already handled by data-i18n attributes in translateDOM()
-    // No manual override needed - let translateDOM() handle all translations
-
-    // Update view-specific content
+    // Update view-specific content FIRST (before general DOM translation)
     switch (this.appState.currentView) {
       case 'dashboard':
         this.updateDashboardContent();
@@ -918,6 +960,9 @@ class EC0249App {
         this.updatePortfolioContent();
         break;
     }
+    
+    // Translate all DOM elements with data-i18n attributes AFTER content updates
+    i18n.translatePage();
   }
 
   /**
@@ -951,9 +996,6 @@ class EC0249App {
 
     // Update overall progress display
     this.updateOverallProgress();
-
-    // Ensure DOM translation after content update
-    i18n.translateDOM();
   }
 
   /**
@@ -974,9 +1016,6 @@ class EC0249App {
 
     // Update modules grid
     this.renderModulesGrid();
-
-    // Ensure DOM translation after content update
-    i18n.translateDOM();
   }
 
   /**
@@ -1087,10 +1126,7 @@ class EC0249App {
       `;
     }).join('');
 
-    // Ensure DOM translation after dynamic content injection
-    if (i18n) {
-      i18n.translateDOM();
-    }
+    // Note: DOM translation will be handled by updateViewContent()
   }
 
   /**
@@ -1182,9 +1218,6 @@ class EC0249App {
     if (assessmentTitle) {
       assessmentTitle.textContent = i18n.t('assessment.title');
     }
-
-    // Ensure DOM translation after content update
-    i18n.translateDOM();
   }
 
   /**
@@ -1197,9 +1230,6 @@ class EC0249App {
     if (portfolioTitle) {
       portfolioTitle.textContent = i18n.t('portfolio.title');
     }
-
-    // Ensure DOM translation after content update
-    i18n.translateDOM();
   }
 
   /**
@@ -1211,6 +1241,22 @@ class EC0249App {
 
   handleSectionChange(data) {
     console.log(`[App] Section changed to: ${data.section}`);
+  }
+
+  /**
+   * Handle ViewManager view changes
+   */
+  handleViewManagerChange(data) {
+    console.log(`[App] ViewManager changed view to: ${data.view}`);
+    // Additional view change handling if needed
+  }
+
+  /**
+   * Handle ViewManager section changes
+   */
+  handleSectionManagerChange(data) {
+    console.log(`[App] ViewManager changed section to: ${data.section}`);
+    // Additional section change handling if needed
   }
 
   handleThemeChange(data) {
@@ -1232,6 +1278,11 @@ class EC0249App {
     
     // Update all UI content
     this.updateViewContent();
+    
+    // Update ViewManager language
+    if (this.viewManager) {
+      this.viewManager.updateLanguage();
+    }
   }
 
   /**
@@ -1332,6 +1383,12 @@ class EC0249App {
     console.log('[App] Destroying application...');
 
     try {
+      // Destroy ViewManager
+      if (this.viewManager) {
+        this.viewManager.destroy();
+        this.viewManager = null;
+      }
+
       // Destroy components
       for (const component of this.components.values()) {
         await component.destroy();
