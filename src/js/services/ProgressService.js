@@ -1,6 +1,59 @@
 /**
- * Progress Service - Tracks user learning progress and achievements
- * Manages completion states, prerequisites, and unlocking logic
+ * Progress Service - Comprehensive Learning Progress Tracking and Analytics
+ * 
+ * @description The ProgressService provides complete learning progress management for the
+ * EC0249 platform, including module completion tracking, prerequisite enforcement,
+ * achievement systems, and detailed analytics. It supports weighted progress calculation,
+ * prerequisite chains, and certification readiness assessment.
+ * 
+ * @class ProgressService
+ * @extends Module
+ * 
+ * Key Features:
+ * - Module and lesson progress tracking
+ * - Weighted progress calculation across modules
+ * - Prerequisite enforcement and unlocking logic
+ * - Achievement and milestone tracking
+ * - Completion criteria validation
+ * - Assessment score tracking
+ * - Document portfolio progress
+ * - Certification readiness assessment
+ * 
+ * Progress Structure:
+ * - Overall platform progress (0-100%)
+ * - Module-specific progress with weights
+ * - Lesson completion tracking
+ * - Assessment scores and attempts
+ * - Document template completion
+ * - Time tracking and analytics
+ * 
+ * Completion Criteria:
+ * - Theory lessons: 100% completion required
+ * - Practice exercises: Full participation
+ * - Assessments: Passing scores required
+ * - Documents: Portfolio requirements met
+ * - Simulations: Competency demonstrations
+ * 
+ * @example
+ * // Update lesson progress
+ * await progressService.updateLessonProgress('module1', 'lesson1', 100);
+ * 
+ * @example
+ * // Check module unlock status
+ * const canAccess = progressService.canAccessModule('module2');
+ * 
+ * @example
+ * // Get comprehensive progress report
+ * const report = progressService.getProgressReport();
+ * 
+ * @example
+ * // Track assessment completion
+ * await progressService.recordAssessmentScore('module1-quiz', 85, {
+ *   timeSpent: 1800,
+ *   attemptNumber: 1
+ * });
+ * 
+ * @since 2.0.0
  */
 import Module from '../core/Module.js';
 

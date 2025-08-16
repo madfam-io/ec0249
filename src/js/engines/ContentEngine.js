@@ -34,7 +34,25 @@
  * 
  * @example
  * // Load and render lesson content
- * const contentConfig = {\n *   id: 'module1-lesson1',\n *   type: 'lesson',\n *   title: 'Introduction to Consulting',\n *   sections: [...],\n *   activities: [...]\n * };\n * \n * await contentEngine.loadContent(contentConfig);\n * await contentEngine.renderContent(containerElement);\n * \n * @example\n * // Listen for content events\n * contentEngine.subscribe('content:loaded', (data) => {\n *   console.log('Content loaded:', data.content.id);\n * });\n * \n * @since 2.0.0\n */"}
+ * const contentConfig = {
+ *   id: 'module1-lesson1',
+ *   type: 'lesson',
+ *   title: 'Introduction to Consulting',
+ *   sections: [...],
+ *   activities: [...]
+ * };
+ * 
+ * await contentEngine.loadContent(contentConfig);
+ * await contentEngine.renderContent(containerElement);
+ * 
+ * @example
+ * // Listen for content events
+ * contentEngine.subscribe('content:loaded', (data) => {
+ *   console.log('Content loaded:', data.content.id);
+ * });
+ * 
+ * @since 2.0.0
+ */
 import Module from '../core/Module.js';
 import SectionRenderer from '../renderers/SectionRenderer.js';
 import MediaRenderer from '../renderers/MediaRenderer.js';

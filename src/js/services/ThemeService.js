@@ -1,6 +1,54 @@
 /**
- * Theme Service - Modular theme management
- * Handles theme switching, persistence, and system integration
+ * Theme Service - Comprehensive Visual Theme Management System
+ * 
+ * @description The ThemeService provides complete theme management for the EC0249 platform,
+ * including automatic system preference detection, smooth transitions, persistent storage,
+ * and real-time theme switching. It supports multiple theme variants and integrates with
+ * CSS custom properties for dynamic styling.
+ * 
+ * @class ThemeService
+ * @extends Module
+ * 
+ * Key Features:
+ * - Multiple theme support (auto, light, dark)
+ * - System preference detection and auto-switching
+ * - Persistent theme storage and restoration
+ * - Smooth CSS transition effects
+ * - Real-time theme change notifications
+ * - CSS custom property integration
+ * - Accessibility compliance (prefers-color-scheme)
+ * 
+ * Supported Themes:
+ * - auto: Follows system/browser preference
+ * - light: Light color scheme
+ * - dark: Dark color scheme
+ * 
+ * Theme Implementation:
+ * - CSS custom properties for dynamic theming
+ * - data-theme attribute on document element
+ * - Event-driven theme change notifications
+ * - Automatic persistence to storage
+ * 
+ * @example
+ * // Set theme programmatically
+ * await themeService.setTheme('dark');
+ * 
+ * @example
+ * // Toggle between light and dark
+ * await themeService.toggleTheme();
+ * 
+ * @example
+ * // Listen for theme changes
+ * themeService.addThemeChangeListener((data) => {
+ *   console.log('Theme changed to:', data.theme);
+ * });
+ * 
+ * @example
+ * // Get current effective theme
+ * const currentTheme = themeService.getCurrentTheme();
+ * const effectiveTheme = themeService.getEffectiveTheme(); // Resolves 'auto'
+ * 
+ * @since 2.0.0
  */
 import Module from '../core/Module.js';
 

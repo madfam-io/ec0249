@@ -1,6 +1,54 @@
 /**
- * Storage Service - Modular storage management
- * Provides unified interface for localStorage, sessionStorage, and IndexedDB
+ * Storage Service - Unified Data Persistence and Management System
+ * 
+ * @description The StorageService provides a comprehensive, adapter-based storage abstraction
+ * that unifies multiple storage mechanisms under a single interface. It supports fallback
+ * chains, data compression, encryption, TTL (time-to-live), and automatic adapter selection
+ * based on browser capabilities and data requirements.
+ * 
+ * @class StorageService
+ * @extends Module
+ * 
+ * Key Features:
+ * - Multiple storage adapter support (localStorage, sessionStorage, memory, IndexedDB)
+ * - Automatic fallback chain for maximum compatibility
+ * - Data compression and encryption support
+ * - TTL (time-to-live) expiration management
+ * - Prefix-based key namespacing
+ * - Event-driven storage notifications
+ * - Quota management and storage optimization
+ * 
+ * Storage Adapters:
+ * - localStorage: Persistent browser storage (default)
+ * - sessionStorage: Session-based temporary storage
+ * - memory: In-memory storage for testing/fallback
+ * - IndexedDB: Large data storage for complex objects
+ * 
+ * Fallback Chain:
+ * localStorage → sessionStorage → memory
+ * 
+ * @example
+ * // Basic storage operations
+ * await storageService.set('userProfile', userData);
+ * const profile = await storageService.get('userProfile');
+ * await storageService.remove('userProfile');
+ * 
+ * @example
+ * // Storage with TTL (time-to-live)
+ * await storageService.set('tempData', data, { ttl: 3600000 }); // 1 hour
+ * 
+ * @example
+ * // Use specific adapter
+ * await storageService.set('sessionData', data, { adapter: 'sessionStorage' });
+ * 
+ * @example
+ * // Bulk operations
+ * await storageService.setMultiple({
+ *   'user:settings': userSettings,
+ *   'user:progress': progressData
+ * });
+ * 
+ * @since 2.0.0
  */
 import Module from '../core/Module.js';
 
