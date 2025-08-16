@@ -363,6 +363,12 @@ class Module {
       throw new Error(`Module '${this.name}' not initialized - cannot subscribe to events`);
     }
 
+    // Validate callback parameter
+    if (typeof callback !== 'function') {
+      console.error(`[Module] ${this.name} subscribe called with invalid callback for event '${event}':`, callback);
+      return () => {}; // Return empty unsubscribe function
+    }
+
     const unsubscribe = this.eventBus.subscribe(event, callback, options);
     this.subscriptions.push(unsubscribe);
     return unsubscribe;
@@ -443,6 +449,17 @@ class Module {
    * @since 1.0.0
    */
   getConfig(key, defaultValue = null) {
+    // Validate input parameters
+    if (!key || typeof key !== 'string') {
+      console.warn(`[Module] ${this.name} getConfig called with invalid key:`, key);
+      return defaultValue;
+    }
+
+    if (!this.config) {
+      console.warn(`[Module] ${this.name} has no config object`);
+      return defaultValue;
+    }
+
     const keys = key.split('.');
     let value = this.config;
     

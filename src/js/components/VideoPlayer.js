@@ -107,7 +107,7 @@ class VideoPlayer extends BaseComponent {
     this.setupEventListeners();
     
     // Start progress tracking if enabled
-    if (this.getConfig('trackProgress')) {
+    if (this.config && this.config.trackProgress) {
       this.startProgressTracking();
     }
   }
@@ -116,7 +116,7 @@ class VideoPlayer extends BaseComponent {
    * Create video player HTML
    */
   createPlayerHTML() {
-    const config = this.getConfig();
+    const config = this.config || {};
     const placement = VIDEO_PLACEMENTS[config.placement] || VIDEO_PLACEMENTS.lesson_content;
     
     // Generate embed URL with player parameters
@@ -209,8 +209,8 @@ class VideoPlayer extends BaseComponent {
    * Calculate responsive dimensions
    */
   calculateDimensions(placement) {
-    const config = this.getConfig();
-    const aspectRatio = this.parseAspectRatio(config.aspectRatio);
+    const config = this.config || {};
+    const aspectRatio = this.parseAspectRatio(config.aspectRatio || '16:9');
     
     let wrapperStyle = `
       position: relative;

@@ -128,10 +128,16 @@ class ProgressService extends Module {
     this.subscribe('assessment:completed', this.handleAssessmentCompleted.bind(this));
     this.subscribe('simulation:completed', this.handleSimulationCompleted.bind(this));
     
-    // Subscribe to video events
-    this.subscribe('video:viewed', this.handleVideoViewed.bind(this));
-    this.subscribe('video:completed', this.handleVideoCompleted.bind(this));
-    this.subscribe('youtube:video_complete', this.handleYouTubeVideoComplete.bind(this));
+    // Subscribe to video events with method existence checks
+    if (typeof this.handleVideoViewed === 'function') {
+      this.subscribe('video:viewed', this.handleVideoViewed.bind(this));
+    }
+    if (typeof this.handleVideoCompleted === 'function') {
+      this.subscribe('video:completed', this.handleVideoCompleted.bind(this));
+    }
+    if (typeof this.handleYouTubeVideoComplete === 'function') {
+      this.subscribe('youtube:video_complete', this.handleYouTubeVideoComplete.bind(this));
+    }
     
     console.log('[ProgressService] Initialized with overall progress:', this.progress.overall + '%');
   }
@@ -475,6 +481,42 @@ class ProgressService extends Module {
   handleSimulationCompleted(data) {
     const { moduleId, type, score } = data;
     this.completeSimulation(moduleId, type);
+  }
+
+  /**
+   * Handle video viewed event
+   * @param {Object} data - Video view data
+   */
+  handleVideoViewed(data) {
+    const { videoId, progress } = data;
+    console.log('[ProgressService] Video viewed:', videoId, 'Progress:', progress + '%');
+    
+    // Track video viewing progress
+    // This could be expanded to track specific video progress per module
+  }
+
+  /**
+   * Handle video completed event
+   * @param {Object} data - Video completion data
+   */
+  handleVideoCompleted(data) {
+    const { videoId, title, watchedPercentage, totalTime } = data;
+    console.log('[ProgressService] Video completed:', title, 'Watched:', watchedPercentage + '%');
+    
+    // Mark video as completed and update module progress if applicable
+    // This could trigger module progress updates based on video completion
+  }
+
+  /**
+   * Handle YouTube video complete event
+   * @param {Object} data - YouTube completion data
+   */
+  handleYouTubeVideoComplete(data) {
+    const { videoId, progress = 100 } = data;
+    console.log('[ProgressService] YouTube video completed:', videoId);
+    
+    // Handle YouTube-specific completion events
+    // Could be used for analytics or progress tracking
   }
 
   async onDestroy() {
