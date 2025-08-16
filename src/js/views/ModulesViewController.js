@@ -1139,13 +1139,11 @@ class ModulesViewController extends BaseViewController {
    * Render module overview grid
    */
   async renderModuleGrid() {
-    console.log('[ModulesViewController] renderModuleGrid() called');
     const modulesGrid = this.findElement('.modules-grid');
     if (!modulesGrid) {
       console.warn('[ModulesViewController] Module grid container not found');
       return;
     }
-    console.log('[ModulesViewController] Found modules grid container:', modulesGrid);
 
     try {
       // Get progress service for dynamic progress data
@@ -1209,26 +1207,33 @@ class ModulesViewController extends BaseViewController {
         let isUnlocked = true;
         
         if (progressService) {
-          status = progressService.getModuleStatus(module.id) || 'available';
-          progress = progressService.calculateModuleProgress(module.id) || 0;
-          isUnlocked = progressService.isModuleUnlocked(module.id);
+          try {
+            status = progressService.getModuleStatus(module.id) || 'available';
+            progress = progressService.calculateModuleProgress(module.id) || 0;
+            isUnlocked = progressService.isModuleUnlocked(module.id);
+          } catch (error) {
+            console.warn('[ModulesViewController] Error getting progress data:', error);
+          }
         }
         
         // Module 1 is always unlocked, others depend on previous module completion
         if (module.number === 1) {
           isUnlocked = true;
         } else if (progressService) {
-          const previousModuleId = `module${module.number - 1}`;
-          isUnlocked = progressService.isModuleCompleted(previousModuleId);
+          try {
+            const previousModuleId = `module${module.number - 1}`;
+            isUnlocked = progressService.isModuleCompleted(previousModuleId);
+          } catch (error) {
+            console.warn('[ModulesViewController] Error checking module completion:', error);
+            isUnlocked = false; // Default to locked if there's an error
+          }
         }
         
         return { ...module, status, progress, isUnlocked };
       });
 
       // Render module grid
-      const moduleCards = modules.map(module => this.createModuleCard(module)).join('');
-      console.log('[ModulesViewController] Generated module cards HTML:', moduleCards.substring(0, 200) + '...');
-      modulesGrid.innerHTML = moduleCards;
+      modulesGrid.innerHTML = modules.map(module => this.createModuleCard(module)).join('');
       
       // Add click handlers for module cards
       this.bindModuleCardEvents();

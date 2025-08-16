@@ -396,37 +396,6 @@ class ProgressService extends Module {
     return hasProgress ? 'in_progress' : 'available';
   }
 
-  /**
-   * Calculate progress percentage for a specific module
-   * @param {string} moduleId - Module identifier
-   * @returns {number} Progress percentage (0-100)
-   */
-  calculateModuleProgress(moduleId) {
-    const moduleData = this.progress.modules[moduleId];
-    if (!moduleData) return 0;
-
-    const criteria = this.getConfig('completionCriteria')[moduleId];
-    if (!criteria) return 0;
-
-    let totalWeight = 0;
-    let completedWeight = 0;
-
-    // Calculate weighted progress based on completion criteria
-    Object.entries(criteria).forEach(([key, requirement]) => {
-      if (key === 'assessment' || key === 'presentation') {
-        totalWeight += 30; // Assessments/presentations worth 30 points
-        if (moduleData[key] === true) {
-          completedWeight += 30;
-        }
-      } else if (typeof requirement === 'number') {
-        totalWeight += requirement;
-        const current = moduleData[key] || 0;
-        completedWeight += Math.min(current, requirement);
-      }
-    });
-
-    return totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
-  }
 
   /**
    * Check if a module is completed
