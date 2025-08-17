@@ -1,0 +1,146 @@
+/**
+ * Layout Styles - Application Structure and Grid System
+ * 
+ * @description Defines the main application layout including header, sidebar,
+ * content areas, and overall grid structure. Provides responsive layout
+ * foundations for the entire EC0249 platform.
+ * 
+ * @version 2.0.0
+ * @since 2.0.0
+ */
+
+/* Application Container */
+.app-container {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+/* Header Styles */
+.header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+/* Logo Styles */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.logo-icon {
+  font-size: 1.5rem;
+}
+
+/* Header Controls */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Main Content Layout */
+.main-content {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  gap: 2rem;
+  min-height: calc(100vh - 140px);
+}
+
+/* Sidebar Styles */
+.sidebar {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: fit-content;
+  position: sticky;
+  top: calc(70px + 2rem);
+  box-shadow: var(--shadow);
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.sidebar h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li {
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-nav a {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all var(--transition-normal);
+}
+
+.sidebar-nav a:hover {
+  background: var(--gray-100);
+  color: var(--text-primary);
+}
+
+.sidebar-nav a.active {
+  background: var(--primary-100);
+  color: var(--primary-700);
+  font-weight: 500;
+}
+
+/* Content Area */
+.content-area {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+  min-height: 600px;
+}
+
+/* View Container */
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+}
+
+.view-content {
+  width: 100%;
+}

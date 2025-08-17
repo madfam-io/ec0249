@@ -1,0 +1,93 @@
+/* EC0249 Educational Platform - Module-specific Layouts */
+
+/* Modules Grid */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.module-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.module-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.module-icon {
+  font-size: 2rem;
+}
+
+.module-status {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.module-status.available {
+  background: var(--success-500);
+}
+
+.module-status.locked {
+  background: var(--gray-400);
+}
+
+.module-progress {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.module-progress span {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Assessment Options */
+.assessment-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+/* Competency Elements */
+.competency-elements {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.element-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all var(--transition-normal);
+}
+
+.element-progress {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}

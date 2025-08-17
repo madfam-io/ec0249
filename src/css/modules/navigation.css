@@ -1,0 +1,555 @@
+/* ========================================
+   EC0249 EDUCATIONAL PLATFORM
+   NAVIGATION COMPONENTS MODULE
+   ======================================== */
+
+/* 
+ * Comprehensive navigation system for EC0249 platform
+ * Includes desktop navigation tabs and mobile navigation drawer
+ * with accessibility features and responsive design
+ */
+
+/* ========================================
+   DESKTOP NAVIGATION TABS
+   ======================================== */
+
+/* 
+ * Horizontal tab navigation for desktop screens
+ * Features rounded background with active state highlighting
+ */
+.nav-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--gray-100);
+  padding: 0.25rem;
+  border-radius: 8px;
+  transition: background-color var(--transition-normal);
+}
+
+.nav-tab {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--transition-normal);
+}
+
+.nav-tab.active {
+  background: var(--bg-secondary);
+  color: var(--primary-600);
+  box-shadow: var(--shadow);
+}
+
+.nav-tab:hover:not(.active) {
+  background: var(--gray-200);
+}
+
+.nav-tab:focus {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   MOBILE NAVIGATION SYSTEM
+   ======================================== */
+
+/* 
+ * Complete mobile navigation system including:
+ * - Hamburger toggle button with animation
+ * - Slide-out drawer navigation
+ * - Backdrop overlay for focus management
+ * - Touch-optimized interface elements
+ */
+
+/* Mobile Navigation Toggle Button */
+.mobile-nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all var(--transition-normal);
+}
+
+.mobile-nav-toggle:hover {
+  background: var(--gray-100);
+}
+
+.mobile-nav-toggle:focus {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+.hamburger-line {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background: var(--text-primary);
+  margin: 2px 0;
+  border-radius: 2px;
+  transition: all var(--transition-normal);
+  transform-origin: center;
+}
+
+/* ========================================
+   HAMBURGER MENU ANIMATIONS
+   ======================================== */
+
+/* 
+ * Smooth hamburger to X transformation animation
+ * Lines rotate and fade to create close icon
+ */
+.mobile-nav-toggle.active .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.mobile-nav-toggle.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-nav-toggle.active .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* ========================================
+   MOBILE NAVIGATION OVERLAY & DRAWER
+   ======================================== */
+
+/* 
+ * Semi-transparent overlay provides backdrop
+ * and handles click-to-close functionality
+ */
+
+/* Mobile Navigation Overlay */
+.mobile-nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--mobile-nav-overlay);
+  z-index: calc(var(--mobile-nav-z-index) - 1);
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+  backdrop-filter: blur(2px);
+}
+
+.mobile-nav-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile Navigation Drawer */
+.mobile-nav-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--mobile-nav-width);
+  height: 100%;
+  background: var(--bg-secondary);
+  z-index: var(--mobile-nav-z-index);
+  transform: translateX(-100%);
+  transition: transform var(--transition-normal);
+  border-right: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.mobile-nav-drawer.active {
+  transform: translateX(0);
+}
+
+/* ========================================
+   MOBILE NAVIGATION CONTENT STRUCTURE
+   ======================================== */
+
+/* 
+ * Drawer header with logo and close button
+ * Organized content sections for navigation items
+ * Footer area for theme and language controls
+ */
+
+/* Mobile Navigation Header */
+.mobile-nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-primary);
+}
+
+.mobile-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--primary-600);
+}
+
+.mobile-nav-logo .logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+}
+
+.mobile-nav-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all var(--transition-normal);
+}
+
+.mobile-nav-close:hover {
+  background: var(--gray-100);
+}
+
+.mobile-nav-close:focus {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+.close-icon {
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+/* Mobile Navigation Content */
+.mobile-nav-content {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.mobile-nav-section {
+  margin-bottom: 1.5rem;
+}
+
+.mobile-nav-section h3 {
+  margin: 0 0 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.mobile-nav-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mobile-nav-section li {
+  margin: 0;
+}
+
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  min-height: 44px; /* Touch target size */
+  gap: 1rem;
+}
+
+.mobile-nav-item:hover {
+  background: var(--gray-100);
+}
+
+.mobile-nav-item:focus {
+  outline: 2px solid var(--primary-500);
+  outline-offset: -2px;
+  background: var(--gray-100);
+}
+
+.mobile-nav-item.active {
+  background: var(--primary-50);
+  color: var(--primary-700);
+  border-right: 3px solid var(--primary-500);
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.nav-text {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.mobile-nav-item.active .nav-text {
+  color: var(--primary-700);
+  font-weight: 600;
+}
+
+/* Mobile Navigation Footer */
+.mobile-nav-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-primary);
+}
+
+.theme-language-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.mobile-control {
+  flex: 1;
+}
+
+/* ========================================
+   NAVIGATION STATE MANAGEMENT
+   ======================================== */
+
+/* 
+ * Body scroll prevention and navigation visibility
+ * controls for proper mobile navigation behavior
+ */
+
+/* Prevent body scroll when mobile nav is open */
+body.mobile-nav-open {
+  overflow: hidden;
+}
+
+/* Hide desktop navigation when mobile is enabled */
+body.mobile-nav-enabled .nav-tabs {
+  display: none;
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* 
+ * Mobile-first responsive design with specific
+ * breakpoints for navigation behavior changes
+ */
+
+/* Responsive breakpoints for mobile navigation */
+@media (max-width: 968px) {
+  .mobile-nav-toggle {
+    display: flex;
+  }
+  
+  body.mobile-nav-enabled {
+    /* Adjust header layout for mobile */
+  }
+  
+  .header-content {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .logo {
+    order: 1;
+  }
+  
+  .header-controls {
+    order: 2;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-nav-drawer {
+    width: 280px; /* Smaller drawer on very small screens */
+  }
+  
+  .mobile-nav-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .mobile-nav-logo {
+    font-size: 1rem;
+  }
+  
+  .mobile-nav-item {
+    padding: 0.625rem 1rem;
+    min-height: 44px;
+  }
+  
+  .nav-text {
+    font-size: 0.875rem;
+  }
+  
+  .mobile-nav-footer {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* ========================================
+   THEME SUPPORT & ACCESSIBILITY
+   ======================================== */
+
+/* 
+ * Dark theme adjustments and accessibility features
+ * including reduced motion and high contrast support
+ */
+
+/* Dark theme adjustments for mobile nav */
+@media (prefers-color-scheme: dark) {
+  .mobile-nav-toggle:hover {
+    background: var(--gray-700);
+  }
+  
+  .mobile-nav-close:hover {
+    background: var(--gray-700);
+  }
+  
+  .mobile-nav-item:hover {
+    background: var(--gray-700);
+  }
+  
+  .mobile-nav-item:focus {
+    background: var(--gray-700);
+  }
+  
+  .mobile-nav-item.active {
+    background: var(--primary-900);
+    color: var(--primary-300);
+  }
+}
+
+[data-theme="dark"] .mobile-nav-toggle:hover {
+  background: var(--gray-700);
+}
+
+[data-theme="dark"] .mobile-nav-close:hover {
+  background: var(--gray-700);
+}
+
+[data-theme="dark"] .mobile-nav-item:hover {
+  background: var(--gray-700);
+}
+
+[data-theme="dark"] .mobile-nav-item:focus {
+  background: var(--gray-700);
+}
+
+[data-theme="dark"] .mobile-nav-item.active {
+  background: var(--primary-900);
+  color: var(--primary-300);
+}
+
+/* ========================================
+   ACCESSIBILITY ENHANCEMENTS
+   ======================================== */
+
+/* 
+ * Enhanced accessibility features for users with
+ * specific needs and preferences
+ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-toggle,
+  .mobile-nav-overlay,
+  .mobile-nav-drawer,
+  .hamburger-line,
+  .mobile-nav-item,
+  .nav-tab {
+    transition: none;
+  }
+
+  .mobile-nav-toggle.active .hamburger-line:nth-child(1),
+  .mobile-nav-toggle.active .hamburger-line:nth-child(3) {
+    transform: none;
+  }
+
+  .mobile-nav-toggle.active .hamburger-line:nth-child(2) {
+    opacity: 1;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .nav-tabs {
+    border: 2px solid var(--text-primary);
+  }
+
+  .nav-tab {
+    border: 1px solid var(--border);
+  }
+
+  .nav-tab.active {
+    border: 2px solid var(--primary-500);
+  }
+
+  .mobile-nav-drawer {
+    border-right: 3px solid var(--text-primary);
+  }
+  
+  .mobile-nav-item {
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .mobile-nav-item.active {
+    border-right: 4px solid var(--primary-500);
+    background: var(--primary-100);
+  }
+
+  .hamburger-line {
+    background: var(--text-primary);
+    height: 4px;
+  }
+}
+
+/* ========================================
+   END OF NAVIGATION MODULE
+   ======================================== */
+
+/* 
+ * Navigation module provides complete navigation system
+ * for EC0249 educational platform including:
+ * 
+ * - Desktop horizontal tab navigation
+ * - Mobile hamburger menu with slide-out drawer
+ * - Accessibility features (reduced motion, high contrast)
+ * - Theme support (light/dark modes)
+ * - Touch-optimized mobile interface
+ * - Responsive breakpoints for all screen sizes
+ * 
+ * Dependencies: variables.css for CSS custom properties
+ */

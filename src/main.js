@@ -3,7 +3,7 @@
  * Vite-optimized application bootstrap
  */
 import EC0249App from './js/App.js';
-import './css/app.css';
+import './css/main.css';
 
 // Initialize application when DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {

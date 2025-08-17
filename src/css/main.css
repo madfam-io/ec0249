@@ -1,0 +1,75 @@
+/**
+ * EC0249 Educational Platform - Main CSS Entry Point
+ * 
+ * @description Centralized CSS import file that loads all modular stylesheets
+ * in the correct order. This file serves as the primary entry point for all
+ * styling across the EC0249 platform and replaces the monolithic app.css.
+ * 
+ * Import Order:
+ * 1. Variables - Design tokens and CSS custom properties
+ * 2. Base - CSS reset and foundational styles
+ * 3. Utilities - Helper classes and accessibility utilities
+ * 4. Layout - Application structure and grid system
+ * 5. Typography - Text styles and heading systems
+ * 6. Components - Reusable UI components
+ * 7. Navigation - Navigation systems and menus
+ * 8. Modules - Module-specific layouts and styles
+ * 9. Notifications - Alerts, toasts, and feedback systems
+ * 10. Video - Video player components and controls
+ * 11. Interactive - Drag-drop, quiz, and activity components
+ * 12. Templates - Document template styles
+ * 13. Achievements - Achievement and gamification system
+ * 14. Responsive - Mobile breakpoints and responsive styles
+ * 15. Accessibility - A11y enhancements and print styles
+ * 
+ * @version 2.0.0
+ * @since 2.0.0
+ * 
+ * @usage Replace app.css with this file:
+ * <link rel="stylesheet" href="src/css/main.css">
+ */
+
+/* 1. CSS Variables and Design Tokens */
+@import 'modules/variables.css';
+
+/* 2. Base Styles and Reset */
+@import 'modules/base.css';
+
+/* 3. Utility Classes */
+@import 'modules/utilities.css';
+
+/* 4. Layout System */
+@import 'modules/layout.css';
+
+/* 5. Typography */
+@import 'modules/typography.css';
+
+/* 6. Core Components */
+@import 'modules/components.css';
+
+/* 7. Navigation Systems */
+@import 'modules/navigation.css';
+
+/* 8. Module-Specific Styles */
+@import 'modules/modules.css';
+
+/* 9. Notifications and Feedback */
+@import 'modules/notifications.css';
+
+/* 10. Video Integration */
+@import 'modules/video.css';
+
+/* 11. Interactive Elements */
+@import 'modules/interactive.css';
+
+/* 12. Template Systems */
+@import 'modules/templates.css';
+
+/* 13. Achievement System */
+@import 'modules/achievements.css';
+
+/* 14. Responsive Design (MUST be near end) */
+@import 'modules/responsive.css';
+
+/* 15. Accessibility & Print (MUST be last) */
+@import 'modules/accessibility.css';

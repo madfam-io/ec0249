@@ -1,0 +1,41 @@
+/**
+ * Utility Classes - Common Helper Classes
+ * 
+ * @description Provides reusable utility classes for common styling patterns
+ * including visibility, accessibility, and layout helpers.
+ * 
+ * @version 2.0.0
+ * @since 2.0.0
+ */
+
+/* Visibility Utilities */
+.hidden {
+  display: none !important;
+}
+
+/* Accessibility Utilities */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Loading Utilities */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}

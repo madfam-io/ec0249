@@ -1,0 +1,23 @@
+/**
+ * Base Styles - CSS Reset and Foundation Elements
+ * 
+ * @description Provides CSS reset, base element styles, and foundational
+ * typography and layout rules that apply globally across the application.
+ * 
+ * @version 2.0.0
+ * @since 2.0.0
+ */
+
+/* CSS Reset and Base Styles */
+* { 
+  box-sizing: border-box; 
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}

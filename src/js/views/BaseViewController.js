@@ -52,11 +52,11 @@ class BaseViewController {
 
     // Hide all views
     document.querySelectorAll('.view').forEach(view => {
-      view.classList.add('hidden');
+      view.classList.remove('active');
     });
 
     // Show this view
-    this.element.classList.remove('hidden');
+    this.element.classList.add('active');
     this.isActive = true;
 
     // Update navigation
@@ -72,7 +72,7 @@ class BaseViewController {
   hide() {
     if (!this.element) return;
     
-    this.element.classList.add('hidden');
+    this.element.classList.remove('active');
     this.isActive = false;
     this.onHide();
   }
