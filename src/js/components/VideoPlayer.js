@@ -129,7 +129,7 @@ class VideoPlayer extends BaseComponent {
     const dimensions = this.calculateDimensions(placement);
 
     return `
-      <div class="video-player-container" data-video-id="${this.videoId}">
+      <div class="video-player-container ${dimensions.containerClasses}" data-video-id="${this.videoId}">
         ${config.showTitle ? this.createTitleSection() : ''}
         
         <div class="video-wrapper" style="${dimensions.wrapperStyle}">
@@ -222,18 +222,77 @@ class VideoPlayer extends BaseComponent {
     const config = this.config || {};
     const aspectRatio = this.parseAspectRatio(config.aspectRatio || '16:9');
     
+    // Enhanced mobile detection with more breakpoints
+    const screenWidth = window.innerWidth;
+    const isExtraSmallMobile = screenWidth <= 480;
+    const isSmallMobile = screenWidth <= 640;
+    const isMobile = screenWidth <= 768;
+    const isTablet = screenWidth <= 968;
+    
+    // Responsive width calculation
+    const getResponsiveWidth = () => {
+      if (isExtraSmallMobile) return '100%';
+      if (isSmallMobile) return '100%';
+      if (isMobile) return '100%';
+      if (isTablet) return placement.width || '100%';
+      return placement.width || config.width || '100%';
+    };
+    
+    // Responsive max-width calculation
+    const getResponsiveMaxWidth = () => {
+      if (isExtraSmallMobile) return '100%';
+      if (isSmallMobile) return '100%';
+      if (isMobile) return '100%';
+      if (isTablet) return placement.maxWidth || '600px';
+      return placement.maxWidth || '800px';
+    };
+    
     let wrapperStyle = `
       position: relative;
-      width: ${placement.width || config.width};
-      max-width: ${placement.maxWidth || '800px'};
+      width: ${getResponsiveWidth()};
+      max-width: ${getResponsiveMaxWidth()};
       margin: 0 auto;
+      border-radius: ${isExtraSmallMobile ? '6px' : isMobile ? '8px' : '12px'};
+      overflow: hidden;
+      box-shadow: ${isMobile ? '0 4px 6px -1px rgb(0 0 0 / 0.1)' : '0 10px 15px -3px rgb(0 0 0 / 0.1)'};
     `;
 
     if (config.responsive) {
+      // Dynamic aspect ratio based on screen size for optimal mobile viewing
+      let responsiveAspectRatio;
+      
+      if (isExtraSmallMobile) {
+        // More compact ratio for very small screens to save vertical space
+        responsiveAspectRatio = { width: 16, height: 9 };
+      } else if (isSmallMobile) {
+        // Slightly more compact for small mobile
+        responsiveAspectRatio = { width: 16, height: 9 };
+      } else if (isMobile) {
+        // Standard mobile ratio
+        responsiveAspectRatio = { width: 16, height: 9 };
+      } else {
+        // Desktop uses configured aspect ratio
+        responsiveAspectRatio = aspectRatio;
+      }
+      
+      const paddingBottom = (responsiveAspectRatio.height / responsiveAspectRatio.width * 100).toFixed(2);
       wrapperStyle += `
-        padding-bottom: ${(aspectRatio.height / aspectRatio.width * 100).toFixed(2)}%;
+        padding-bottom: ${paddingBottom}%;
         height: 0;
       `;
+    } else {
+      // Fixed height mode with responsive sizing
+      const getFixedHeight = () => {
+        if (isExtraSmallMobile) return '200px';
+        if (isSmallMobile) return '250px';
+        if (isMobile) return '280px';
+        if (isTablet) return '350px';
+        return config.height === 'auto' ? 
+          Math.round(560 * aspectRatio.height / aspectRatio.width) + 'px' : 
+          config.height;
+      };
+      
+      wrapperStyle += `height: ${getFixedHeight()};`;
     }
 
     const iframeStyle = config.responsive ? `
@@ -242,15 +301,35 @@ class VideoPlayer extends BaseComponent {
       left: 0;
       width: 100%;
       height: 100%;
+      border: none;
+      border-radius: inherit;
     ` : `
-      width: ${config.width};
-      height: ${config.height === 'auto' ? Math.round(560 * aspectRatio.height / aspectRatio.width) + 'px' : config.height};
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: inherit;
     `;
 
     return {
       wrapperStyle,
-      iframeStyle
+      iframeStyle,
+      containerClasses: this.getResponsiveClasses(screenWidth)
     };
+  }
+
+  /**
+   * Get responsive CSS classes based on screen width
+   */
+  getResponsiveClasses(screenWidth) {
+    const classes = ['video-player-responsive'];
+    
+    if (screenWidth <= 480) classes.push('video-player-xs');
+    else if (screenWidth <= 640) classes.push('video-player-sm');
+    else if (screenWidth <= 768) classes.push('video-player-md');
+    else if (screenWidth <= 968) classes.push('video-player-lg');
+    else classes.push('video-player-xl');
+    
+    return classes.join(' ');
   }
 
   /**
@@ -286,6 +365,9 @@ class VideoPlayer extends BaseComponent {
       });
     }
 
+    // Enhanced responsive handling with debounced resize
+    this.setupResponsiveHandling();
+
     // Listen for video events via postMessage (YouTube IFrame API)
     // Note: youtube-nocookie.com origin for privacy mode
     window.addEventListener('message', (event) => {
@@ -300,6 +382,12 @@ class VideoPlayer extends BaseComponent {
         // Ignore non-JSON messages
       }
     });
+
+    // Handle window resize for responsive adjustments
+    this.resizeHandler = () => {
+      this.handleResize();
+    };
+    window.addEventListener('resize', this.resizeHandler);
   }
 
   /**
@@ -561,6 +649,105 @@ class VideoPlayer extends BaseComponent {
   }
 
   /**
+   * Setup responsive handling with improved mobile support
+   */
+  setupResponsiveHandling() {
+    // Initial orientation and screen size detection
+    this.currentOrientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+    this.currentScreenSize = this.getScreenSizeCategory();
+    
+    // Listen for window resize with optimized debouncing
+    const resizeHandler = () => {
+      const newOrientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+      const newScreenSize = this.getScreenSizeCategory();
+      
+      // Only update if orientation or screen size category changed
+      if (newOrientation !== this.currentOrientation || newScreenSize !== this.currentScreenSize) {
+        this.currentOrientation = newOrientation;
+        this.currentScreenSize = newScreenSize;
+        this.handleResize();
+      }
+    };
+    
+    // Use debounced resize for better performance
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(resizeHandler, 150);
+    });
+    
+    // Listen for orientation change events (mobile)
+    if ('onorientationchange' in window) {
+      window.addEventListener('orientationchange', () => {
+        // Small delay to let the viewport adjust
+        setTimeout(() => {
+          this.handleResize();
+        }, 300);
+      });
+    }
+    
+    // Listen for viewport changes (modern browsers)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', () => {
+        this.handleResize();
+      });
+    }
+  }
+
+  /**
+   * Get screen size category for responsive handling
+   */
+  getScreenSizeCategory() {
+    const width = window.innerWidth;
+    if (width <= 480) return 'xs';
+    if (width <= 640) return 'sm';
+    if (width <= 768) return 'md';
+    if (width <= 968) return 'lg';
+    return 'xl';
+  }
+
+  /**
+   * Handle window resize for responsive adjustments
+   */
+  handleResize() {
+    if (!this.element || !this.videoId) return;
+
+    // Debounce resize handling
+    clearTimeout(this.resizeTimeout);
+    this.resizeTimeout = setTimeout(() => {
+      const config = this.config || {};
+      const placement = VIDEO_PLACEMENTS[config.placement] || VIDEO_PLACEMENTS.lesson_content;
+      const dimensions = this.calculateDimensions(placement);
+      
+      const wrapper = this.element.querySelector('.video-wrapper');
+      const iframe = this.element.querySelector('.video-iframe');
+      
+      if (wrapper && iframe) {
+        // Update wrapper styles
+        Object.assign(wrapper.style, this.parseStyleString(dimensions.wrapperStyle));
+        
+        // Update iframe styles
+        Object.assign(iframe.style, this.parseStyleString(dimensions.iframeStyle));
+      }
+    }, 150);
+  }
+
+  /**
+   * Parse style string into object
+   */
+  parseStyleString(styleString) {
+    const styles = {};
+    styleString.split(';').forEach(style => {
+      const [property, value] = style.split(':').map(s => s.trim());
+      if (property && value) {
+        const camelProperty = property.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+        styles[camelProperty] = value;
+      }
+    });
+    return styles;
+  }
+
+  /**
    * Get current video state
    */
   getVideoState() {
@@ -576,6 +763,17 @@ class VideoPlayer extends BaseComponent {
 
   async onDestroy() {
     this.stopProgressTracking();
+    
+    // Remove resize event listener
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+    }
+    
+    // Clear resize timeout
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+    
     this.videoId = null;
     this.currentTime = 0;
     this.duration = 0;

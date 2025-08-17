@@ -59,6 +59,8 @@ import ProgressService from './services/ProgressService.js';
 import ThemeToggle from './components/ThemeToggle.js';
 import LanguageToggle from './components/LanguageToggle.js';
 import VideoPlayer from './components/VideoPlayer.js';
+import MobileNavigation from './components/MobileNavigation.js';
+import AchievementSystem from './components/AchievementSystem.js';
 import AppConfig, { ConfigManager } from './config/AppConfig.js';
 import { getVideoConfig } from './config/VideoConfig.js';
 import ContentEngine from './engines/ContentEngine.js';
@@ -414,6 +416,17 @@ class EC0249App {
       } else {
         console.warn('[App] Welcome video element not found');
       }
+
+      // Initialize mobile navigation
+      const mobileNavigation = new MobileNavigation(this);
+      this.components.set('mobileNavigation', mobileNavigation);
+      console.log('[App] Mobile navigation initialized');
+
+      // Initialize achievement system
+      const achievementSystem = new AchievementSystem();
+      await achievementSystem.initialize(container, eventBus);
+      this.components.set('achievementSystem', achievementSystem);
+      console.log('[App] Achievement system initialized');
 
       console.log('[App] UI components initialized');
     } catch (error) {
