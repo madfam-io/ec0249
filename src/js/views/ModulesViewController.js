@@ -482,7 +482,7 @@ class ModulesViewController extends BaseViewController {
       }
 
       // Add lesson activities
-      const activitiesSection = this.createLessonActivitiesSection(lessonId, lessonData);
+      const activitiesSection = this.createLessonActivitiesSection(lessonData.activities || []);
       lessonWrapper.appendChild(activitiesSection);
 
       // Add lesson navigation (previous/next)
@@ -496,7 +496,27 @@ class ModulesViewController extends BaseViewController {
       
     } catch (error) {
       console.error('[ModulesViewController] Failed to render lesson:', error);
-      contentContainer.innerHTML = '<div class="error-message">Error al cargar la lección</div>';
+      
+      // Provide more specific error message based on error type
+      let errorMessage = 'Error al cargar la lección';
+      if (error.message.includes('activities.forEach')) {
+        errorMessage = 'Error al cargar las actividades de la lección';
+      } else if (error.message.includes('video')) {
+        errorMessage = 'Error al cargar el video de la lección';
+      } else if (error.message.includes('content')) {
+        errorMessage = 'Error al cargar el contenido de la lección';
+      }
+      
+      contentContainer.innerHTML = `
+        <div class="error-message">
+          <div class="error-icon">⚠️</div>
+          <h3>Problema al Cargar la Lección</h3>
+          <p>${errorMessage}</p>
+          <button class="btn btn-primary retry-lesson" onclick="location.reload()">
+            Reintentar
+          </button>
+        </div>
+      `;
     }
   }
 
@@ -887,23 +907,91 @@ class ModulesViewController extends BaseViewController {
     
     const activitiesList = this.createElement('div', ['lesson-activities-list']);
     
-    activities.forEach(activity => {
-      const activityCard = this.createElement('div', ['activity-card']);
-      activityCard.innerHTML = `
-        <div class="activity-header">
-          <h4 class="activity-title">${activity.title}</h4>
-          <span class="activity-type">${activity.type}</span>
-        </div>
-        <p class="activity-description">${activity.description}</p>
-        <button class="btn btn-outline activity-btn">Realizar Actividad</button>
-      `;
-      activitiesList.appendChild(activityCard);
-    });
+    // Validate activities parameter and provide safety check
+    if (!Array.isArray(activities)) {
+      console.warn('[ModulesViewController] Activities parameter is not an array:', activities);
+      activities = [];
+    }
+    
+    // If no activities are provided, create default interactive elements
+    if (activities.length === 0) {
+      const defaultActivities = this.createDefaultLessonActivities();
+      defaultActivities.forEach(activity => {
+        activitiesList.appendChild(activity);
+      });
+    } else {
+      // Render provided activities
+      activities.forEach(activity => {
+        const activityCard = this.createElement('div', ['activity-card']);
+        activityCard.innerHTML = `
+          <div class="activity-header">
+            <h4 class="activity-title">${activity.title || 'Actividad'}</h4>
+            <span class="activity-type">${activity.type || 'general'}</span>
+          </div>
+          <p class="activity-description">${activity.description || 'Descripción no disponible'}</p>
+          <button class="btn btn-outline activity-btn" data-activity-id="${activity.id || ''}">
+            Realizar Actividad
+          </button>
+        `;
+        activitiesList.appendChild(activityCard);
+      });
+    }
     
     section.appendChild(title);
     section.appendChild(activitiesList);
     
     return section;
+  }
+
+  /**
+   * Create default lesson activities when none are provided
+   */
+  createDefaultLessonActivities() {
+    const defaultActivities = [];
+    
+    // Knowledge Check activity
+    const knowledgeCheck = this.createElement('div', ['activity-card', 'default-activity']);
+    knowledgeCheck.innerHTML = `
+      <div class="activity-header">
+        <h4 class="activity-title">📝 Verificación de Conocimientos</h4>
+        <span class="activity-type">knowledge_check</span>
+      </div>
+      <p class="activity-description">Verifica tu comprensión de los conceptos clave de esta lección.</p>
+      <button class="btn btn-outline activity-btn" data-activity-type="knowledge_check">
+        Iniciar Verificación
+      </button>
+    `;
+    defaultActivities.push(knowledgeCheck);
+    
+    // Note-taking activity
+    const noteTaking = this.createElement('div', ['activity-card', 'default-activity']);
+    noteTaking.innerHTML = `
+      <div class="activity-header">
+        <h4 class="activity-title">📓 Tomar Notas</h4>
+        <span class="activity-type">notes</span>
+      </div>
+      <p class="activity-description">Registra puntos importantes y reflexiones sobre esta lección.</p>
+      <button class="btn btn-outline activity-btn" data-activity-type="notes">
+        Abrir Bloc de Notas
+      </button>
+    `;
+    defaultActivities.push(noteTaking);
+    
+    // Reflection activity
+    const reflection = this.createElement('div', ['activity-card', 'default-activity']);
+    reflection.innerHTML = `
+      <div class="activity-header">
+        <h4 class="activity-title">🤔 Reflexión</h4>
+        <span class="activity-type">reflection</span>
+      </div>
+      <p class="activity-description">Reflexiona sobre cómo aplicar estos conceptos en situaciones reales.</p>
+      <button class="btn btn-outline activity-btn" data-activity-type="reflection">
+        Iniciar Reflexión
+      </button>
+    `;
+    defaultActivities.push(reflection);
+    
+    return defaultActivities;
   }
 
   /**

@@ -2443,10 +2443,75 @@ p {
     text-align: center;
     min-width: auto;
   }
-  }
-  
-  .timestamp-topic {
-    font-size: 0.8rem;
+}
+
+/* Enhanced Error Message Styles */
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--error-500);
+  margin: 2rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.error-message h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--error-500);
+}
+
+.error-message p {
+  margin: 0 0 2rem 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.retry-lesson {
+  background: var(--error-500);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.retry-lesson:hover {
+  background: #dc2626;
+}
+
+/* Default Activity Styles */
+.activity-card.default-activity {
+  border-left: 4px solid var(--primary-500);
+  background: linear-gradient(135deg, var(--primary-50) 0%, var(--bg-secondary) 100%);
+}
+
+.activity-card.default-activity .activity-type {
+  background: var(--primary-100);
+  color: var(--primary-700);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.timestamp-topic {
+  font-size: 0.8rem;
   }
   
   /* Video player container mobile */
