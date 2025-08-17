@@ -712,7 +712,7 @@ class EC0249App {
       const router = container.resolve('RouterService');
       if (router) {
         const viewPath = `/${viewName}`;
-        router.navigate(viewPath, { silent: true }); // Silent to prevent circular navigation
+        router.navigate(viewPath); // Enable URL updates for desktop navigation
       }
 
       // Use ViewManager for view switching
@@ -756,7 +756,7 @@ class EC0249App {
     if (router) {
       const currentPath = window.location.pathname;
       const sectionPath = router.addSectionToPath(currentPath, sectionName);
-      router.navigate(sectionPath, { silent: true });
+      router.navigate(sectionPath); // Enable URL updates for section navigation
     }
 
     // Use ViewManager for section switching

@@ -48,6 +48,19 @@ class PortfolioViewController extends BaseViewController {
       });
     });
 
+    // "Ver Documentos" buttons in portfolio overview
+    this.findElements('[data-element]').forEach(button => {
+      if (button.textContent.includes('Ver Documentos')) {
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          const elementId = button.getAttribute('data-element');
+          if (elementId) {
+            this.showElement(elementId);
+          }
+        });
+      }
+    });
+
     // Document template cards
     this.findElements('.template-card').forEach(card => {
       card.addEventListener('click', (e) => {
@@ -320,7 +333,7 @@ class PortfolioViewController extends BaseViewController {
         <p class="element-description">${element.description}</p>
         <div class="element-footer">
           <span class="template-count">${element.templates} plantillas</span>
-          <button class="btn btn-sm btn-primary">Ver Documentos</button>
+          <button class="btn btn-sm btn-primary" data-element="${element.id}">Ver Documentos</button>
         </div>
       `;
       
@@ -840,17 +853,260 @@ class PortfolioViewController extends BaseViewController {
   async showTemplatesOverview() {
     console.log('[PortfolioViewController] Showing templates overview');
     
-    // Clear element-specific state and show overview
-    this.currentElement = 'element1'; // Default to element1
-    
-    // Re-render to show portfolio overview with templates
-    await this.onRender();
-    
-    // Scroll to templates section if it exists
-    const templatesSection = this.findElement('.templates-section');
-    if (templatesSection) {
-      templatesSection.scrollIntoView({ behavior: 'smooth' });
+    // Render dedicated templates page instead of portfolio overview
+    await this.renderTemplatesPage();
+  }
+
+  /**
+   * Render dedicated templates page
+   */
+  async renderTemplatesPage() {
+    const container = this.findElement('.view-content');
+    if (!container) {
+      console.warn('[PortfolioViewController] No view content container found');
+      return;
     }
+
+    container.innerHTML = '';
+
+    // Create templates page header
+    const header = this.createElement('div', ['templates-header']);
+    header.innerHTML = `
+      <div class="page-header">
+        <h1 class="page-title">
+          <span class="page-icon">📋</span>
+          Plantillas de Documentos EC0249
+        </h1>
+        <p class="page-description">
+          Accede a todas las plantillas organizadas por elementos de competencia. 
+          Crea documentos profesionales siguiendo los estándares EC0249.
+        </p>
+      </div>
+    `;
+    container.appendChild(header);
+
+    // Create filters section
+    const filtersSection = this.createElement('div', ['templates-filters']);
+    filtersSection.innerHTML = `
+      <div class="filters-header">
+        <h3>Filtrar Plantillas</h3>
+      </div>
+      <div class="filters-grid">
+        <select class="filter-select" data-filter="element">
+          <option value="all">Todos los Elementos</option>
+          <option value="element1">Elemento 1: Identificación</option>
+          <option value="element2">Elemento 2: Desarrollo</option>
+          <option value="element3">Elemento 3: Presentación</option>
+        </select>
+        <input type="text" class="filter-search" placeholder="Buscar plantillas..." data-filter="search">
+        <button class="btn btn-secondary reset-filters">Limpiar Filtros</button>
+      </div>
+    `;
+    container.appendChild(filtersSection);
+
+    // Create templates grid
+    const templatesGrid = this.createElement('div', ['templates-grid']);
+    await this.renderAllTemplatesGrid(templatesGrid);
+    container.appendChild(templatesGrid);
+
+    // Bind template page events
+    this.bindTemplatePageEvents();
+  }
+
+  /**
+   * Render all templates in grid format
+   */
+  async renderAllTemplatesGrid(container) {
+    if (!this.documentEngine) {
+      console.warn('[PortfolioViewController] DocumentEngine not available');
+      container.innerHTML = '<div class="loading-message">Cargando plantillas...</div>';
+      return;
+    }
+
+    const elements = [
+      { id: 'element1', title: 'Elemento 1: Identificación del Problema' },
+      { id: 'element2', title: 'Elemento 2: Desarrollo de Soluciones' },
+      { id: 'element3', title: 'Elemento 3: Presentación de Propuestas' }
+    ];
+
+    container.innerHTML = '';
+
+    for (const element of elements) {
+      // Create element section
+      const elementSection = this.createElement('div', ['element-templates-section']);
+      elementSection.innerHTML = `
+        <div class="element-section-header">
+          <h3 class="element-section-title">${element.title}</h3>
+          <span class="element-badge">${element.id.toUpperCase()}</span>
+        </div>
+      `;
+
+      // Get templates for this element
+      const templates = await this.getTemplatesForElement(element.id);
+      const templatesContainer = this.createElement('div', ['element-templates-grid']);
+
+      if (templates.length === 0) {
+        templatesContainer.innerHTML = `
+          <div class="no-templates-message">
+            <span class="no-templates-icon">📝</span>
+            <p>No hay plantillas disponibles para este elemento</p>
+          </div>
+        `;
+      } else {
+        templates.forEach(template => {
+          const templateCard = this.createElement('div', ['template-card', 'enhanced']);
+          templateCard.innerHTML = `
+            <div class="template-card-header">
+              <div class="template-icon">${template.icon || '📄'}</div>
+              <div class="template-status ${this.getTemplateStatus(template.id)}"></div>
+            </div>
+            <div class="template-card-body">
+              <h4 class="template-title">${template.title}</h4>
+              <p class="template-description">${template.description}</p>
+              <div class="template-metadata">
+                <span class="template-element">${element.id.toUpperCase()}</span>
+                <span class="template-difficulty">${template.difficulty || 'Intermedio'}</span>
+              </div>
+            </div>
+            <div class="template-card-footer">
+              <button class="btn btn-primary template-action" data-template="${template.id}">
+                Crear Documento
+              </button>
+              <button class="btn btn-outline template-preview" data-template="${template.id}">
+                Vista Previa
+              </button>
+            </div>
+          `;
+          templatesContainer.appendChild(templateCard);
+        });
+      }
+
+      elementSection.appendChild(templatesContainer);
+      container.appendChild(elementSection);
+    }
+  }
+
+  /**
+   * Get templates for specific element
+   */
+  async getTemplatesForElement(elementId) {
+    if (!this.documentEngine) return [];
+
+    try {
+      const templates = await this.documentEngine.getAvailableTemplates();
+      return templates.filter(template => template.element === elementId);
+    } catch (error) {
+      console.error('[PortfolioViewController] Failed to get templates:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get template status (used, new, etc.)
+   */
+  getTemplateStatus(templateId) {
+    const savedDoc = this.portfolioData.get(templateId);
+    if (savedDoc) {
+      return savedDoc.completed ? 'completed' : 'in-progress';
+    }
+    return 'new';
+  }
+
+  /**
+   * Bind events for template page
+   */
+  bindTemplatePageEvents() {
+    // Filter event listeners
+    const elementFilter = this.findElement('[data-filter="element"]');
+    const searchFilter = this.findElement('[data-filter="search"]');
+    const resetButton = this.findElement('.reset-filters');
+
+    if (elementFilter) {
+      elementFilter.addEventListener('change', () => this.applyTemplateFilters());
+    }
+
+    if (searchFilter) {
+      searchFilter.addEventListener('input', () => this.applyTemplateFilters());
+    }
+
+    if (resetButton) {
+      resetButton.addEventListener('click', () => this.resetTemplateFilters());
+    }
+
+    // Template action buttons
+    this.findElements('.template-action').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const templateId = button.getAttribute('data-template');
+        if (templateId) {
+          this.openDocumentTemplate(templateId);
+        }
+      });
+    });
+
+    // Template preview buttons
+    this.findElements('.template-preview').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const templateId = button.getAttribute('data-template');
+        if (templateId) {
+          this.previewTemplate(templateId);
+        }
+      });
+    });
+  }
+
+  /**
+   * Apply template filters
+   */
+  applyTemplateFilters() {
+    const elementFilter = this.findElement('[data-filter="element"]');
+    const searchFilter = this.findElement('[data-filter="search"]');
+    
+    const selectedElement = elementFilter?.value || 'all';
+    const searchTerm = searchFilter?.value.toLowerCase() || '';
+
+    const templateCards = this.findElements('.template-card');
+    templateCards.forEach(card => {
+      const templateElement = card.querySelector('.template-element')?.textContent.toLowerCase();
+      const templateTitle = card.querySelector('.template-title')?.textContent.toLowerCase();
+      const templateDesc = card.querySelector('.template-description')?.textContent.toLowerCase();
+
+      let elementMatch = selectedElement === 'all' || templateElement?.includes(selectedElement.replace('element', ''));
+      let searchMatch = !searchTerm || 
+                       templateTitle?.includes(searchTerm) || 
+                       templateDesc?.includes(searchTerm);
+
+      card.style.display = (elementMatch && searchMatch) ? 'block' : 'none';
+    });
+
+    // Hide empty element sections
+    const elementSections = this.findElements('.element-templates-section');
+    elementSections.forEach(section => {
+      const visibleCards = section.querySelectorAll('.template-card[style*="block"], .template-card:not([style*="none"])');
+      section.style.display = visibleCards.length > 0 ? 'block' : 'none';
+    });
+  }
+
+  /**
+   * Reset template filters
+   */
+  resetTemplateFilters() {
+    const elementFilter = this.findElement('[data-filter="element"]');
+    const searchFilter = this.findElement('[data-filter="search"]');
+
+    if (elementFilter) elementFilter.value = 'all';
+    if (searchFilter) searchFilter.value = '';
+
+    this.applyTemplateFilters();
+  }
+
+  /**
+   * Preview template
+   */
+  previewTemplate(templateId) {
+    this.showNotification(`Vista previa de plantilla ${templateId} en desarrollo`, 'info');
+    // TODO: Implement template preview functionality
   }
 
   /**

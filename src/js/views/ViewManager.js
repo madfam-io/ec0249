@@ -110,27 +110,8 @@ class ViewManager {
    * Bind navigation event handlers
    */
   bindNavigationEvents() {
-    // Tab navigation
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', (e) => {
-        e.preventDefault();
-        const viewId = tab.getAttribute('data-view');
-        if (viewId) {
-          this.showView(viewId);
-        }
-      });
-    });
-
-    // Sidebar navigation
-    document.querySelectorAll('.sidebar-nav a').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const section = link.getAttribute('data-section');
-        if (section) {
-          this.showSection(section);
-        }
-      });
-    });
+    // Navigation events are handled by App.js to prevent duplicate listeners
+    // This method is kept for view-specific event binding if needed
 
     // Listen for view change events
     eventBus.subscribe('app:view-change', (data) => {
