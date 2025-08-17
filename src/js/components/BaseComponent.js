@@ -238,6 +238,20 @@ class BaseComponent extends Module {
       const html = await this.generateHTML();
       const target = this.shadowRoot || this.element;
       
+      // Enhanced debug logging for component rendering
+      const htmlPreview = html.substring(0, 200);
+      console.log(`[Component] ${this.name} rendering:`, {
+        htmlLength: html.length,
+        preview: htmlPreview,
+        targetElement: target?.tagName,
+        hasData: Object.keys(this.data).length > 0,
+        data: this.data
+      });
+      
+      if (html.length < 50) {
+        console.warn(`[Component] ${this.name} rendered very minimal content (possible issue):`, htmlPreview);
+      }
+      
       target.innerHTML = html;
 
       // Apply styles if isolated
@@ -257,6 +271,13 @@ class BaseComponent extends Module {
       });
     } catch (error) {
       console.error(`[Component] Render error in '${this.name}':`, error);
+      // Log component state for debugging
+      console.log(`[Component] ${this.name} debug info:`, {
+        mounted: this.mounted,
+        data: this.data,
+        element: !!this.element,
+        services: this.dependencies
+      });
       throw error;
     }
   }
@@ -281,7 +302,15 @@ class BaseComponent extends Module {
    * @returns {string} Default HTML
    */
   defaultTemplate() {
-    return `<div class="${this.name.toLowerCase()}-component"></div>`;
+    const componentClass = `${this.name.toLowerCase()}-component`;
+    console.log(`[BaseComponent] Using default template for ${this.name}`);
+    
+    // Provide a visible fallback for debugging
+    return `
+      <div class="${componentClass}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0.5rem; border: 1px dashed #ccc; background: #f9f9f9;">
+        <span style="font-size: 0.8rem; color: #666;">Loading ${this.name}...</span>
+      </div>
+    `;
   }
 
   /**
@@ -440,10 +469,20 @@ class BaseComponent extends Module {
    * @since 1.0.0
    */
   setData(key, value = null) {
+    const previousData = { ...this.data };
+    
     if (typeof key === 'object') {
       Object.assign(this.data, key);
     } else {
       this.data[key] = value;
+    }
+
+    // Log data changes for debugging components with issues
+    const hasSignificantData = Object.keys(this.data).length > 0 && 
+      Object.values(this.data).some(v => v !== null && v !== undefined && v !== '');
+    
+    if (!hasSignificantData && this.name.includes('Toggle')) {
+      console.warn(`[Component] ${this.name} has minimal data:`, this.data);
     }
 
     // Re-render if reactive and mounted

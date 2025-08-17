@@ -545,6 +545,35 @@ class I18nService extends Module {
   }
 
   /**
+   * Get current language
+   * @returns {string} Current language code
+   */
+  getCurrentLanguage() {
+    return this.currentLanguage;
+  }
+
+  /**
+   * Get supported languages
+   * @returns {Array} Array of supported language codes
+   */
+  getSupportedLanguages() {
+    return [...this.getConfig('supportedLanguages')];
+  }
+
+  /**
+   * Toggle between available languages
+   * @returns {Promise} Toggle promise
+   */
+  async toggleLanguage() {
+    const languages = this.getSupportedLanguages();
+    const currentIndex = languages.indexOf(this.currentLanguage);
+    const nextIndex = (currentIndex + 1) % languages.length;
+    const nextLanguage = languages[nextIndex];
+
+    await this.setLanguage(nextLanguage);
+  }
+
+  /**
    * Get language display name
    * @param {string} language - Language code
    * @returns {string} Display name

@@ -27,45 +27,286 @@ class ThemeToggle extends BaseComponent {
   }
 
   async onInitialize() {
-    this.themeService = this.service('ThemeService');
-    this.i18nService = this.service('I18nService');
+    console.log('[ThemeToggle] Starting initialization...');
+    
+    try {
+      // Attempt to resolve services with detailed logging
+      try {
+        this.themeService = this.service('ThemeService');
+        console.log('[ThemeToggle] ThemeService resolved:', !!this.themeService);
+      } catch (serviceError) {
+        console.warn('[ThemeToggle] Failed to resolve ThemeService:', serviceError);
+        this.themeService = null;
+      }
 
-    // Listen for theme changes
-    this.themeService.addThemeChangeListener(this.handleThemeChange.bind(this));
-    this.i18nService.addLanguageChangeListener(this.handleLanguageChange.bind(this));
+      try {
+        this.i18nService = this.service('I18nService');
+        console.log('[ThemeToggle] I18nService resolved:', !!this.i18nService);
+      } catch (serviceError) {
+        console.warn('[ThemeToggle] Failed to resolve I18nService:', serviceError);
+        this.i18nService = null;
+      }
 
-    // Initialize data
-    this.updateData();
+      // Listen for theme changes with null checks
+      if (this.themeService && typeof this.themeService.addThemeChangeListener === 'function') {
+        this.themeService.addThemeChangeListener(this.handleThemeChange.bind(this));
+        console.log('[ThemeToggle] Theme change listener added');
+      } else {
+        console.warn('[ThemeToggle] ThemeService not ready for event listeners');
+      }
 
+      if (this.i18nService && typeof this.i18nService.addLanguageChangeListener === 'function') {
+        this.i18nService.addLanguageChangeListener(this.handleLanguageChange.bind(this));
+        console.log('[ThemeToggle] Language change listener added');
+      } else {
+        console.warn('[ThemeToggle] I18nService not ready for event listeners');
+      }
+
+      // Initialize data with error handling
+      console.log('[ThemeToggle] Updating component data...');
+      this.updateData();
+    } catch (error) {
+      console.error('[ThemeToggle] Error during initialization:', error);
+      // Set fallback data for basic functionality
+      this.setFallbackData();
+    }
+
+    console.log('[ThemeToggle] Calling super.onInitialize()...');
     await super.onInitialize();
+    
+    // If services weren't available, set up a retry mechanism
+    if (!this.themeService || !this.isThemeServiceReady()) {
+      console.log('[ThemeToggle] Services not ready, setting up retry mechanism...');
+      this.setupServiceRetry();
+    }
+    
+    console.log('[ThemeToggle] Initialization complete');
+  }
+
+  /**
+   * Setup retry mechanism for service dependencies
+   */
+  setupServiceRetry() {
+    // Listen for app initialization complete event
+    if (this.eventBus) {
+      this.eventBus.subscribe('app:initialized', () => {
+        console.log('[ThemeToggle] App initialized, retrying service setup...');
+        this.retryServiceSetup();
+      });
+    }
+    
+    // Also try after a short delay
+    setTimeout(() => {
+      console.log('[ThemeToggle] Delayed retry of service setup...');
+      this.retryServiceSetup();
+    }, 1000);
+  }
+
+  /**
+   * Retry service setup
+   */
+  async retryServiceSetup() {
+    try {
+      if (!this.themeService) {
+        this.themeService = this.service('ThemeService');
+        console.log('[ThemeToggle] ThemeService resolved on retry:', !!this.themeService);
+      }
+
+      if (!this.i18nService) {
+        this.i18nService = this.service('I18nService');
+        console.log('[ThemeToggle] I18nService resolved on retry:', !!this.i18nService);
+      }
+
+      // Setup event listeners if they weren't set up before
+      if (this.themeService && typeof this.themeService.addThemeChangeListener === 'function') {
+        this.themeService.addThemeChangeListener(this.handleThemeChange.bind(this));
+        console.log('[ThemeToggle] Theme change listener added on retry');
+      }
+
+      if (this.i18nService && typeof this.i18nService.addLanguageChangeListener === 'function') {
+        this.i18nService.addLanguageChangeListener(this.handleLanguageChange.bind(this));
+        console.log('[ThemeToggle] Language change listener added on retry');
+      }
+
+      // Update data and re-render
+      this.updateData();
+      if (this.mounted) {
+        await this.render();
+      }
+    } catch (error) {
+      console.warn('[ThemeToggle] Service retry failed:', error);
+    }
   }
 
   /**
    * Update component data from services
    */
   updateData() {
-    const currentTheme = this.themeService.getCurrentTheme();
-    const availableThemes = this.themeService.getAvailableThemes();
+    console.log('[ThemeToggle] updateData called');
+    try {
+      // Check if ThemeService is available and has required methods
+      if (!this.themeService || !this.isThemeServiceReady()) {
+        console.warn('[ThemeToggle] ThemeService not ready, using fallback data');
+        console.log('[ThemeToggle] ThemeService state:', {
+          exists: !!this.themeService,
+          ready: this.themeService ? this.isThemeServiceReady() : false
+        });
+        this.setFallbackData();
+        return;
+      }
+
+      const currentTheme = this.themeService.getCurrentTheme();
+      const availableThemes = this.themeService.getAvailableThemes();
+
+      console.log('[ThemeToggle] Service response:', { currentTheme, availableThemes });
+
+      // Validate service responses
+      if (!currentTheme || !Array.isArray(availableThemes) || availableThemes.length === 0) {
+        console.warn('[ThemeToggle] Invalid service response, using fallback data');
+        this.setFallbackData();
+        return;
+      }
+
+      const themesData = availableThemes.map(theme => ({
+        value: theme,
+        label: this.getThemeDisplayNameSafe(theme),
+        icon: this.getThemeIconSafe(theme),
+        active: theme === currentTheme
+      }));
+
+      console.log('[ThemeToggle] Setting component data:', { currentTheme, availableThemes, themesData });
+
+      this.setData({
+        currentTheme,
+        availableThemes,
+        themes: themesData
+      });
+    } catch (error) {
+      console.error('[ThemeToggle] Error updating data:', error);
+      this.setFallbackData();
+    }
+  }
+
+  /**
+   * Check if ThemeService has all required methods
+   */
+  isThemeServiceReady() {
+    const requiredMethods = ['getCurrentTheme', 'getAvailableThemes', 'getThemeDisplayName', 'getThemeIcon'];
+    return requiredMethods.every(method => typeof this.themeService[method] === 'function');
+  }
+
+  /**
+   * Get theme display name with fallback
+   */
+  getThemeDisplayNameSafe(theme) {
+    try {
+      return this.themeService.getThemeDisplayName(theme);
+    } catch (error) {
+      return this.getDefaultThemeDisplayName(theme);
+    }
+  }
+
+  /**
+   * Get theme icon with fallback
+   */
+  getThemeIconSafe(theme) {
+    try {
+      return this.themeService.getThemeIcon(theme);
+    } catch (error) {
+      return this.getDefaultThemeIcon(theme);
+    }
+  }
+
+  /**
+   * Set fallback data when services are unavailable
+   */
+  setFallbackData() {
+    const fallbackThemes = ['auto', 'light', 'dark'];
+    const fallbackCurrentTheme = 'auto';
 
     this.setData({
-      currentTheme,
-      availableThemes,
-      themes: availableThemes.map(theme => ({
+      currentTheme: fallbackCurrentTheme,
+      availableThemes: fallbackThemes,
+      themes: fallbackThemes.map(theme => ({
         value: theme,
-        label: this.themeService.getThemeDisplayName(theme),
-        icon: this.themeService.getThemeIcon(theme),
-        active: theme === currentTheme
+        label: this.getDefaultThemeDisplayName(theme),
+        icon: this.getDefaultThemeIcon(theme),
+        active: theme === fallbackCurrentTheme
       }))
     });
   }
 
   /**
-   * Generate component template
+   * Get default theme display name
+   */
+  getDefaultThemeDisplayName(theme) {
+    const defaultNames = {
+      auto: 'Auto',
+      light: 'Light',
+      dark: 'Dark'
+    };
+    return defaultNames[theme] || theme.charAt(0).toUpperCase() + theme.slice(1);
+  }
+
+  /**
+   * Get default theme icon
+   */
+  getDefaultThemeIcon(theme) {
+    const defaultIcons = {
+      auto: '🔄',
+      light: '☀️',
+      dark: '🌙'
+    };
+    return defaultIcons[theme] || '🎨';
+  }
+
+  /**
+   * Get translation with fallback
+   */
+  getTranslationSafe(key, fallback) {
+    try {
+      if (this.i18nService && typeof this.i18nService.t === 'function') {
+        return this.i18nService.t(key) || fallback;
+      }
+    } catch (error) {
+      console.warn('[ThemeToggle] Translation error for key:', key, error);
+    }
+    return fallback;
+  }
+
+  /**
+   * Generate component template with fallback support
    * @returns {string} HTML template
    */
   defaultTemplate() {
     const { style, showText, showIcon, orientation, size } = this.componentConfig;
     const { themes = [], currentTheme = 'auto' } = this.data || {};
+
+    // Enhanced debugging for render state
+    console.log('[ThemeToggle] Rendering template:', {
+      hasThemes: themes && themes.length > 0,
+      currentTheme,
+      showIcon,
+      showText,
+      serviceReady: this.themeService && this.isThemeServiceReady()
+    });
+
+    // If we have no data or empty themes, provide a meaningful fallback
+    if (!themes || themes.length === 0) {
+      console.log('[ThemeToggle] Rendering with enhanced fallback data due to empty themes');
+      
+      return `
+        <div class="theme-toggle-component theme-toggle-fallback theme-toggle-${style}" style="display: inline-flex; align-items: center; min-height: 44px;">
+          <button class="theme-toggle-btn" title="Theme Toggle" aria-label="Theme Toggle" 
+                  style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; 
+                         border: 1px solid #e5e7eb; border-radius: 0.5rem; background: #ffffff; 
+                         color: #111827; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+            ${showIcon ? '<span class="theme-icon" style="font-size: 1.1rem;">🔄</span>' : ''}
+            ${showText ? '<span class="theme-text" style="font-weight: 600;">Auto</span>' : 'Theme'}
+          </button>
+        </div>
+      `;
+    }
 
     const classes = [
       'theme-toggle-component',
@@ -94,14 +335,22 @@ class ThemeToggle extends BaseComponent {
    * @returns {string} HTML
    */
   renderButtonStyle(classes, themes, currentTheme, showText, showIcon) {
-    const currentThemeData = themes.find(t => t.value === currentTheme) || { icon: '🎨', label: currentTheme };
-    const title = this.i18nService ? this.i18nService.t('theme.toggle') : 'Toggle theme';
+    // Ensure we have valid data
+    const safeThemes = Array.isArray(themes) ? themes : [];
+    const safeCurrentTheme = currentTheme || 'auto';
+    
+    const currentThemeData = safeThemes.find(t => t.value === safeCurrentTheme) || { 
+      icon: this.getDefaultThemeIcon(safeCurrentTheme), 
+      label: this.getDefaultThemeDisplayName(safeCurrentTheme) 
+    };
+    
+    const title = this.getTranslationSafe('theme.toggle', 'Toggle theme');
 
     return `
       <div class="${classes}">
         <button class="theme-toggle-btn" title="${title}" aria-label="${title}">
           ${showIcon ? `<span class="theme-icon">${currentThemeData?.icon || '🎨'}</span>` : ''}
-          ${showText ? `<span class="theme-text">${currentThemeData?.label || currentTheme}</span>` : ''}
+          ${showText ? `<span class="theme-text">${currentThemeData?.label || safeCurrentTheme}</span>` : ''}
         </button>
       </div>
     `;
@@ -115,11 +364,13 @@ class ThemeToggle extends BaseComponent {
    * @returns {string} HTML
    */
   renderSelectStyle(classes, themes, currentTheme) {
-    const title = this.i18nService ? this.i18nService.t('theme.toggle') : 'Toggle theme';
+    const safeThemes = Array.isArray(themes) ? themes : [];
+    const safeCurrentTheme = currentTheme || 'auto';
+    const title = this.getTranslationSafe('theme.toggle', 'Toggle theme');
     
-    const options = themes.map(theme => 
-      `<option value="${theme.value}" ${theme.value === currentTheme ? 'selected' : ''}>
-        ${theme.label}
+    const options = safeThemes.map(theme => 
+      `<option value="${theme.value || theme}" ${(theme.value || theme) === safeCurrentTheme ? 'selected' : ''}>
+        ${theme.label || this.getDefaultThemeDisplayName(theme.value || theme)}
       </option>`
     ).join('');
 
@@ -141,17 +392,26 @@ class ThemeToggle extends BaseComponent {
    * @returns {string} HTML
    */
   renderTabsStyle(classes, themes, showText, showIcon) {
-    const tabs = themes.map(theme => `
-      <button 
-        class="theme-tab ${theme.active ? 'active' : ''}" 
-        data-theme="${theme.value}"
-        title="${theme.label}"
-        aria-label="${theme.label}"
-      >
-        ${showIcon ? `<span class="theme-icon">${theme.icon}</span>` : ''}
-        ${showText ? `<span class="theme-text">${theme.label}</span>` : ''}
-      </button>
-    `).join('');
+    const safeThemes = Array.isArray(themes) ? themes : [];
+    
+    const tabs = safeThemes.map(theme => {
+      const themeValue = theme.value || theme;
+      const themeLabel = theme.label || this.getDefaultThemeDisplayName(themeValue);
+      const themeIcon = theme.icon || this.getDefaultThemeIcon(themeValue);
+      const isActive = theme.active || false;
+      
+      return `
+        <button 
+          class="theme-tab ${isActive ? 'active' : ''}" 
+          data-theme="${themeValue}"
+          title="${themeLabel}"
+          aria-label="${themeLabel}"
+        >
+          ${showIcon ? `<span class="theme-icon">${themeIcon}</span>` : ''}
+          ${showText ? `<span class="theme-text">${themeLabel}</span>` : ''}
+        </button>
+      `;
+    }).join('');
 
     return `
       <div class="${classes}">

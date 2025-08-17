@@ -191,9 +191,6 @@ class EC0249App {
       // Initialize state management
       await this.initializeState();
       
-      // Initialize UI components
-      await this.initializeComponents();
-      
       // Load user data
       await this.loadUserData();
       
@@ -203,8 +200,11 @@ class EC0249App {
       // Initialize modules
       await this.initializeModules();
       
-      // Ensure I18nService is ready before rendering
-      await this.waitForI18nService();
+      // Ensure critical services are ready before components
+      await this.waitForCriticalServices();
+      
+      // Initialize UI components (after services are ready)
+      await this.initializeComponents();
       
       // Initialize view management
       await this.initializeViewManager();
@@ -617,6 +617,16 @@ class EC0249App {
   }
 
   /**
+   * Wait for critical services to be fully loaded
+   */
+  async waitForCriticalServices() {
+    await Promise.all([
+      this.waitForI18nService(),
+      this.waitForThemeService()
+    ]);
+  }
+
+  /**
    * Wait for I18nService to be fully loaded
    */
   async waitForI18nService() {
@@ -656,6 +666,39 @@ class EC0249App {
       i18n.translatePage();
     } catch (error) {
       console.error('[App] Error waiting for I18nService:', error);
+    }
+  }
+
+  /**
+   * Wait for ThemeService to be fully loaded
+   */
+  async waitForThemeService() {
+    try {
+      const themeService = container.resolve('ThemeService');
+      
+      // Check if ThemeService has required methods
+      const requiredMethods = ['getCurrentTheme', 'getAvailableThemes', 'getThemeDisplayName', 'getThemeIcon'];
+      let retries = 0;
+      const maxRetries = 60;
+      
+      while (retries < maxRetries) {
+        // Check if all required methods are available
+        const allMethodsAvailable = requiredMethods.every(method => 
+          typeof themeService[method] === 'function'
+        );
+        
+        if (allMethodsAvailable) {
+          console.log('[App] ThemeService ready after', retries, 'attempts');
+          return;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 50));
+        retries++;
+      }
+      
+      console.info('[App] ThemeService loading slowly - components will use fallbacks');
+    } catch (error) {
+      console.error('[App] Error waiting for ThemeService:', error);
     }
   }
 

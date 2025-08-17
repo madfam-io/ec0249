@@ -905,6 +905,69 @@
 }
 
 /* ========================================
+   TOGGLE COMPONENT FALLBACK STYLES
+   ======================================== */
+
+/* 
+ * Enhanced fallback styles for toggle components
+ * when services aren't loaded properly
+ */
+
+.theme-toggle-fallback,
+.language-toggle-fallback {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 44px !important;
+}
+
+.theme-toggle-fallback .theme-toggle-btn,
+.language-toggle-fallback .language-toggle-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.5rem 0.75rem !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.5rem !important;
+  background: #ffffff !important;
+  color: #111827 !important;
+  cursor: pointer !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+  min-width: 44px !important;
+  min-height: 36px !important;
+}
+
+.theme-toggle-fallback .theme-toggle-btn:hover,
+.language-toggle-fallback .language-toggle-btn:hover {
+  background: #f9fafb !important;
+  transform: scale(1.02) !important;
+}
+
+.theme-toggle-fallback .theme-icon,
+.theme-toggle-fallback .theme-text,
+.language-toggle-fallback .language-icon,
+.language-toggle-fallback .language-text {
+  display: inline !important;
+  font-size: 1rem !important;
+  line-height: 1 !important;
+}
+
+/* Dark theme support for fallback */
+[data-theme="dark"] .theme-toggle-fallback .theme-toggle-btn,
+[data-theme="dark"] .language-toggle-fallback .language-toggle-btn {
+  background: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+[data-theme="dark"] .theme-toggle-fallback .theme-toggle-btn:hover,
+[data-theme="dark"] .language-toggle-fallback .language-toggle-btn:hover {
+  background: #4b5563 !important;
+}
+
+/* ========================================
    END OF COMPONENTS MODULE
    ======================================== */
 

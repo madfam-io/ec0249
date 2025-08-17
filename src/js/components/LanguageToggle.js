@@ -29,47 +29,204 @@ class LanguageToggle extends BaseComponent {
   }
 
   async onInitialize() {
-    this.i18nService = this.service('I18nService');
+    console.log('[LanguageToggle] Starting initialization...');
+    
+    try {
+      // Attempt to resolve service with detailed logging
+      try {
+        this.i18nService = this.service('I18nService');
+        console.log('[LanguageToggle] I18nService resolved:', !!this.i18nService);
+      } catch (serviceError) {
+        console.warn('[LanguageToggle] Failed to resolve I18nService:', serviceError);
+        this.i18nService = null;
+      }
 
-    // Listen for language changes
-    this.i18nService.addLanguageChangeListener(this.handleLanguageChange.bind(this));
+      // Listen for language changes with null checks
+      if (this.i18nService && typeof this.i18nService.addLanguageChangeListener === 'function') {
+        this.i18nService.addLanguageChangeListener(this.handleLanguageChange.bind(this));
+        console.log('[LanguageToggle] Language change listener added');
+      } else {
+        console.warn('[LanguageToggle] I18nService not ready for event listeners');
+      }
 
-    // Initialize data
-    this.updateData();
+      // Initialize data with error handling
+      console.log('[LanguageToggle] Updating component data...');
+      this.updateData();
 
-    // Close dropdown on outside click
-    document.addEventListener('click', this.handleOutsideClick.bind(this));
+      // Close dropdown on outside click
+      document.addEventListener('click', this.handleOutsideClick.bind(this));
+    } catch (error) {
+      console.error('[LanguageToggle] Error during initialization:', error);
+      // Set fallback data for basic functionality
+      this.setFallbackData();
+    }
 
+    console.log('[LanguageToggle] Calling super.onInitialize()...');
     await super.onInitialize();
+    console.log('[LanguageToggle] Initialization complete');
   }
 
   /**
    * Update component data from service
    */
   updateData() {
-    const currentLanguage = this.i18nService.getCurrentLanguage();
-    const supportedLanguages = this.i18nService.getSupportedLanguages();
+    console.log('[LanguageToggle] updateData called');
+    try {
+      // Check if I18nService is available and has required methods
+      if (!this.i18nService || !this.isI18nServiceReady()) {
+        console.warn('[LanguageToggle] I18nService not ready, using fallback data');
+        console.log('[LanguageToggle] I18nService state:', {
+          exists: !!this.i18nService,
+          ready: this.i18nService ? this.isI18nServiceReady() : false
+        });
+        this.setFallbackData();
+        return;
+      }
+
+      const currentLanguage = this.i18nService.getCurrentLanguage();
+      const supportedLanguages = this.i18nService.getSupportedLanguages();
+
+      console.log('[LanguageToggle] Service response:', { currentLanguage, supportedLanguages });
+
+      // Validate service responses
+      if (!currentLanguage || !Array.isArray(supportedLanguages) || supportedLanguages.length === 0) {
+        console.warn('[LanguageToggle] Invalid service response, using fallback data');
+        this.setFallbackData();
+        return;
+      }
+
+      const languagesData = supportedLanguages.map(lang => ({
+        code: lang,
+        label: this.getLanguageDisplayNameSafe(lang),
+        nativeName: this.getLanguageNativeNameSafe(lang),
+        active: lang === currentLanguage
+      }));
+
+      console.log('[LanguageToggle] Setting component data:', { currentLanguage, supportedLanguages, languagesData });
+
+      this.setData({
+        currentLanguage,
+        supportedLanguages,
+        isDropdownOpen: this.isDropdownOpen,
+        languages: languagesData
+      });
+    } catch (error) {
+      console.error('[LanguageToggle] Error updating data:', error);
+      this.setFallbackData();
+    }
+  }
+
+  /**
+   * Check if I18nService has all required methods
+   */
+  isI18nServiceReady() {
+    const requiredMethods = ['getCurrentLanguage', 'getSupportedLanguages', 'getLanguageDisplayName'];
+    return requiredMethods.every(method => typeof this.i18nService[method] === 'function');
+  }
+
+  /**
+   * Get language display name with fallback
+   */
+  getLanguageDisplayNameSafe(lang) {
+    try {
+      return this.i18nService.getLanguageDisplayName(lang);
+    } catch (error) {
+      return this.getDefaultLanguageDisplayName(lang);
+    }
+  }
+
+  /**
+   * Get language native name with fallback
+   */
+  getLanguageNativeNameSafe(lang) {
+    try {
+      if (typeof this.i18nService.getLanguageNativeName === 'function') {
+        return this.i18nService.getLanguageNativeName(lang);
+      }
+    } catch (error) {
+      // Fallback to display name
+    }
+    return this.getDefaultLanguageDisplayName(lang);
+  }
+
+  /**
+   * Set fallback data when services are unavailable
+   */
+  setFallbackData() {
+    const fallbackLanguages = ['es', 'en'];
+    const fallbackCurrentLanguage = 'es';
 
     this.setData({
-      currentLanguage,
-      supportedLanguages,
+      currentLanguage: fallbackCurrentLanguage,
+      supportedLanguages: fallbackLanguages,
       isDropdownOpen: this.isDropdownOpen,
-      languages: supportedLanguages.map(lang => ({
+      languages: fallbackLanguages.map(lang => ({
         code: lang,
-        label: this.i18nService.getLanguageDisplayName(lang),
-        nativeName: this.i18nService.getLanguageNativeName(lang),
-        active: lang === currentLanguage
+        label: this.getDefaultLanguageDisplayName(lang),
+        nativeName: this.getDefaultLanguageDisplayName(lang),
+        active: lang === fallbackCurrentLanguage
       }))
     });
   }
 
   /**
-   * Generate component template
+   * Get default language display name
+   */
+  getDefaultLanguageDisplayName(lang) {
+    const defaultNames = {
+      es: 'Español',
+      en: 'English'
+    };
+    return defaultNames[lang] || lang.toUpperCase();
+  }
+
+  /**
+   * Get translation with fallback
+   */
+  getTranslationSafe(key, fallback) {
+    try {
+      if (this.i18nService && typeof this.i18nService.t === 'function') {
+        return this.i18nService.t(key) || fallback;
+      }
+    } catch (error) {
+      console.warn('[LanguageToggle] Translation error for key:', key, error);
+    }
+    return fallback;
+  }
+
+  /**
+   * Generate component template with fallback support
    * @returns {string} HTML template
    */
   defaultTemplate() {
     const { style, showText, showIcon, showNativeName, orientation, size } = this.componentConfig;
     const { languages = [], currentLanguage = 'es', isDropdownOpen = false } = this.data || {};
+
+    // Enhanced debugging for render state
+    console.log('[LanguageToggle] Rendering template:', {
+      hasLanguages: languages && languages.length > 0,
+      currentLanguage,
+      showIcon,
+      showText,
+      serviceReady: this.i18nService && this.isI18nServiceReady()
+    });
+
+    // If we have no data or empty languages, provide a meaningful fallback
+    if (!languages || languages.length === 0) {
+      console.log('[LanguageToggle] Rendering with enhanced fallback data due to empty languages');
+      
+      return `
+        <div class="language-toggle-component language-toggle-fallback language-toggle-${style}" style="display: inline-flex; align-items: center; min-height: 44px;">
+          <button class="language-toggle-btn" title="Language Toggle" aria-label="Language Toggle"
+                  style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; 
+                         border: 1px solid #e5e7eb; border-radius: 0.5rem; background: #ffffff; 
+                         color: #111827; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+            ${showIcon ? '<span class="language-icon" style="font-size: 1.1rem;">🌐</span>' : ''}
+            ${showText ? '<span class="language-text" style="font-weight: 600;">ES</span>' : 'Language'}
+          </button>
+        </div>
+      `;
+    }
 
     const classes = [
       'language-toggle-component',
@@ -99,14 +256,22 @@ class LanguageToggle extends BaseComponent {
    * @returns {string} HTML
    */
   renderButtonStyle(classes, languages, currentLanguage, showText, showIcon) {
-    const currentLang = languages.find(l => l.code === currentLanguage) || { code: currentLanguage, label: currentLanguage.toUpperCase() };
-    const title = this.i18nService ? this.i18nService.t('language.toggle') : 'Toggle language';
+    // Ensure we have valid data
+    const safeLanguages = Array.isArray(languages) ? languages : [];
+    const safeCurrentLanguage = currentLanguage || 'es';
+    
+    const currentLang = safeLanguages.find(l => l.code === safeCurrentLanguage) || { 
+      code: safeCurrentLanguage, 
+      label: this.getDefaultLanguageDisplayName(safeCurrentLanguage) 
+    };
+    
+    const title = this.getTranslationSafe('language.toggle', 'Toggle language');
 
     return `
       <div class="${classes}">
         <button class="language-toggle-btn" title="${title}" aria-label="${title}">
           ${showIcon ? '<span class="language-icon">🌐</span>' : ''}
-          ${showText ? `<span class="language-text">${currentLang?.code.toUpperCase() || currentLanguage.toUpperCase()}</span>` : ''}
+          ${showText ? `<span class="language-text">${currentLang?.code.toUpperCase() || safeCurrentLanguage.toUpperCase()}</span>` : ''}
         </button>
       </div>
     `;
@@ -120,11 +285,13 @@ class LanguageToggle extends BaseComponent {
    * @returns {string} HTML
    */
   renderSelectStyle(classes, languages, currentLanguage) {
-    const title = this.i18nService ? this.i18nService.t('language.toggle') : 'Toggle language';
+    const safeLanguages = Array.isArray(languages) ? languages : [];
+    const safeCurrentLanguage = currentLanguage || 'es';
+    const title = this.getTranslationSafe('language.toggle', 'Toggle language');
     
-    const options = languages.map(lang => 
-      `<option value="${lang.code}" ${lang.code === currentLanguage ? 'selected' : ''}>
-        ${lang.label}
+    const options = safeLanguages.map(lang => 
+      `<option value="${lang.code || lang}" ${(lang.code || lang) === safeCurrentLanguage ? 'selected' : ''}>
+        ${lang.label || this.getDefaultLanguageDisplayName(lang.code || lang)}
       </option>`
     ).join('');
 
@@ -148,23 +315,36 @@ class LanguageToggle extends BaseComponent {
    * @returns {string} HTML
    */
   renderDropdownStyle(classes, languages, currentLanguage, showText, showIcon, showNativeName) {
-    const currentLang = languages.find(l => l.code === currentLanguage);
-    const title = this.i18nService ? this.i18nService.t('language.toggle') : 'Toggle language';
+    const safeLanguages = Array.isArray(languages) ? languages : [];
+    const safeCurrentLanguage = currentLanguage || 'es';
+    
+    const currentLang = safeLanguages.find(l => l.code === safeCurrentLanguage) || {
+      code: safeCurrentLanguage,
+      label: this.getDefaultLanguageDisplayName(safeCurrentLanguage)
+    };
+    
+    const title = this.getTranslationSafe('language.toggle', 'Toggle language');
 
-    const options = languages
-      .filter(lang => lang.code !== currentLanguage)
-      .map(lang => `
-        <button 
-          class="language-option" 
-          data-language="${lang.code}"
-          title="${lang.label}"
-          aria-label="${lang.label}"
-        >
-          <span class="language-code">${lang.code.toUpperCase()}</span>
-          <span class="language-label">${lang.label}</span>
-          ${showNativeName ? `<span class="language-native">${lang.nativeName}</span>` : ''}
-        </button>
-      `).join('');
+    const options = safeLanguages
+      .filter(lang => (lang.code || lang) !== safeCurrentLanguage)
+      .map(lang => {
+        const langCode = lang.code || lang;
+        const langLabel = lang.label || this.getDefaultLanguageDisplayName(langCode);
+        const langNative = lang.nativeName || langLabel;
+        
+        return `
+          <button 
+            class="language-option" 
+            data-language="${langCode}"
+            title="${langLabel}"
+            aria-label="${langLabel}"
+          >
+            <span class="language-code">${langCode.toUpperCase()}</span>
+            <span class="language-label">${langLabel}</span>
+            ${showNativeName ? `<span class="language-native">${langNative}</span>` : ''}
+          </button>
+        `;
+      }).join('');
 
     return `
       <div class="${classes}">
