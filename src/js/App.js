@@ -1031,7 +1031,9 @@ class EC0249App {
           break;
 
         case 'view-templates':
-          this.switchSection('documents');
+          // Navigate to portfolio view first, then to documents section
+          await this.switchView('portfolio');
+          await this.switchSection('documents');
           break;
 
         case 'start-simulation':
@@ -1067,10 +1069,21 @@ class EC0249App {
           break;
 
         case 'view-element-1':
+          // Navigate to portfolio view and show element 1 documents
+          await this.switchView('portfolio');
+          await this.switchSection('element1');
+          break;
+
         case 'view-element-2':
+          // Navigate to portfolio view and show element 2 documents
+          await this.switchView('portfolio');
+          await this.switchSection('element2');
+          break;
+
         case 'view-element-3':
-          // TODO: Show element-specific documents
-          this.switchSection('documents');
+          // Navigate to portfolio view and show element 3 documents
+          await this.switchView('portfolio');
+          await this.switchSection('element3');
           break;
 
         default:

@@ -22,6 +22,9 @@ class RouterService extends Module {
         '/assessment': 'assessment',
         '/portfolio': 'portfolio',
         '/portfolio/documents': 'portfolio',
+        '/portfolio/element1': 'portfolio',
+        '/portfolio/element2': 'portfolio',
+        '/portfolio/element3': 'portfolio',
         '/portfolio/progress': 'portfolio'
       }
     });
@@ -273,7 +276,7 @@ class RouterService extends Module {
     // Generate proper URL paths based on section type
     if (section.startsWith('module')) {
       return `/modules/${section}`;
-    } else if (section === 'documents' || section === 'progress') {
+    } else if (section === 'documents' || section === 'progress' || section.startsWith('element')) {
       return `/portfolio/${section}`;
     } else if (section === 'overview') {
       return '/dashboard';

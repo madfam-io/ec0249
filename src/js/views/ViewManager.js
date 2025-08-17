@@ -266,6 +266,11 @@ class ViewManager {
       // Document sections go to portfolio view
       'documents': 'portfolio',
       
+      // Element sections go to portfolio view
+      'element1': 'portfolio',
+      'element2': 'portfolio',
+      'element3': 'portfolio',
+      
       // Progress section goes to portfolio view
       'progress': 'portfolio',
       

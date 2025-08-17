@@ -26,11 +26,22 @@ class PortfolioViewController extends BaseViewController {
   }
 
   bindEvents() {
-    // Element navigation
+    // Element navigation items (.element-nav-item)
     this.findElements('.element-nav-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
         const elementId = item.getAttribute('data-element');
+        if (elementId) {
+          this.showElement(elementId);
+        }
+      });
+    });
+
+    // Element navigation cards (.element-nav-card)
+    this.findElements('.element-nav-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        const elementId = card.getAttribute('data-element');
         if (elementId) {
           this.showElement(elementId);
         }
@@ -824,11 +835,67 @@ class PortfolioViewController extends BaseViewController {
   }
 
   /**
+   * Show templates overview (documents section)
+   */
+  async showTemplatesOverview() {
+    console.log('[PortfolioViewController] Showing templates overview');
+    
+    // Clear element-specific state and show overview
+    this.currentElement = 'element1'; // Default to element1
+    
+    // Re-render to show portfolio overview with templates
+    await this.onRender();
+    
+    // Scroll to templates section if it exists
+    const templatesSection = this.findElement('.templates-section');
+    if (templatesSection) {
+      templatesSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  /**
+   * Show progress overview
+   */
+  async showProgressOverview() {
+    console.log('[PortfolioViewController] Showing progress overview');
+    
+    // Re-render to show portfolio overview
+    await this.onRender();
+    
+    // Scroll to certification progress section
+    const progressSection = this.findElement('.certification-progress-section');
+    if (progressSection) {
+      progressSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  /**
    * Show specific section within portfolio view
    */
   async showSection(sectionId) {
-    if (sectionId.startsWith('element')) {
-      await this.showElement(sectionId);
+    console.log(`[PortfolioViewController] Showing section: ${sectionId}`);
+    
+    switch (sectionId) {
+      case 'element1':
+      case 'element2':
+      case 'element3':
+        await this.showElement(sectionId);
+        break;
+      
+      case 'documents':
+        // Show general documents/templates view
+        await this.showTemplatesOverview();
+        break;
+      
+      case 'progress':
+        // Show portfolio progress view
+        await this.showProgressOverview();
+        break;
+      
+      default:
+        // Default to overview if section not recognized
+        console.log(`[PortfolioViewController] Unknown section ${sectionId}, showing overview`);
+        await this.onRender();
     }
   }
 
