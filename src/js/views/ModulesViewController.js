@@ -64,12 +64,17 @@ class ModulesViewController extends BaseViewController {
   }
 
   async onShow() {
+    console.log('[ModulesViewController] onShow called, currentModule:', this.currentModule);
+    
     // Check if we should show module overview grid or specific module content
     if (!this.currentModule || this.currentModule === 'overview') {
+      console.log('[ModulesViewController] Rendering module grid');
       await this.renderModuleGrid();
     } else {
+      console.log('[ModulesViewController] Loading specific module content:', this.currentModule);
       // Ensure content is loaded for current module
       await this.loadModuleContent();
+      await this.renderCurrentModule();
     }
   }
 
@@ -1215,10 +1220,21 @@ class ModulesViewController extends BaseViewController {
    * Show specific section within modules view
    */
   async showSection(sectionId) {
+    console.log(`[ModulesViewController] showSection called with: ${sectionId}`);
+    
     if (sectionId.startsWith('module')) {
+      // Show specific module content
       await this.showModule(sectionId);
     } else if (sectionId === 'overview') {
+      // Show module overview grid
       this.currentModule = null;
+      this.currentLesson = null;
+      await this.renderModuleGrid();
+    } else {
+      // Fallback: render module grid
+      console.log(`[ModulesViewController] Unknown section ${sectionId}, showing module grid`);
+      this.currentModule = null;
+      this.currentLesson = null;
       await this.renderModuleGrid();
     }
   }
@@ -1227,11 +1243,37 @@ class ModulesViewController extends BaseViewController {
    * Render module overview grid
    */
   async renderModuleGrid() {
+    console.log('[ModulesViewController] renderModuleGrid called');
+    console.log('[ModulesViewController] this.element:', this.element);
+    console.log('[ModulesViewController] this.viewId:', this.viewId);
+    
     const modulesGrid = this.findElement('.modules-grid');
+    console.log('[ModulesViewController] modulesGrid found:', !!modulesGrid);
+    
     if (!modulesGrid) {
       console.warn('[ModulesViewController] Module grid container not found');
-      return;
+      // Try alternative selector
+      const alternativeGrid = document.querySelector('#modulesView .modules-grid');
+      console.log('[ModulesViewController] Alternative grid found:', !!alternativeGrid);
+      
+      if (alternativeGrid) {
+        console.log('[ModulesViewController] Using alternative grid selector');
+        // Use the alternative grid as the target
+        return this.renderModuleGridContent(alternativeGrid);
+      } else {
+        console.error('[ModulesViewController] No modules grid container found anywhere');
+        return;
+      }
     }
+    
+    return this.renderModuleGridContent(modulesGrid);
+  }
+
+  /**
+   * Render module grid content to specified container
+   */
+  async renderModuleGridContent(container) {
+    console.log('[ModulesViewController] renderModuleGridContent called with container:', container);
 
     try {
       // Get progress service for dynamic progress data
@@ -1321,7 +1363,7 @@ class ModulesViewController extends BaseViewController {
       });
 
       // Render module grid
-      modulesGrid.innerHTML = modules.map(module => this.createModuleCard(module)).join('');
+      container.innerHTML = modules.map(module => this.createModuleCard(module)).join('');
       
       // Add click handlers for module cards
       this.bindModuleCardEvents();
@@ -1329,7 +1371,7 @@ class ModulesViewController extends BaseViewController {
       console.log('[ModulesViewController] Module grid rendered with', modules.length, 'modules');
     } catch (error) {
       console.error('[ModulesViewController] Failed to render module grid:', error);
-      modulesGrid.innerHTML = '<div class="error-message">Error al cargar los módulos</div>';
+      container.innerHTML = '<div class="error-message">Error al cargar los módulos</div>';
     }
   }
 

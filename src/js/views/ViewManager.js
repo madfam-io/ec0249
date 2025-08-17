@@ -144,6 +144,8 @@ class ViewManager {
    * @since 2.0.0
    */
   async showView(viewId) {
+    console.log(`[ViewManager] showView called with: ${viewId}`);
+    
     if (!this.controllers.has(viewId)) {
       console.warn(`[ViewManager] Unknown view: ${viewId}`);
       return;
@@ -151,12 +153,16 @@ class ViewManager {
 
     // Hide current controller
     if (this.currentController) {
+      console.log(`[ViewManager] Hiding current controller: ${this.currentView}`);
       this.currentController.hide();
     }
 
     // Show new controller
     const controller = this.controllers.get(viewId);
+    console.log(`[ViewManager] Showing controller: ${viewId}`);
     controller.show();
+    
+    console.log(`[ViewManager] Rendering controller: ${viewId}`);
     await controller.render();
 
     this.currentController = controller;
@@ -173,7 +179,7 @@ class ViewManager {
       controller: controller 
     });
 
-    console.log(`[ViewManager] Switched to view: ${viewId}`);
+    console.log(`[ViewManager] Successfully switched to view: ${viewId}`);
   }
 
   /**

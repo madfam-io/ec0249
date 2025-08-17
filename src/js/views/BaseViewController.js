@@ -48,7 +48,13 @@ class BaseViewController {
    * Show this view
    */
   show() {
-    if (!this.element) return;
+    console.log(`[${this.constructor.name}] show() called`);
+    console.log(`[${this.constructor.name}] this.element:`, this.element);
+    
+    if (!this.element) {
+      console.warn(`[${this.constructor.name}] Cannot show view - element is null`);
+      return;
+    }
 
     // Hide all views
     document.querySelectorAll('.view').forEach(view => {
@@ -58,6 +64,8 @@ class BaseViewController {
     // Show this view
     this.element.classList.add('active');
     this.isActive = true;
+    
+    console.log(`[${this.constructor.name}] View shown, classList:`, this.element.classList.toString());
 
     // Update navigation
     this.updateNavigation();
