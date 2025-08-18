@@ -201,12 +201,16 @@ class ViewManager {
    * @since 2.0.0
    */
   async showSection(sectionId) {
-    if (!this.currentController) return;
+    if (!this.currentController) {
+      console.warn(`[ViewManager] No current controller available for section: ${sectionId}`);
+      return;
+    }
 
     console.log(`[ViewManager] Showing section: ${sectionId} (current view: ${this.currentView})`);
 
     // Determine which view this section belongs to
     const targetView = this.getSectionView(sectionId);
+    console.log(`[ViewManager] Target view for section ${sectionId}: ${targetView}`);
     
     // Switch to target view if not already there
     if (targetView && targetView !== this.currentView) {
@@ -216,7 +220,9 @@ class ViewManager {
 
     // Update section-specific content
     if (typeof this.currentController.showSection === 'function') {
+      console.log(`[ViewManager] Calling showSection(${sectionId}) on ${this.currentView} controller`);
       await this.currentController.showSection(sectionId);
+      console.log(`[ViewManager] showSection(${sectionId}) completed on ${this.currentView} controller`);
     } else {
       console.warn(`[ViewManager] Current controller (${this.currentView}) does not support showSection for ${sectionId}`);
     }
@@ -234,6 +240,8 @@ class ViewManager {
       section: sectionId, 
       view: this.currentView 
     });
+    
+    console.log(`[ViewManager] Section change to ${sectionId} completed`);
   }
 
   /**

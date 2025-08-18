@@ -144,3 +144,17 @@
 .view-content {
   width: 100%;
 }
+
+/* Portfolio View Specific Styles */
+.portfolio-wrapper {
+  width: 100%;
+}
+
+.portfolio-overview {
+  display: block;
+}
+
+.element-content {
+  display: none;
+  width: 100%;
+}

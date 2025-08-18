@@ -1198,20 +1198,26 @@ class EC0249App {
 
         case 'view-element-1':
           // Navigate to portfolio view and show element 1 documents
+          console.log('[App] Handling view-element-1 action');
           await this.switchView('portfolio');
           await this.switchSection('element1');
+          console.log('[App] view-element-1 action completed');
           break;
 
         case 'view-element-2':
           // Navigate to portfolio view and show element 2 documents
+          console.log('[App] Handling view-element-2 action');
           await this.switchView('portfolio');
           await this.switchSection('element2');
+          console.log('[App] view-element-2 action completed');
           break;
 
         case 'view-element-3':
           // Navigate to portfolio view and show element 3 documents
+          console.log('[App] Handling view-element-3 action');
           await this.switchView('portfolio');
           await this.switchSection('element3');
+          console.log('[App] view-element-3 action completed');
           break;
 
         default:
