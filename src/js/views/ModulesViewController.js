@@ -309,37 +309,42 @@ class ModulesViewController extends BaseViewController {
     const progressIndicator = this.createElement('div', ['lesson-progress']);
     const isCompleted = this.isLessonCompleted(lessonId);
     progressIndicator.innerHTML = isCompleted ? '✅' : '⏳';
+    progressIndicator.setAttribute('aria-label', isCompleted ? 'Lección completada' : 'Lección pendiente');
     
     // Video indicator if lesson has video content
     const hasVideo = lesson.videoId || (lesson.media && (lesson.media.introVideo || lesson.media.lessonVideo || lesson.media.ethicsVideo || lesson.media.skillsVideo));
     if (hasVideo) {
       const videoIndicator = this.createElement('div', ['video-indicator']);
-      videoIndicator.innerHTML = '🎥';
+      videoIndicator.innerHTML = '🎥 VIDEO';
       videoIndicator.title = 'Esta lección incluye contenido en video';
+      videoIndicator.setAttribute('aria-label', 'Lección con video');
       card.appendChild(videoIndicator);
     }
     
     // Lesson type indicator
     const typeIndicator = this.createElement('div', ['lesson-type']);
     const typeIcon = lesson.type === 'practice' ? '💪' : (lesson.type === 'theory' ? '📚' : '📝');
-    typeIndicator.innerHTML = typeIcon;
-    typeIndicator.title = lesson.type === 'practice' ? 'Práctica' : (lesson.type === 'theory' ? 'Teoría' : 'Evaluación');
+    const typeText = lesson.type === 'practice' ? 'Práctica' : (lesson.type === 'theory' ? 'Teoría' : 'Evaluación');
+    typeIndicator.innerHTML = `${typeIcon} ${typeText}`;
+    typeIndicator.title = typeText;
+    typeIndicator.setAttribute('aria-label', `Tipo de lección: ${typeText}`);
     
     // Lesson info
     const info = this.createElement('div', ['lesson-info']);
     info.innerHTML = `
       <h4 class="lesson-title">${lesson.title}</h4>
-      <p class="lesson-overview">${lesson.description || lesson.overview || ''}</p>
+      <p class="lesson-overview">${lesson.description || lesson.overview || 'Explorar contenido de la lección'}</p>
       <div class="lesson-metadata">
-        <span class="lesson-duration">🕒 ${lesson.duration || 'N/A'}</span>
-        <span class="lesson-type-badge">${typeIcon} ${lesson.type === 'practice' ? 'Práctica' : (lesson.type === 'theory' ? 'Teoría' : 'Evaluación')}</span>
+        <span class="lesson-duration">⏱️ ${lesson.duration || '30 min'}</span>
+        <span class="lesson-type-badge">${typeIcon} ${typeText}</span>
         ${hasVideo ? '<span class="video-badge">🎥 Con Video</span>' : ''}
       </div>
     `;
     
     // Action button
     const actionButton = this.createElement('button', ['btn', 'btn-primary']);
-    actionButton.textContent = isCompleted ? 'Revisar' : 'Comenzar';
+    actionButton.innerHTML = isCompleted ? '<span>✨</span> Revisar' : '<span>🚀</span> Comenzar';
+    actionButton.setAttribute('aria-label', isCompleted ? 'Revisar lección completada' : 'Comenzar nueva lección');
     actionButton.addEventListener('click', (e) => {
       e.stopPropagation();
       this.showLesson(lessonId);
@@ -401,6 +406,8 @@ class ModulesViewController extends BaseViewController {
   createActivityCard(activityType, title, description, icon) {
     const card = this.createElement('div', ['activity-card']);
     card.setAttribute('data-activity', activityType);
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
     
     const iconElement = this.createElement('div', ['activity-icon']);
     iconElement.textContent = this.getActivityIcon(icon);
@@ -412,14 +419,29 @@ class ModulesViewController extends BaseViewController {
     `;
     
     const actionButton = this.createElement('button', ['btn', 'btn-outline']);
-    actionButton.textContent = 'Acceder';
-    actionButton.addEventListener('click', () => {
+    actionButton.innerHTML = '<span>▶️</span> Acceder';
+    actionButton.setAttribute('aria-label', `Acceder a ${title}`);
+    actionButton.addEventListener('click', (e) => {
+      e.stopPropagation();
       this.handleActivityAction(activityType);
     });
     
     card.appendChild(iconElement);
     card.appendChild(info);
     card.appendChild(actionButton);
+    
+    // Make card clickable
+    card.addEventListener('click', () => {
+      this.handleActivityAction(activityType);
+    });
+    
+    // Keyboard support
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.handleActivityAction(activityType);
+      }
+    });
     
     return card;
   }
@@ -666,24 +688,32 @@ class ModulesViewController extends BaseViewController {
     
     // Previous lesson button
     if (prevLesson) {
-      const prevButton = this.createElement('button', ['btn', 'btn-secondary', 'prev-lesson']);
-      prevButton.innerHTML = `← ${prevLesson.title}`;
+      const prevButton = this.createElement('button', ['btn', 'prev-lesson']);
+      prevButton.innerHTML = `<span>←</span> ${prevLesson.title}`;
+      prevButton.setAttribute('aria-label', `Lección anterior: ${prevLesson.title}`);
       prevButton.addEventListener('click', () => this.showLesson(prevLesson.id));
       navigation.appendChild(prevButton);
     }
     
     // Complete lesson button
-    const completeButton = this.createElement('button', ['btn', 'btn-success', 'complete-lesson']);
-    completeButton.innerHTML = '✅ Marcar como Completado';
+    const completeButton = this.createElement('button', ['btn', 'complete-lesson']);
+    completeButton.innerHTML = '<span>✅</span> Marcar como Completado';
+    completeButton.setAttribute('aria-label', 'Marcar esta lección como completada');
     completeButton.addEventListener('click', () => this.completeLessonAndNext());
     navigation.appendChild(completeButton);
     
     // Next lesson button
     if (nextLesson) {
-      const nextButton = this.createElement('button', ['btn', 'btn-primary', 'next-lesson']);
-      nextButton.innerHTML = `${nextLesson.title} →`;
+      const nextButton = this.createElement('button', ['btn', 'next-lesson']);
+      nextButton.innerHTML = `${nextLesson.title} <span>→</span>`;
+      nextButton.setAttribute('aria-label', `Siguiente lección: ${nextLesson.title}`);
       nextButton.addEventListener('click', () => this.showLesson(nextLesson.id));
       navigation.appendChild(nextButton);
+    } else {
+      // If no next lesson, add a completion message
+      const completionMessage = this.createElement('div', ['completion-message']);
+      completionMessage.innerHTML = '<span>🎉</span> ¡Última lección del módulo!';
+      navigation.appendChild(completionMessage);
     }
     
     section.appendChild(navigation);
@@ -1383,14 +1413,14 @@ class ModulesViewController extends BaseViewController {
     const resourceText = module.lessons ? `${module.lessons} lecciones` : `${module.templates} plantillas`;
     
     return `
-      <div class="module-card module-${module.number} ${module.isUnlocked ? '' : 'locked'}" data-module="${module.number}">
+      <div class="module-card module-${module.number} ${module.status} ${module.isUnlocked ? '' : 'locked'}" data-module="${module.number}">
         <div class="module-header">
           <div class="module-icon ${module.color}">${module.icon}</div>
           <div class="module-status ${module.status}"></div>
           ${!module.isUnlocked ? '<div class="lock-overlay">🔒</div>' : ''}
         </div>
         <div class="module-content">
-          <h3 class="module-title">Módulo ${module.number}: ${module.title}</h3>
+          <h3 class="module-title">${module.title}</h3>
           <p class="module-description">${module.description}</p>
           <div class="module-metadata">
             <span class="duration">⏱️ ${module.duration}</span>
@@ -1440,17 +1470,17 @@ class ModulesViewController extends BaseViewController {
    */
   getModuleActionButton(module) {
     if (!module.isUnlocked) {
-      return '<button class="btn btn-secondary" disabled>🔒 Bloqueado</button>';
+      return '<button class="btn btn-secondary" disabled><span>🔒</span> Bloqueado</button>';
     }
     
     switch (module.status) {
       case 'completed':
-        return `<button class="btn btn-outline" data-action="enter-module" data-module="${module.id}">Revisar</button>`;
+        return `<button class="btn btn-outline" data-action="enter-module" data-module="${module.id}"><span>✨</span> Revisar</button>`;
       case 'in_progress':
-        return `<button class="btn btn-primary" data-action="enter-module" data-module="${module.id}">Continuar</button>`;
+        return `<button class="btn btn-primary" data-action="enter-module" data-module="${module.id}"><span>▶️</span> Continuar</button>`;
       case 'available':
       default:
-        return `<button class="btn btn-primary" data-action="enter-module" data-module="${module.id}">Comenzar</button>`;
+        return `<button class="btn btn-primary" data-action="enter-module" data-module="${module.id}"><span>🚀</span> Comenzar</button>`;
     }
   }
 
