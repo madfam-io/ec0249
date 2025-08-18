@@ -73,6 +73,9 @@ class BaseComponent extends Module {
     this.mounted = false;
     this.destroyed = false;
     
+    // Track event listeners for proper cleanup
+    this.eventListeners = new Map(); // Store element -> [{ type, handler, selector }]
+    
     // Component-specific configuration
     this.componentConfig = {
       autoMount: options.autoMount !== false,
@@ -114,40 +117,62 @@ class BaseComponent extends Module {
    * @since 1.0.0
    */
   async mount(element = null) {
+    console.log(`[Component] 🚀 ${this.name} - Starting mount process...`);
+    
     if (this.mounted) {
-      console.warn(`Component '${this.name}' is already mounted`);
+      console.warn(`[Component] ⚠️  ${this.name} is already mounted`);
       return;
     }
 
     if (element) {
       this.element = element;
+      console.log(`[Component] 📍 ${this.name} - Element provided:`, element);
     }
 
     if (!this.element) {
+      console.error(`[Component] ❌ ${this.name} - No element available for mounting`);
       throw new Error(`Component '${this.name}' cannot mount without an element`);
     }
+
+    console.log(`[Component] 📋 ${this.name} - Element before mount:`, {
+      id: this.element.id,
+      className: this.element.className,
+      innerHTML: this.element.innerHTML,
+      data: this.data
+    });
 
     try {
       // Setup shadow DOM if enabled
       if (this.componentConfig.shadowDOM) {
         this.shadowRoot = this.element.attachShadow({ mode: 'open' });
+        console.log(`[Component] 🌑 ${this.name} - Shadow DOM created`);
       }
 
       // Call before mount hook
+      console.log(`[Component] 🔄 ${this.name} - Calling beforeMount hook...`);
       await this.beforeMount();
 
       // Render component
+      console.log(`[Component] 🎨 ${this.name} - Starting render...`);
       await this.render();
 
+      console.log(`[Component] 📋 ${this.name} - Element after render:`, {
+        innerHTML: this.element.innerHTML,
+        childCount: this.element.children.length
+      });
+
       // Bind events
+      console.log(`[Component] 🔗 ${this.name} - Binding events...`);
       this.bindEvents();
 
       // Mount child components
+      console.log(`[Component] 👶 ${this.name} - Mounting children...`);
       await this.mountChildren();
 
       this.mounted = true;
 
       // Call after mount hook
+      console.log(`[Component] ✅ ${this.name} - Calling afterMount hook...`);
       await this.afterMount();
 
       // Emit mount event
@@ -156,9 +181,14 @@ class BaseComponent extends Module {
         element: this.element 
       });
 
-      console.log(`[Component] Mounted: ${this.name}`);
+      console.log(`[Component] 🎉 ${this.name} - Successfully mounted!`);
     } catch (error) {
-      console.error(`[Component] Failed to mount '${this.name}':`, error);
+      console.error(`[Component] 💥 ${this.name} - Mount failed:`, error);
+      console.log(`[Component] 🔍 ${this.name} - Debug info:`, {
+        element: !!this.element,
+        data: this.data,
+        config: this.componentConfig
+      });
       throw error;
     }
   }
@@ -397,21 +427,61 @@ class BaseComponent extends Module {
     const handlerFunction = typeof handler === 'string' ? this[handler].bind(this) : handler;
 
     elements.forEach(element => {
+      // Add event listener
       element.addEventListener(eventType, handlerFunction);
+      
+      // Track for cleanup
+      if (!this.eventListeners.has(element)) {
+        this.eventListeners.set(element, []);
+      }
+      this.eventListeners.get(element).push({
+        type: eventType,
+        handler: handlerFunction,
+        selector: elementSelector || 'self'
+      });
     });
+  }
+
+  /**
+   * Register external event listener for automatic cleanup
+   * @param {Element} element - Target element (e.g., document, window)
+   * @param {string} eventType - Event type
+   * @param {Function} handler - Event handler (already bound)
+   * @param {string} description - Description for logging
+   */
+  registerExternalListener(element, eventType, handler, description = 'external') {
+    if (!this.eventListeners.has(element)) {
+      this.eventListeners.set(element, []);
+    }
+    this.eventListeners.get(element).push({
+      type: eventType,
+      handler: handler,
+      selector: description
+    });
+    console.log(`[BaseComponent] ${this.name} - Registered ${eventType} listener on ${description}`);
   }
 
   /**
    * Unbind event listeners
    */
   unbindEvents() {
-    // Remove all event listeners by cloning elements
-    // This is a simple approach - could be optimized with explicit tracking
-    if (this.element && !this.shadowRoot) {
-      const clone = this.element.cloneNode(true);
-      this.element.parentNode?.replaceChild(clone, this.element);
-      this.element = clone;
+    console.log(`[BaseComponent] ${this.name} - Unbinding ${this.eventListeners.size} event listeners...`);
+    
+    // Remove tracked event listeners
+    for (const [element, listeners] of this.eventListeners) {
+      listeners.forEach(({ type, handler, selector }) => {
+        try {
+          element.removeEventListener(type, handler);
+          console.log(`[BaseComponent] ${this.name} - Removed ${type} listener from ${selector}`);
+        } catch (error) {
+          console.warn(`[BaseComponent] ${this.name} - Failed to remove ${type} listener:`, error);
+        }
+      });
     }
+    
+    // Clear tracking
+    this.eventListeners.clear();
+    console.log(`[BaseComponent] ${this.name} - Event listeners cleanup complete`);
   }
 
   /**
@@ -473,8 +543,18 @@ class BaseComponent extends Module {
     
     if (typeof key === 'object') {
       Object.assign(this.data, key);
+      console.log(`[Component] 📝 ${this.name} - setData (object):`, {
+        previousData,
+        newData: this.data,
+        keys: Object.keys(key)
+      });
     } else {
       this.data[key] = value;
+      console.log(`[Component] 📝 ${this.name} - setData (key/value):`, {
+        key, value,
+        previousData,
+        newData: this.data
+      });
     }
 
     // Log data changes for debugging components with issues
@@ -482,12 +562,17 @@ class BaseComponent extends Module {
       Object.values(this.data).some(v => v !== null && v !== undefined && v !== '');
     
     if (!hasSignificantData && this.name.includes('Toggle')) {
-      console.warn(`[Component] ${this.name} has minimal data:`, this.data);
+      console.warn(`[Component] ⚠️  ${this.name} has minimal data:`, this.data);
+    } else if (this.name.includes('Toggle')) {
+      console.log(`[Component] ✅ ${this.name} has good data:`, this.data);
     }
 
     // Re-render if reactive and mounted
     if (this.componentConfig.reactive && this.mounted) {
+      console.log(`[Component] 🔄 ${this.name} - Triggering re-render due to data change`);
       this.render();
+    } else {
+      console.log(`[Component] ⏸️  ${this.name} - No re-render (reactive: ${this.componentConfig.reactive}, mounted: ${this.mounted})`);
     }
   }
 

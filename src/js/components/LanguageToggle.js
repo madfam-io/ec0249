@@ -7,25 +7,30 @@ class LanguageToggle extends BaseComponent {
   constructor(element, options = {}) {
     super('LanguageToggle', element, {
       dependencies: ['I18nService'],
-      config: {
-        showText: options.showText !== false,
-        showIcon: options.showIcon !== false,
-        showNativeName: options.showNativeName || false,
-        orientation: options.orientation || 'horizontal',
-        size: options.size || 'medium',
-        style: options.style || 'button' // button, select, dropdown
-      },
+      config: {},
       events: {
         'click .language-toggle-btn': 'handleToggleClick',
         'change .language-select': 'handleSelectChange',
         'click .language-option': 'handleOptionClick'
       },
       autoMount: true,
-      reactive: true
+      reactive: true,
+      // Component-specific configuration
+      showText: options.showText !== false,
+      showIcon: options.showIcon !== false,
+      showNativeName: options.showNativeName || false,
+      orientation: options.orientation || 'horizontal',
+      size: options.size || 'medium',
+      style: options.style || 'button'
     });
 
     this.i18nService = null;
     this.isDropdownOpen = false;
+    
+    // Store bound event handler references for proper cleanup
+    this.boundHandleOutsideClick = null;
+    this.boundHandleLanguageChange = null;
+    this.outsideClickListenerActive = false;
   }
 
   async onInitialize() {
@@ -41,9 +46,12 @@ class LanguageToggle extends BaseComponent {
         this.i18nService = null;
       }
 
-      // Listen for language changes with null checks
+      // Listen for language changes with null checks - store bound reference
       if (this.i18nService && typeof this.i18nService.addLanguageChangeListener === 'function') {
-        this.i18nService.addLanguageChangeListener(this.handleLanguageChange.bind(this));
+        if (!this.boundHandleLanguageChange) {
+          this.boundHandleLanguageChange = this.handleLanguageChange.bind(this);
+        }
+        this.i18nService.addLanguageChangeListener(this.boundHandleLanguageChange);
         console.log('[LanguageToggle] Language change listener added');
       } else {
         console.warn('[LanguageToggle] I18nService not ready for event listeners');
@@ -53,8 +61,14 @@ class LanguageToggle extends BaseComponent {
       console.log('[LanguageToggle] Updating component data...');
       this.updateData();
 
-      // Close dropdown on outside click
-      document.addEventListener('click', this.handleOutsideClick.bind(this));
+      // Close dropdown on outside click - use BaseComponent helper for tracking
+      if (!this.outsideClickListenerActive) {
+        this.boundHandleOutsideClick = this.handleOutsideClick.bind(this);
+        document.addEventListener('click', this.boundHandleOutsideClick);
+        this.registerExternalListener(document, 'click', this.boundHandleOutsideClick, 'document.outsideClick');
+        this.outsideClickListenerActive = true;
+        console.log('[LanguageToggle] Outside click listener added');
+      }
     } catch (error) {
       console.error('[LanguageToggle] Error during initialization:', error);
       // Set fallback data for basic functionality
@@ -83,8 +97,23 @@ class LanguageToggle extends BaseComponent {
         return;
       }
 
+      // Test direct service calls with detailed logging
+      console.log('[LanguageToggle] 🧪 Testing getCurrentLanguage...');
       const currentLanguage = this.i18nService.getCurrentLanguage();
+      console.log('[LanguageToggle] 🎯 getCurrentLanguage result:', { 
+        type: typeof currentLanguage, 
+        value: currentLanguage, 
+        stringLength: currentLanguage?.length 
+      });
+      
+      console.log('[LanguageToggle] 🧪 Testing getSupportedLanguages...');
       const supportedLanguages = this.i18nService.getSupportedLanguages();
+      console.log('[LanguageToggle] 🎯 getSupportedLanguages result:', { 
+        type: typeof supportedLanguages, 
+        isArray: Array.isArray(supportedLanguages),
+        length: supportedLanguages?.length,
+        content: supportedLanguages 
+      });
 
       console.log('[LanguageToggle] Service response:', { currentLanguage, supportedLanguages });
 
@@ -208,21 +237,19 @@ class LanguageToggle extends BaseComponent {
       currentLanguage,
       showIcon,
       showText,
-      serviceReady: this.i18nService && this.isI18nServiceReady()
+      serviceReady: this.i18nService && this.isI18nServiceReady(),
+      componentConfig: this.componentConfig
     });
 
-    // If we have no data or empty languages, provide a meaningful fallback
+    // If no languages data, use clean fallback
     if (!languages || languages.length === 0) {
-      console.log('[LanguageToggle] Rendering with enhanced fallback data due to empty languages');
+      console.log('[LanguageToggle] 🚨 Using fallback template - NO LANGUAGES DATA');
       
       return `
-        <div class="language-toggle-component language-toggle-fallback language-toggle-${style}" style="display: inline-flex; align-items: center; min-height: 44px;">
-          <button class="language-toggle-btn" title="Language Toggle" aria-label="Language Toggle"
-                  style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; 
-                         border: 1px solid #e5e7eb; border-radius: 0.5rem; background: #ffffff; 
-                         color: #111827; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
-            ${showIcon ? '<span class="language-icon" style="font-size: 1.1rem;">🌐</span>' : ''}
-            ${showText ? '<span class="language-text" style="font-weight: 600;">ES</span>' : 'Language'}
+        <div class="language-toggle-component language-toggle-fallback">
+          <button class="language-toggle-btn" title="Language Toggle" aria-label="Language Toggle">
+            <span class="language-icon">🌐</span>
+            <span class="language-text">ES</span>
           </button>
         </div>
       `;
@@ -260,6 +287,10 @@ class LanguageToggle extends BaseComponent {
     const safeLanguages = Array.isArray(languages) ? languages : [];
     const safeCurrentLanguage = currentLanguage || 'es';
     
+    // Add proper defaults for showText and showIcon
+    const shouldShowIcon = showIcon !== false; // Default to true unless explicitly false
+    const shouldShowText = showText !== false; // Default to true unless explicitly false
+    
     const currentLang = safeLanguages.find(l => l.code === safeCurrentLanguage) || { 
       code: safeCurrentLanguage, 
       label: this.getDefaultLanguageDisplayName(safeCurrentLanguage) 
@@ -270,8 +301,8 @@ class LanguageToggle extends BaseComponent {
     return `
       <div class="${classes}">
         <button class="language-toggle-btn" title="${title}" aria-label="${title}">
-          ${showIcon ? '<span class="language-icon">🌐</span>' : ''}
-          ${showText ? `<span class="language-text">${currentLang?.code.toUpperCase() || safeCurrentLanguage.toUpperCase()}</span>` : ''}
+          ${shouldShowIcon ? '<span class="language-icon">🌐</span>' : ''}
+          ${shouldShowText ? `<span class="language-text">${currentLang?.code.toUpperCase() || safeCurrentLanguage.toUpperCase()}</span>` : ''}
         </button>
       </div>
     `;
@@ -318,6 +349,11 @@ class LanguageToggle extends BaseComponent {
     const safeLanguages = Array.isArray(languages) ? languages : [];
     const safeCurrentLanguage = currentLanguage || 'es';
     
+    // Add proper defaults for showText, showIcon, and showNativeName
+    const shouldShowIcon = showIcon !== false; // Default to true unless explicitly false
+    const shouldShowText = showText !== false; // Default to true unless explicitly false
+    const shouldShowNativeName = showNativeName === true; // Default to false unless explicitly true
+    
     const currentLang = safeLanguages.find(l => l.code === safeCurrentLanguage) || {
       code: safeCurrentLanguage,
       label: this.getDefaultLanguageDisplayName(safeCurrentLanguage)
@@ -341,7 +377,7 @@ class LanguageToggle extends BaseComponent {
           >
             <span class="language-code">${langCode.toUpperCase()}</span>
             <span class="language-label">${langLabel}</span>
-            ${showNativeName ? `<span class="language-native">${langNative}</span>` : ''}
+            ${shouldShowNativeName ? `<span class="language-native">${langNative}</span>` : ''}
           </button>
         `;
       }).join('');
@@ -349,8 +385,8 @@ class LanguageToggle extends BaseComponent {
     return `
       <div class="${classes}">
         <button class="language-toggle-btn" title="${title}" aria-label="${title}" aria-expanded="${this.isDropdownOpen}">
-          ${showIcon ? '<span class="language-icon">🌐</span>' : ''}
-          ${showText ? `<span class="language-text">${currentLang?.code.toUpperCase()}</span>` : ''}
+          ${shouldShowIcon ? '<span class="language-icon">🌐</span>' : ''}
+          ${shouldShowText ? `<span class="language-text">${currentLang?.code.toUpperCase()}</span>` : ''}
           <span class="dropdown-arrow">▼</span>
         </button>
         <div class="language-dropdown ${this.isDropdownOpen ? 'open' : ''}" role="menu">
@@ -556,6 +592,17 @@ class LanguageToggle extends BaseComponent {
     if (this.componentConfig.style === 'dropdown') {
       this.toggleDropdown();
     } else {
+      // Validate service state before proceeding
+      if (!this.i18nService) {
+        console.error('[LanguageToggle] I18nService not available');
+        return;
+      }
+      
+      if (this.i18nService.state !== 'initialized') {
+        console.warn('[LanguageToggle] I18nService not initialized, state:', this.i18nService.state);
+        return;
+      }
+      
       // Add animation class
       this.element.classList.add('changing');
       setTimeout(() => {
@@ -564,10 +611,23 @@ class LanguageToggle extends BaseComponent {
 
       try {
         await this.i18nService.toggleLanguage();
+        console.log('[LanguageToggle] Language toggled successfully');
       } catch (error) {
-        console.error('Language toggle error:', error);
+        console.error('[LanguageToggle] Language toggle error:', error);
+        // Optionally show user feedback
+        this.showErrorFeedback('Failed to change language');
       }
     }
+  }
+
+  /**
+   * Show error feedback to user
+   * @param {string} message - Error message
+   */
+  showErrorFeedback(message) {
+    console.warn('[LanguageToggle]', message);
+    // Could emit an event for app-wide error handling
+    this.emit('language-toggle:error', { message });
   }
 
   /**
@@ -577,10 +637,17 @@ class LanguageToggle extends BaseComponent {
   async handleSelectChange(event) {
     const language = event.target.value;
     
+    // Validate service state
+    if (!this.i18nService || this.i18nService.state !== 'initialized') {
+      console.warn('[LanguageToggle] I18nService not ready for select change');
+      return;
+    }
+    
     try {
       await this.i18nService.setLanguage(language);
     } catch (error) {
-      console.error('Language select error:', error);
+      console.error('[LanguageToggle] Language select error:', error);
+      this.showErrorFeedback('Failed to change language');
     }
   }
 
@@ -594,11 +661,18 @@ class LanguageToggle extends BaseComponent {
 
     const language = event.currentTarget.dataset.language;
     
+    // Validate service state
+    if (!this.i18nService || this.i18nService.state !== 'initialized') {
+      console.warn('[LanguageToggle] I18nService not ready for option click');
+      return;
+    }
+    
     try {
       await this.i18nService.setLanguage(language);
       this.closeDropdown();
     } catch (error) {
-      console.error('Language option error:', error);
+      console.error('[LanguageToggle] Language option error:', error);
+      this.showErrorFeedback('Failed to change language');
     }
   }
 
@@ -674,10 +748,27 @@ class LanguageToggle extends BaseComponent {
   }
 
   async onDestroy() {
-    // Remove outside click listener
-    document.removeEventListener('click', this.handleOutsideClick.bind(this));
+    console.log('[LanguageToggle] Starting destruction and cleanup...');
     
+    // Remove language change listener using stored bound reference
+    if (this.i18nService && this.boundHandleLanguageChange && 
+        typeof this.i18nService.removeLanguageChangeListener === 'function') {
+      try {
+        this.i18nService.removeLanguageChangeListener(this.boundHandleLanguageChange);
+        console.log('[LanguageToggle] Language change listener removed');
+      } catch (error) {
+        console.warn('[LanguageToggle] Failed to remove language change listener:', error);
+      }
+    }
+    
+    // Clear bound references
+    this.boundHandleOutsideClick = null;
+    this.boundHandleLanguageChange = null;
+    this.outsideClickListenerActive = false;
+    
+    // BaseComponent.onDestroy() will handle the document click listener cleanup
     await super.onDestroy();
+    console.log('[LanguageToggle] Destruction complete');
   }
 }
 
