@@ -154,7 +154,212 @@
   display: block;
 }
 
+.portfolio-overview.dynamic-overview {
+  display: block;
+}
+
 .element-content {
   display: none;
   width: 100%;
+}
+
+/* Portfolio Section Navigation */
+.portfolio-overview:not(.dynamic-overview) {
+  display: block;
+}
+
+.portfolio-overview.hidden {
+  display: none !important;
+}
+
+.element-content.show {
+  display: block !important;
+}
+
+.competency-elements {
+  display: block;
+}
+
+.competency-elements.hidden {
+  display: none !important;
+}
+
+/* Element Navigation Cards */
+.element-nav-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  background: var(--bg-secondary);
+}
+
+.element-nav-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.element-nav-card.active {
+  border-color: var(--primary-500);
+  background: var(--primary-50);
+}
+
+/* Element Card Colors */
+.element-blue {
+  border-left: 4px solid #3b82f6;
+}
+
+.element-green {
+  border-left: 4px solid #10b981;
+}
+
+.element-orange {
+  border-left: 4px solid #f59e0b;
+}
+
+/* Portfolio Progress Indicators */
+.progress-circle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: conic-gradient(var(--primary-500) 0deg, var(--gray-200) 0deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.score-circle::before {
+  content: '';
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+}
+
+.score-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  z-index: 1;
+}
+
+.score-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  z-index: 1;
+}
+
+/* Element Cards Layout */
+.element-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.element-card:hover {
+  border-color: var(--primary-300);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.element-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.element-badge {
+  background: var(--primary-100);
+  color: var(--primary-700);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.element-progress {
+  margin: 1rem 0;
+}
+
+.element-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Progress Bars */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--gray-200);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar.small {
+  height: 4px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .sidebar {
+    position: static;
+    order: 2;
+  }
+  
+  .content-area {
+    order: 1;
+    padding: 1rem;
+  }
+  
+  .element-actions {
+    flex-direction: column;
+  }
+  
+  .score-circle {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .score-circle::before {
+    width: 75px;
+    height: 75px;
+  }
+  
+  .score-number {
+    font-size: 1.5rem;
+  }
 }

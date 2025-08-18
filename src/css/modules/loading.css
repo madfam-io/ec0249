@@ -1,18 +1,18 @@
 /**
- * EC0249 Educational Platform - Loading Styles
+ * Loading Styles - Enhanced Loading States and Animations
  * 
- * @description Comprehensive loading screen styles for the EC0249 platform.
- * This file provides professional loading experience with smooth animations,
- * responsive design, and proper branding integration.
+ * @description Comprehensive loading system including overlays, spinners,
+ * skeletons, and error states for all application loading scenarios.
  * 
  * @version 2.0.0
  * @since 2.0.0
  */
 
 /* ========================================
-   LOADING OVERLAY STYLES
+   PRIMARY LOADING OVERLAY
    ======================================== */
 
+/* Main application loading overlay */
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -32,15 +32,7 @@
   transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
 }
 
-.loading-overlay.fade-out {
-  opacity: 0;
-  visibility: hidden;
-}
-
-/* ========================================
-   LOADING BRAND SECTION
-   ======================================== */
-
+/* Loading Brand */
 .loading-brand {
   display: flex;
   align-items: center;
@@ -58,7 +50,7 @@
 .loading-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--primary, #3b82f6);
+  color: var(--primary-500, #3b82f6);
   text-shadow: 0 2px 4px rgba(0,0,0,0.1);
   margin: 0;
   line-height: 1.2;
@@ -72,48 +64,18 @@
   line-height: 1.2;
 }
 
-/* ========================================
-   LOADING SPINNER
-   ======================================== */
-
+/* Loading Spinner */
 .loading-spinner {
   width: 60px;
   height: 60px;
-  border: 4px solid var(--border-light, #e5e7eb);
-  border-left: 4px solid var(--primary, #3b82f6);
+  border: 4px solid var(--gray-200, #e5e7eb);
+  border-left: 4px solid var(--primary-500, #3b82f6);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1.5rem;
 }
 
-/* Alternative spinner styles */
-.loading-spinner.dots {
-  border: none;
-  background: none;
-  width: auto;
-  height: auto;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.loading-spinner.dots::before,
-.loading-spinner.dots::after {
-  content: '';
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--primary, #3b82f6);
-  animation: dotPulse 1.4s ease-in-out infinite both;
-}
-
-.loading-spinner.dots::after {
-  animation-delay: 0.7s;
-}
-
-/* ========================================
-   LOADING TEXT CONTENT
-   ======================================== */
-
+/* Loading Text */
 .loading-text {
   font-size: 1rem;
   color: var(--text-primary, #111827);
@@ -131,14 +93,11 @@
   animation: fadeInUp 0.6s ease-out 0.6s both;
 }
 
-/* ========================================
-   LOADING PROGRESS BAR
-   ======================================== */
-
+/* Loading Progress */
 .loading-progress {
   width: 300px;
   height: 4px;
-  background: var(--border-light, #e5e7eb);
+  background: var(--gray-200, #e5e7eb);
   border-radius: 2px;
   margin-top: 1.5rem;
   overflow: hidden;
@@ -148,7 +107,7 @@
 
 .loading-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary, #3b82f6), var(--primary-dark, #1e40af));
+  background: linear-gradient(90deg, var(--primary-500, #3b82f6), var(--primary-600, #1e40af));
   border-radius: 2px;
   width: 0%;
   animation: progress 3s ease-in-out infinite;
@@ -172,38 +131,308 @@
   animation: shimmer 2s infinite;
 }
 
-/* ========================================
-   LOADING STATES & VARIATIONS
-   ======================================== */
-
-.loading-overlay.minimal {
-  background: rgba(255, 255, 255, 0.8);
+/* Loading completion state */
+.loading-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
-.loading-overlay.minimal .loading-brand {
+/* ========================================
+   INLINE LOADING COMPONENTS
+   ======================================== */
+
+/* Inline loading for content areas */
+.loading-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin: 1rem 0;
+  min-height: 200px;
+}
+
+.loading-inline .loading-spinner {
+  width: 40px;
+  height: 40px;
+  border-width: 3px;
   margin-bottom: 1rem;
 }
 
-.loading-overlay.minimal .loading-text,
-.loading-overlay.minimal .loading-subtitle-text {
-  display: none;
+.loading-inline .loading-text {
+  font-size: 0.95rem;
+  text-align: center;
+  animation: none;
+  margin-bottom: 0;
 }
 
-.loading-overlay.dark {
-  background: rgba(17, 24, 39, 0.95);
-  color: white;
+/* Small inline loading */
+.loading-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
 }
 
-.loading-overlay.dark .loading-text {
-  color: white;
-}
-
-.loading-overlay.dark .loading-subtitle-text {
-  color: #9ca3af;
+.loading-small .loading-spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+  margin: 0;
 }
 
 /* ========================================
-   ANIMATIONS
+   SKELETON LOADING COMPONENTS
+   ======================================== */
+
+/* Skeleton loading for content placeholders */
+.skeleton {
+  background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-text {
+  height: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-text.large {
+  height: 1.5rem;
+}
+
+.skeleton-text.small {
+  height: 0.75rem;
+}
+
+.skeleton-text.w-full { width: 100%; }
+.skeleton-text.w-3-4 { width: 75%; }
+.skeleton-text.w-1-2 { width: 50%; }
+.skeleton-text.w-1-4 { width: 25%; }
+
+.skeleton-card {
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.skeleton-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-title {
+  height: 1.25rem;
+  width: 60%;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-subtitle {
+  height: 1rem;
+  width: 40%;
+}
+
+.skeleton-content {
+  margin-top: 1rem;
+}
+
+.skeleton-button {
+  height: 2.5rem;
+  width: 6rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+}
+
+/* ========================================
+   LOADING STATES FOR SPECIFIC COMPONENTS
+   ======================================== */
+
+/* Card loading state */
+.card-loading {
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.card-loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: cardShimmer 1.5s infinite;
+  z-index: 1;
+}
+
+/* Button loading state */
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+  cursor: wait;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  color: inherit;
+}
+
+/* Table loading state */
+.table-loading {
+  position: relative;
+  min-height: 200px;
+}
+
+.table-loading .skeleton-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.table-loading .skeleton-cell {
+  height: 2rem;
+  flex: 1;
+}
+
+.table-loading .skeleton-cell.narrow {
+  flex: 0 0 3rem;
+}
+
+/* ========================================
+   ERROR STATES
+   ======================================== */
+
+/* Error loading state */
+.loading-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--error-200, #fecaca);
+  border-radius: 12px;
+  margin: 1rem 0;
+  text-align: center;
+  min-height: 200px;
+}
+
+.loading-error-icon {
+  font-size: 3rem;
+  color: var(--error-500);
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.loading-error h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--error-600);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.loading-error p {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.loading-error .btn {
+  margin: 0.25rem;
+}
+
+/* Network error state */
+.network-error {
+  background: linear-gradient(135deg, #fef2f2 0%, var(--bg-secondary) 100%);
+  border-color: var(--error-300);
+}
+
+.network-error .loading-error-icon::before {
+  content: "📡";
+}
+
+/* Timeout error state */
+.timeout-error {
+  background: linear-gradient(135deg, #fffbeb 0%, var(--bg-secondary) 100%);
+  border-color: var(--warning-300);
+}
+
+.timeout-error .loading-error-icon {
+  color: var(--warning-500);
+}
+
+.timeout-error .loading-error-icon::before {
+  content: "⏱️";
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 1rem 0;
+  text-align: center;
+  min-height: 200px;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  color: var(--gray-400);
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ========================================
+   LOADING ANIMATIONS
    ======================================== */
 
 @keyframes spin {
@@ -240,8 +469,23 @@
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    background-position: -200% 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    background-position: 200% 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes cardShimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 @keyframes dotPulse {
@@ -255,10 +499,25 @@
   }
 }
 
+/* Fade in animation for loaded content */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
 /* ========================================
-   MOBILE RESPONSIVENESS
+   MOBILE RESPONSIVE ADJUSTMENTS
    ======================================== */
 
+/* Mobile optimizations */
 @media (max-width: 768px) {
   .loading-logo {
     font-size: 2.5rem;
@@ -283,46 +542,112 @@
   .loading-subtitle-text {
     font-size: 0.8rem;
   }
+  
+  .loading-inline {
+    padding: 2rem 1rem;
+    margin: 0.5rem 0;
+    min-height: 150px;
+  }
+  
+  .skeleton-card {
+    padding: 1rem;
+  }
+  
+  .loading-error,
+  .empty-state {
+    padding: 2rem 1rem;
+    min-height: 150px;
+  }
+  
+  .loading-error-icon,
+  .empty-state-icon {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .loading-progress {
+    width: 200px;
+    height: 3px;
+  }
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border-width: 3px;
+  }
+  
+  .loading-inline .loading-spinner {
+    width: 32px;
+    height: 32px;
+    border-width: 2px;
+  }
+  
+  .skeleton-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .skeleton-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
 }
 
 @media (max-width: 480px) {
+  .loading-brand {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
   .loading-logo {
     font-size: 2rem;
-    margin-right: 0.75rem;
+    margin-right: 0;
   }
   
   .loading-title {
     font-size: 1.125rem;
   }
   
-  .loading-progress {
-    width: 200px;
+  .loading-text,
+  .loading-subtitle-text {
+    font-size: 0.875rem;
+    text-align: center;
   }
   
-  .loading-spinner {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 1rem;
+  .loading-progress {
+    width: 180px;
+  }
+  
+  .loading-error h3,
+  .empty-state h3 {
+    font-size: 1.125rem;
+  }
+  
+  .loading-error p,
+  .empty-state p {
+    font-size: 0.875rem;
   }
 }
 
 /* ========================================
-   HIGH CONTRAST & ACCESSIBILITY
+   ACCESSIBILITY ENHANCEMENTS
    ======================================== */
 
+/* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
-  .loading-spinner {
+  .loading-spinner,
+  .skeleton,
+  .card-loading::before,
+  .btn-loading::after {
     animation: none;
-    border-left-color: var(--primary, #3b82f6);
   }
   
   .loading-logo {
     animation: none;
-  }
-  
-  .loading-progress-bar {
-    animation: none;
-    width: 100%;
+    transform: none;
   }
   
   .loading-brand,
@@ -333,17 +658,31 @@
     opacity: 1;
     transform: none;
   }
-}
-
-@media (prefers-high-contrast: high) {
-  .loading-overlay {
-    background: white;
-    color: black;
+  
+  .loading-progress-bar {
+    animation: none;
+    width: 100%;
   }
   
+  .fade-in {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
   .loading-spinner {
-    border-color: #000;
-    border-left-color: #000;
+    border-color: transparent;
+    border-left-color: var(--text-primary);
+  }
+  
+  .skeleton {
+    background: var(--gray-300);
+  }
+  
+  .loading-overlay {
+    background: var(--bg-primary);
+    backdrop-filter: none;
   }
   
   .loading-progress {
@@ -356,11 +695,48 @@
 }
 
 /* ========================================
+   DARK THEME ADJUSTMENTS
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+  .loading-overlay {
+    background: rgba(17, 24, 39, 0.95);
+  }
+  
+  .skeleton {
+    background: linear-gradient(90deg, var(--gray-700) 25%, var(--gray-600) 50%, var(--gray-700) 75%);
+    background-size: 200% 100%;
+  }
+  
+  .card-loading::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  }
+}
+
+[data-theme="dark"] .loading-overlay {
+  background: rgba(17, 24, 39, 0.95);
+}
+
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(90deg, var(--gray-700) 25%, var(--gray-600) 50%, var(--gray-700) 75%);
+  background-size: 200% 100%;
+}
+
+[data-theme="dark"] .card-loading::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+/* ========================================
    PRINT STYLES
    ======================================== */
 
 @media print {
-  .loading-overlay {
+  .loading-overlay,
+  .loading-inline,
+  .loading-small,
+  .skeleton,
+  .loading-error,
+  .empty-state {
     display: none !important;
   }
 }

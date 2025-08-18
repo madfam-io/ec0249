@@ -7,7 +7,7 @@ import BaseComponent from './BaseComponent.js';
 class ReferenceViewer extends BaseComponent {
   constructor(element, options = {}) {
     super('ReferenceViewer', element, {
-      dependencies: ['I18nService'],
+      dependencies: [],  // Remove dependencies to avoid container access issues
       events: {
         'click .reference-item': 'handleReferenceClick',
         'click .download-btn': 'handleDownload',
@@ -96,7 +96,17 @@ class ReferenceViewer extends BaseComponent {
     console.log('[ReferenceViewer] Initializing...');
     
     try {
-      this.i18nService = this.service('I18nService');
+      // Attempt to get i18n service for translations (optional)
+      try {
+        if (this.container && this.container.has && this.container.has('I18nService')) {
+          this.i18nService = this.container.resolve('I18nService');
+          console.log('[ReferenceViewer] I18nService acquired successfully');
+        } else {
+          console.warn('[ReferenceViewer] I18nService not available, using default text');
+        }
+      } catch (error) {
+        console.warn('[ReferenceViewer] I18nService resolution failed:', error.message);
+      }
       
       // Set initial data
       this.setData({
@@ -108,6 +118,7 @@ class ReferenceViewer extends BaseComponent {
       console.log('[ReferenceViewer] Initialized with', this.referenceDocuments.length, 'reference documents');
     } catch (error) {
       console.error('[ReferenceViewer] Initialization failed:', error);
+      throw error;
     }
   }
 

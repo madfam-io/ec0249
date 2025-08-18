@@ -117,26 +117,42 @@ class I18nService extends Module {
 
   /**
    * Initialize language from storage or detection
+   * Priority: Storage → Spanish Default → Browser Detection → Fallback
    */
   async initializeLanguage() {
     try {
-      // Try to load from storage first
+      // Try to load from storage first (highest priority)
       const savedLanguage = await this.storage.get(this.getConfig('storageKey'));
       if (savedLanguage && this.isSupportedLanguage(savedLanguage)) {
+        console.log(`[I18nService] Using saved language: ${savedLanguage}`);
         this.currentLanguage = savedLanguage;
         return;
       }
     } catch (error) {
-      console.warn('Failed to load language from storage:', error);
+      console.warn('[I18nService] Failed to load language from storage:', error);
     }
 
-    // Auto-detect from browser if enabled
+    // Use Spanish default as primary choice (Spanish-first approach)
+    const defaultLanguage = this.getConfig('defaultLanguage');
+    if (defaultLanguage === 'es') {
+      console.log('[I18nService] Using Spanish default (Spanish-first configuration)');
+      this.currentLanguage = defaultLanguage;
+      return;
+    }
+
+    // Only auto-detect from browser if no Spanish default and enabled
     if (this.getConfig('autoDetectLanguage')) {
       const detectedLanguage = this.detectBrowserLanguage();
       if (detectedLanguage) {
+        console.log(`[I18nService] Using browser-detected language: ${detectedLanguage}`);
         this.currentLanguage = detectedLanguage;
+        return;
       }
     }
+
+    // Final fallback to configured default
+    console.log(`[I18nService] Using fallback default language: ${defaultLanguage}`);
+    this.currentLanguage = defaultLanguage;
   }
 
   /**

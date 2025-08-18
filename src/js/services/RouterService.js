@@ -71,6 +71,20 @@ class RouterService extends Module {
     // If no route matches, redirect to default
     if (!this.currentRoute) {
       this.navigate(this.getConfig('defaultRoute'), { replace: true });
+    } else {
+      // Emit initial navigation event for the current route
+      const currentPath = this.getConfig('useHashRouting') 
+        ? window.location.hash.slice(1) || '/'
+        : window.location.pathname;
+        
+      console.log(`[RouterService] Emitting initial navigation event for: ${currentPath}`);
+      
+      this.emit('router:navigate', {
+        path: currentPath,
+        route: this.currentRoute,
+        params: this.currentParams,
+        options: { initial: true }
+      });
     }
   }
 
@@ -84,6 +98,8 @@ class RouterService extends Module {
     
     this.currentRoute = this.matchRoute(path);
     this.currentParams = this.extractParams(path);
+    
+    console.log(`[RouterService] Parsed URL "${path}" → route: "${this.currentRoute}"`);
   }
 
   /**
@@ -106,6 +122,7 @@ class RouterService extends Module {
       }
     }
     
+    console.warn(`[RouterService] No route match found for: "${path}"`);
     return null;
   }
 

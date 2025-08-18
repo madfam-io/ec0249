@@ -56,6 +56,15 @@
 /* 9. Module-Specific Styles */
 @import 'modules/modules.css';
 
+/* 9a. Dashboard-Specific Styles */
+@import 'modules/dashboard.css';
+
+/* 9b. Assessment-Specific Styles */
+@import 'modules/assessment.css';
+
+/* 9c. Progress and Portfolio Styles */
+@import 'modules/progress.css';
+
 /* 10. Notifications and Feedback */
 @import 'modules/notifications.css';
 

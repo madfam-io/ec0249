@@ -69,7 +69,7 @@ class ViewManager {
     this.currentController = null;
     
     /** @private {string} currentView - Current view identifier */
-    this.currentView = 'dashboard';
+    this.currentView = app.appState ? app.appState.currentView : 'dashboard';
     
     /** @private {boolean} initialized - Initialization status flag */
     this.initialized = false;
@@ -99,11 +99,38 @@ class ViewManager {
     // Set up navigation handlers
     this.bindNavigationEvents();
 
+    // Sync with current app state during initialization
+    this.syncWithAppState();
+
     // Show initial view
     await this.showView(this.currentView);
 
     this.initialized = true;
     console.log('[ViewManager] Initialized with', this.controllers.size, 'view controllers');
+  }
+
+  /**
+   * Sync ViewManager state with current app state
+   */
+  syncWithAppState() {
+    if (!this.app.appState) {
+      console.warn('[ViewManager] No app state available for synchronization');
+      return;
+    }
+
+    const appCurrentView = this.app.appState.currentView;
+    const appCurrentSection = this.app.appState.currentSection;
+
+    console.log(`[ViewManager] Syncing with app state - view: ${appCurrentView}, section: ${appCurrentSection}`);
+    console.log(`[ViewManager] Current ViewManager state - view: ${this.currentView}`);
+
+    // Update ViewManager state to match app state
+    if (appCurrentView && appCurrentView !== this.currentView) {
+      console.log(`[ViewManager] Updating ViewManager view from ${this.currentView} to ${appCurrentView}`);
+      this.currentView = appCurrentView;
+    }
+
+    console.log('[ViewManager] State synchronization complete');
   }
 
   /**

@@ -195,6 +195,9 @@ class EC0249App {
       // Initialize state management
       await this.initializeState();
       
+      // Synchronize initial route from URL (after state is ready)
+      await this.syncInitialRoute();
+      
       // Load user data
       await this.loadUserData();
       
@@ -221,6 +224,9 @@ class EC0249App {
       
       // Render initial view
       this.renderCurrentView();
+      
+      // Final state validation after complete initialization
+      this.performFinalStateValidation();
       
       this.initialized = true;
       
@@ -347,6 +353,141 @@ class EC0249App {
     }
     
     console.log('[App] Services booted and initialized');
+  }
+
+  /**
+   * Synchronize initial route from RouterService to App state
+   */
+  async syncInitialRoute() {
+    try {
+      const routerService = container.resolve('RouterService');
+      if (!routerService) {
+        console.warn('[App] RouterService not available for route synchronization');
+        return;
+      }
+
+      // Get current route information from RouterService
+      const currentRoute = routerService.getCurrentRoute();
+      console.log('[App] Synchronizing initial route:', currentRoute);
+      console.log('[App] Current app state before sync:', {
+        currentView: this.appState.currentView,
+        currentSection: this.appState.currentSection
+      });
+
+      // Update app state if route differs from default
+      if (currentRoute.route && currentRoute.route !== this.appState.currentView) {
+        console.log(`[App] Updating currentView from '${this.appState.currentView}' to '${currentRoute.route}'`);
+        
+        this.appState.currentView = currentRoute.route;
+        this.state.dispatch('SET_PROPERTY', {
+          path: 'currentView',
+          value: currentRoute.route
+        });
+      }
+
+      // Extract section from URL path (e.g., /portfolio/element1 -> element1, /portfolio/documents -> documents)
+      const pathParts = currentRoute.path.split('/');
+      console.log('[App] URL path parts:', pathParts);
+      
+      if (pathParts.length >= 3) {
+        const urlSection = pathParts[2];
+        console.log(`[App] Extracted section from URL: "${urlSection}"`);
+        
+        if (urlSection && urlSection !== this.appState.currentSection) {
+          console.log(`[App] Updating currentSection from '${this.appState.currentSection}' to '${urlSection}'`);
+          
+          this.appState.currentSection = urlSection;
+          this.state.dispatch('SET_PROPERTY', {
+            path: 'currentSection',
+            value: urlSection
+          });
+        }
+      } else {
+        console.log('[App] No section found in URL path, keeping current section:', this.appState.currentSection);
+      }
+
+      console.log('[App] Route synchronization complete:', {
+        view: this.appState.currentView,
+        section: this.appState.currentSection,
+        path: currentRoute.path
+      });
+
+      // Validate final state
+      this.validateRouteState(currentRoute);
+
+    } catch (error) {
+      console.error('[App] Failed to synchronize initial route:', error);
+    }
+  }
+
+  /**
+   * Validate route state consistency
+   */
+  validateRouteState(currentRoute) {
+    console.log('[App] Validating route state consistency...');
+    
+    // Check if route resolution was successful
+    if (!currentRoute.route) {
+      console.warn(`[App] Route resolution failed for path: ${currentRoute.path}`);
+      console.warn('[App] This may cause the app to show default dashboard instead of intended view');
+    }
+
+    // Check view/section consistency
+    const expectedView = currentRoute.route;
+    const actualView = this.appState.currentView;
+    
+    if (expectedView && expectedView !== actualView) {
+      console.error(`[App] STATE MISMATCH - Expected view: ${expectedView}, Actual view: ${actualView}`);
+    }
+
+    // Log final validation summary
+    console.log('[App] Route state validation summary:', {
+      urlPath: currentRoute.path,
+      routeResolved: currentRoute.route,
+      appView: this.appState.currentView,
+      appSection: this.appState.currentSection,
+      isConsistent: expectedView === actualView
+    });
+  }
+
+  /**
+   * Perform final state validation after complete initialization
+   */
+  performFinalStateValidation() {
+    console.log('[App] Performing final state validation...');
+    
+    const currentPath = window.location.pathname;
+    const appView = this.appState.currentView;
+    const appSection = this.appState.currentSection;
+    
+    // Get ViewManager state if available
+    let viewManagerState = null;
+    if (this.viewManager) {
+      viewManagerState = {
+        currentView: this.viewManager.currentView,
+        currentController: this.viewManager.currentController?.viewId || null
+      };
+    }
+
+    console.log('[App] Final state validation:', {
+      url: currentPath,
+      appState: { view: appView, section: appSection },
+      viewManagerState: viewManagerState,
+      viewManagerInitialized: !!this.viewManager,
+      allStatesConsistent: viewManagerState?.currentView === appView
+    });
+
+    // Check for common issues
+    if (currentPath !== '/' && currentPath !== '/dashboard' && appView === 'dashboard') {
+      console.warn('[App] POTENTIAL ISSUE: Non-dashboard URL but app state shows dashboard view');
+      console.warn(`[App] URL: ${currentPath}, App View: ${appView}`);
+      console.warn('[App] This indicates the routing synchronization may have failed');
+    }
+
+    if (this.viewManager && viewManagerState?.currentView !== appView) {
+      console.error('[App] CRITICAL ISSUE: ViewManager and App state are out of sync!');
+      console.error(`[App] App View: ${appView}, ViewManager View: ${viewManagerState?.currentView}`);
+    }
   }
 
   /**
@@ -694,7 +835,17 @@ class EC0249App {
     try {
       this.viewManager = new ViewManager(this);
       await this.viewManager.initialize();
-      console.log('[App] ViewManager initialized');
+      
+      // ViewManager now automatically syncs with app state during initialization
+      console.log(`[App] ViewManager initialized and synced with app state: view=${this.appState.currentView}, section=${this.appState.currentSection}`);
+      
+      // Show section if we have one (ViewManager already handled the view during its initialization)
+      if (this.appState.currentSection) {
+        console.log(`[App] Showing section after ViewManager initialization: ${this.appState.currentSection}`);
+        await this.viewManager.showSection(this.appState.currentSection);
+      }
+      
+      console.log('[App] ViewManager initialized and synced with route state');
     } catch (error) {
       console.error('[App] Failed to initialize ViewManager:', error);
       throw error;
@@ -1630,6 +1781,26 @@ class EC0249App {
     // Prevent circular navigation by checking if this is a programmatic navigation
     if (data.options?.silent) {
       return; // Don't trigger app view changes for silent navigation
+    }
+    
+    // For initial navigation events, we've already synced the state in syncInitialRoute()
+    // Just ensure ViewManager is updated if available
+    if (data.options?.initial) {
+      console.log('[App] Processing initial navigation event');
+      if (this.viewManager) {
+        this.viewManager.showView(data.route);
+        
+        // Handle section if present in path
+        const pathParts = data.path.split('/');
+        if (pathParts.length >= 3) {
+          const urlSection = pathParts[2];
+          if (urlSection) {
+            console.log(`[App] Initial navigation - showing section: ${urlSection}`);
+            this.viewManager.showSection(urlSection);
+          }
+        }
+      }
+      return;
     }
     
     // Update app view based on route without triggering router navigation

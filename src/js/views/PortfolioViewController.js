@@ -17,6 +17,7 @@ class PortfolioViewController extends BaseViewController {
       search: ''
     };
     this.referenceViewer = null;
+    this.shouldShowElementContent = false;
   }
 
   async onInitialize() {
@@ -50,21 +51,8 @@ class PortfolioViewController extends BaseViewController {
       });
     });
 
-    // Handle data-action buttons properly (these should be handled by App.js)
-    // Don't override App.js button handling - let it work through proper delegation
-    
-    // "Ver Documentos" buttons in dynamically created content only
-    this.findElements('.element-actions button[data-element]').forEach(button => {
-      if (button.textContent.includes('Ver Documentos')) {
-        button.addEventListener('click', (e) => {
-          e.preventDefault();
-          const elementId = button.getAttribute('data-element');
-          if (elementId) {
-            this.showElement(elementId);
-          }
-        });
-      }
-    });
+    // Note: Static "Ver Documentos" buttons with data-action="view-element-X" 
+    // are handled by App.js event delegation. Don't bind to them here to avoid conflicts.
 
     // Document template cards
     this.findElements('.template-card').forEach(card => {
@@ -117,6 +105,50 @@ class PortfolioViewController extends BaseViewController {
     
     // Listen for portfolio refresh events
     this.subscribe('portfolio:refresh', this.handlePortfolioRefresh.bind(this));
+    
+    // Listen for browser navigation events
+    this.subscribe('router:popstate', this.handleRouterNavigation.bind(this));
+    
+    // Check URL for specific element routing
+    this.handleElementRouting();
+  }
+
+  /**
+   * Handle element routing based on URL
+   */
+  handleElementRouting() {
+    const currentPath = window.location.pathname;
+    console.log(`[PortfolioViewController] Checking URL for element routing: ${currentPath}`);
+    
+    // Extract element from URL patterns like /portfolio/element1, /portfolio/element2, etc.
+    const elementMatch = currentPath.match(/\/portfolio\/element([1-3])/);
+    
+    if (elementMatch) {
+      const elementNumber = elementMatch[1];
+      const elementId = `element${elementNumber}`;
+      
+      console.log(`[PortfolioViewController] URL indicates element: ${elementId}`);
+      
+      // Set current element and show element content instead of overview
+      this.currentElement = elementId;
+      this.shouldShowElementContent = true;
+    } else {
+      console.log(`[PortfolioViewController] URL shows portfolio overview`);
+      this.shouldShowElementContent = false;
+    }
+  }
+
+  /**
+   * Handle router navigation events (back/forward buttons)
+   */
+  async handleRouterNavigation() {
+    console.log('[PortfolioViewController] Router navigation detected, updating view...');
+    
+    // Re-check URL routing when browser navigation occurs
+    this.handleElementRouting();
+    
+    // Re-render the view to reflect URL changes
+    await this.onRender();
   }
 
   /**
@@ -143,8 +175,12 @@ class PortfolioViewController extends BaseViewController {
     // Update certification progress
     this.updateCertificationProgress();
     
-    // Default to showing overview (not element content)
-    this.hideElementSection();
+    // Show element content if URL indicates it, otherwise show overview
+    if (this.shouldShowElementContent) {
+      this.showElementSection();
+    } else {
+      this.hideElementSection();
+    }
     
     // Re-bind events after content changes
     this.bindEvents();
@@ -156,36 +192,65 @@ class PortfolioViewController extends BaseViewController {
    * Ensure portfolio DOM structure exists
    */
   ensurePortfolioStructure() {
-    if (!this.element) return;
+    if (!this.element) {
+      console.warn('[PortfolioViewController] No element available for structure creation');
+      return;
+    }
     
-    // Check if we need to create the dynamic portfolio structure
-    let portfolioOverview = this.findElement('.portfolio-overview');
-    let elementContent = this.findElement('.element-content');
+    console.log('[PortfolioViewController] Ensuring portfolio structure...');
     
-    // If we're missing the expected dynamic structure, create it
-    if (!portfolioOverview || !elementContent) {
-      // Create wrapper for portfolio content
-      const portfolioWrapper = this.createElement('div', ['portfolio-wrapper']);
+    // Check if we already have the dynamic structure
+    let portfolioWrapper = this.findElement('.portfolio-wrapper');
+    
+    if (!portfolioWrapper) {
+      console.log('[PortfolioViewController] Creating dynamic portfolio structure...');
       
-      // Create portfolio overview container
-      portfolioOverview = this.createElement('div', ['portfolio-overview']);
+      // Create wrapper for all portfolio content
+      portfolioWrapper = this.createElement('div', ['portfolio-wrapper']);
       
-      // Create element content container  
-      elementContent = this.createElement('div', ['element-content']);
+      // Move existing static content to overview container
+      const existingOverview = this.findElement('.portfolio-overview');
+      if (existingOverview) {
+        // Clone the existing overview content
+        const clonedOverview = existingOverview.cloneNode(true);
+        clonedOverview.classList.add('dynamic-overview');
+        portfolioWrapper.appendChild(clonedOverview);
+      } else {
+        // Create new overview container if none exists
+        const portfolioOverview = this.createElement('div', ['portfolio-overview', 'dynamic-overview']);
+        portfolioWrapper.appendChild(portfolioOverview);
+      }
       
-      // Append to wrapper
-      portfolioWrapper.appendChild(portfolioOverview);
+      // Create element content container (initially hidden)
+      const elementContent = this.createElement('div', ['element-content']);
+      elementContent.style.display = 'none';
       portfolioWrapper.appendChild(elementContent);
       
-      // Replace or append to main element
-      const existingContent = this.element.querySelector('.portfolio-wrapper');
-      if (existingContent) {
-        this.element.replaceChild(portfolioWrapper, existingContent);
+      // Insert the wrapper after the existing content
+      if (existingOverview && existingOverview.parentNode) {
+        existingOverview.parentNode.insertBefore(portfolioWrapper, existingOverview.nextSibling);
       } else {
-        // Keep the existing static content and append the dynamic structure
         this.element.appendChild(portfolioWrapper);
       }
+      
+      console.log('[PortfolioViewController] Dynamic portfolio structure created');
+    } else {
+      console.log('[PortfolioViewController] Portfolio structure already exists');
     }
+    
+    // Ensure we have both required containers
+    const portfolioOverview = this.findElement('.portfolio-wrapper .portfolio-overview');
+    const elementContent = this.findElement('.element-content');
+    
+    if (!portfolioOverview) {
+      console.error('[PortfolioViewController] Portfolio overview container missing');
+    }
+    
+    if (!elementContent) {
+      console.error('[PortfolioViewController] Element content container missing');
+    }
+    
+    console.log('[PortfolioViewController] Portfolio structure check complete');
   }
 
   /**
@@ -447,7 +512,57 @@ class PortfolioViewController extends BaseViewController {
     const documentsSection = this.createDocumentsSection();
     elementContainer.appendChild(documentsSection);
     
+    // Re-bind events for the new content
+    this.bindElementContentEvents();
+    
     console.log(`[PortfolioViewController] Element content rendered for: ${this.currentElement}`);
+  }
+
+  /**
+   * Bind events for element content
+   */
+  bindElementContentEvents() {
+    console.log('[PortfolioViewController] Binding element content events...');
+    
+    // Bind template card events within element content
+    const elementContent = this.findElement('.element-content');
+    if (elementContent) {
+      // Template card clicks
+      const templateCards = elementContent.querySelectorAll('.template-card');
+      templateCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+          e.preventDefault();
+          const templateId = card.getAttribute('data-template');
+          if (templateId) {
+            console.log(`[PortfolioViewController] Template card clicked: ${templateId}`);
+            this.openDocumentTemplate(templateId);
+          }
+        });
+      });
+      
+      // Reference docs button
+      const referenceButtons = elementContent.querySelectorAll('.reference-docs-btn');
+      referenceButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          console.log('[PortfolioViewController] Reference docs button clicked');
+          this.openReferenceViewer();
+        });
+      });
+      
+      // Document action buttons
+      const actionButtons = elementContent.querySelectorAll('[data-portfolio-action]');
+      actionButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          const action = button.getAttribute('data-portfolio-action');
+          console.log(`[PortfolioViewController] Portfolio action clicked: ${action}`);
+          this.handlePortfolioAction(action, button);
+        });
+      });
+      
+      console.log(`[PortfolioViewController] Bound events for ${templateCards.length} template cards, ${referenceButtons.length} reference buttons, ${actionButtons.length} action buttons`);
+    }
   }
 
   /**
@@ -703,6 +818,13 @@ class PortfolioViewController extends BaseViewController {
     
     // Update element navigation
     this.updateElementNavigation();
+    
+    // Update URL to reflect current element
+    const newUrl = `/portfolio/${elementId}`;
+    if (window.location.pathname !== newUrl) {
+      window.history.pushState(null, '', newUrl);
+      console.log(`[PortfolioViewController] URL updated to: ${newUrl}`);
+    }
     
     // Re-render current element content
     console.log(`[PortfolioViewController] Rendering element content for: ${elementId}`);
@@ -1274,6 +1396,10 @@ class PortfolioViewController extends BaseViewController {
       // Create new reference viewer
       this.referenceViewer = new ReferenceViewer(viewerContainer);
 
+      // Properly initialize the viewer with container and event bus
+      this.referenceViewer.container = this.container;
+      this.referenceViewer.eventBus = this.eventBus;
+      
       // Initialize the viewer
       await this.referenceViewer.initialize();
       
@@ -1386,15 +1512,36 @@ class PortfolioViewController extends BaseViewController {
    * Show element section (hide overview, show element content)
    */
   showElementSection() {
-    const portfolioOverview = this.findElement('.portfolio-overview');
-    const elementContent = this.findElement('.element-content');
+    console.log('[PortfolioViewController] Showing element section...');
     
-    if (portfolioOverview) {
-      portfolioOverview.style.display = 'none';
+    // Hide static overview
+    const staticOverview = this.findElement('.portfolio-overview:not(.dynamic-overview)');
+    if (staticOverview) {
+      staticOverview.style.display = 'none';
+      console.log('[PortfolioViewController] Static overview hidden');
     }
     
+    // Hide dynamic overview
+    const dynamicOverview = this.findElement('.portfolio-wrapper .portfolio-overview');
+    if (dynamicOverview) {
+      dynamicOverview.style.display = 'none';
+      console.log('[PortfolioViewController] Dynamic overview hidden');
+    }
+    
+    // Show element content
+    const elementContent = this.findElement('.element-content');
     if (elementContent) {
       elementContent.style.display = 'block';
+      console.log('[PortfolioViewController] Element content shown');
+    } else {
+      console.error('[PortfolioViewController] Element content container not found');
+    }
+    
+    // Hide competency elements section
+    const competencyElements = this.findElement('.competency-elements');
+    if (competencyElements) {
+      competencyElements.style.display = 'none';
+      console.log('[PortfolioViewController] Competency elements hidden');
     }
   }
   
@@ -1402,15 +1549,34 @@ class PortfolioViewController extends BaseViewController {
    * Hide element section (show overview, hide element content)
    */
   hideElementSection() {
-    const portfolioOverview = this.findElement('.portfolio-overview');
-    const elementContent = this.findElement('.element-content');
+    console.log('[PortfolioViewController] Hiding element section...');
     
-    if (portfolioOverview) {
-      portfolioOverview.style.display = 'block';
+    // Show static overview
+    const staticOverview = this.findElement('.portfolio-overview:not(.dynamic-overview)');
+    if (staticOverview) {
+      staticOverview.style.display = 'block';
+      console.log('[PortfolioViewController] Static overview shown');
     }
     
+    // Show dynamic overview
+    const dynamicOverview = this.findElement('.portfolio-wrapper .portfolio-overview');
+    if (dynamicOverview) {
+      dynamicOverview.style.display = 'block';
+      console.log('[PortfolioViewController] Dynamic overview shown');
+    }
+    
+    // Hide element content
+    const elementContent = this.findElement('.element-content');
     if (elementContent) {
       elementContent.style.display = 'none';
+      console.log('[PortfolioViewController] Element content hidden');
+    }
+    
+    // Show competency elements section
+    const competencyElements = this.findElement('.competency-elements');
+    if (competencyElements) {
+      competencyElements.style.display = 'block';
+      console.log('[PortfolioViewController] Competency elements shown');
     }
   }
 
