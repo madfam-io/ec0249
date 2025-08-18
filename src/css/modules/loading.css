@@ -1,0 +1,366 @@
+/**
+ * EC0249 Educational Platform - Loading Styles
+ * 
+ * @description Comprehensive loading screen styles for the EC0249 platform.
+ * This file provides professional loading experience with smooth animations,
+ * responsive design, and proper branding integration.
+ * 
+ * @version 2.0.0
+ * @since 2.0.0
+ */
+
+/* ========================================
+   LOADING OVERLAY STYLES
+   ======================================== */
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-overlay, rgba(255, 255, 255, 0.95));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.loading-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* ========================================
+   LOADING BRAND SECTION
+   ======================================== */
+
+.loading-brand {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.loading-logo {
+  font-size: 3rem;
+  margin-right: 1rem;
+  animation: pulse 2s infinite;
+  user-select: none;
+}
+
+.loading-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary, #3b82f6);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.loading-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+  margin-top: 0.25rem;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ========================================
+   LOADING SPINNER
+   ======================================== */
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid var(--border-light, #e5e7eb);
+  border-left: 4px solid var(--primary, #3b82f6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+/* Alternative spinner styles */
+.loading-spinner.dots {
+  border: none;
+  background: none;
+  width: auto;
+  height: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.loading-spinner.dots::before,
+.loading-spinner.dots::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary, #3b82f6);
+  animation: dotPulse 1.4s ease-in-out infinite both;
+}
+
+.loading-spinner.dots::after {
+  animation-delay: 0.7s;
+}
+
+/* ========================================
+   LOADING TEXT CONTENT
+   ======================================== */
+
+.loading-text {
+  font-size: 1rem;
+  color: var(--text-primary, #111827);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  text-align: center;
+  animation: fadeInUp 0.6s ease-out 0.3s both;
+}
+
+.loading-subtitle-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+  text-align: center;
+  margin-bottom: 1rem;
+  animation: fadeInUp 0.6s ease-out 0.6s both;
+}
+
+/* ========================================
+   LOADING PROGRESS BAR
+   ======================================== */
+
+.loading-progress {
+  width: 300px;
+  height: 4px;
+  background: var(--border-light, #e5e7eb);
+  border-radius: 2px;
+  margin-top: 1.5rem;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out 0.9s both;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.loading-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary, #3b82f6), var(--primary-dark, #1e40af));
+  border-radius: 2px;
+  width: 0%;
+  animation: progress 3s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+/* ========================================
+   LOADING STATES & VARIATIONS
+   ======================================== */
+
+.loading-overlay.minimal {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.loading-overlay.minimal .loading-brand {
+  margin-bottom: 1rem;
+}
+
+.loading-overlay.minimal .loading-text,
+.loading-overlay.minimal .loading-subtitle-text {
+  display: none;
+}
+
+.loading-overlay.dark {
+  background: rgba(17, 24, 39, 0.95);
+  color: white;
+}
+
+.loading-overlay.dark .loading-text {
+  color: white;
+}
+
+.loading-overlay.dark .loading-subtitle-text {
+  color: #9ca3af;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes progress {
+  0% { width: 0%; }
+  50% { width: 70%; }
+  100% { width: 100%; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   MOBILE RESPONSIVENESS
+   ======================================== */
+
+@media (max-width: 768px) {
+  .loading-logo {
+    font-size: 2.5rem;
+  }
+  
+  .loading-title {
+    font-size: 1.25rem;
+  }
+  
+  .loading-progress {
+    width: 250px;
+  }
+  
+  .loading-brand {
+    margin-bottom: 1.5rem;
+  }
+  
+  .loading-text {
+    font-size: 0.9rem;
+  }
+  
+  .loading-subtitle-text {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loading-logo {
+    font-size: 2rem;
+    margin-right: 0.75rem;
+  }
+  
+  .loading-title {
+    font-size: 1.125rem;
+  }
+  
+  .loading-progress {
+    width: 200px;
+  }
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 1rem;
+  }
+}
+
+/* ========================================
+   HIGH CONTRAST & ACCESSIBILITY
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+    border-left-color: var(--primary, #3b82f6);
+  }
+  
+  .loading-logo {
+    animation: none;
+  }
+  
+  .loading-progress-bar {
+    animation: none;
+    width: 100%;
+  }
+  
+  .loading-brand,
+  .loading-text,
+  .loading-subtitle-text,
+  .loading-progress {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-high-contrast: high) {
+  .loading-overlay {
+    background: white;
+    color: black;
+  }
+  
+  .loading-spinner {
+    border-color: #000;
+    border-left-color: #000;
+  }
+  
+  .loading-progress {
+    background: #ccc;
+  }
+  
+  .loading-progress-bar {
+    background: #000;
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  .loading-overlay {
+    display: none !important;
+  }
+}

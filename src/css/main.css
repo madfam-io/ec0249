@@ -32,44 +32,140 @@
 /* 1. CSS Variables and Design Tokens */
 @import 'modules/variables.css';
 
-/* 2. Base Styles and Reset */
+/* 2. Loading Styles (Critical - loaded early) */
+@import 'modules/loading.css';
+
+/* 3. Base Styles and Reset */
 @import 'modules/base.css';
 
-/* 3. Utility Classes */
+/* 4. Utility Classes */
 @import 'modules/utilities.css';
 
-/* 4. Layout System */
+/* 5. Layout System */
 @import 'modules/layout.css';
 
-/* 5. Typography */
+/* 6. Typography */
 @import 'modules/typography.css';
 
-/* 6. Core Components */
+/* 7. Core Components */
 @import 'modules/components.css';
 
-/* 7. Navigation Systems */
+/* 8. Navigation Systems */
 @import 'modules/navigation.css';
 
-/* 8. Module-Specific Styles */
+/* 9. Module-Specific Styles */
 @import 'modules/modules.css';
 
-/* 9. Notifications and Feedback */
+/* 10. Notifications and Feedback */
 @import 'modules/notifications.css';
 
-/* 10. Video Integration */
+/* 11. Video Integration */
 @import 'modules/video.css';
 
-/* 11. Interactive Elements */
+/* 12. Interactive Elements */
 @import 'modules/interactive.css';
 
-/* 12. Template Systems */
+/* 13. Template Systems */
 @import 'modules/templates.css';
 
-/* 13. Achievement System */
+/* 14. Achievement System */
 @import 'modules/achievements.css';
 
-/* 14. Responsive Design (MUST be near end) */
+/* 15. Responsive Design (MUST be near end) */
 @import 'modules/responsive.css';
 
-/* 15. Accessibility & Print (MUST be last) */
+/* 16. Accessibility & Print (MUST be last) */
 @import 'modules/accessibility.css';
+
+/* ========================================
+   TOGGLE COMPONENTS STYLING
+   ======================================== */
+
+/* Theme Toggle Component */
+.theme-toggle-component {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 0.5rem;
+  background: var(--bg-secondary, #ffffff);
+  color: var(--text-primary, #111827);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--bg-primary, #f9fafb);
+  transform: scale(1.02);
+}
+
+.theme-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.theme-text {
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+/* Language Toggle Component */
+.language-toggle-component {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.language-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 0.5rem;
+  background: var(--bg-secondary, #ffffff);
+  color: var(--text-primary, #111827);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.language-toggle-btn:hover {
+  background: var(--bg-primary, #f9fafb);
+  transform: scale(1.02);
+}
+
+.language-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.language-text {
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+/* Fallback states with visual indicators */
+.theme-toggle-fallback {
+  border: 2px solid var(--warning, #f59e0b);
+  background: var(--warning-light, #fef3c7);
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.language-toggle-fallback {
+  border: 2px solid var(--info, #3b82f6);
+  background: var(--info-light, #dbeafe);
+  padding: 4px;
+  border-radius: 6px;
+}

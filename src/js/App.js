@@ -325,7 +325,24 @@ class EC0249App {
    */
   async bootServices() {
     await container.boot();
-    console.log('[App] Services booted');
+    
+    // Initialize services that extend Module
+    const servicesToInitialize = ['ThemeService', 'I18nService', 'StorageService', 'RouterService', 'ProgressService'];
+    
+    for (const serviceName of servicesToInitialize) {
+      try {
+        const service = container.resolve(serviceName);
+        if (service && typeof service.initialize === 'function' && service.state === 'uninitialized') {
+          console.log(`[App] Initializing module service: ${serviceName}`);
+          await service.initialize(container, eventBus);
+          console.log(`[App] ✅ ${serviceName} initialized as module`);
+        }
+      } catch (error) {
+        console.error(`[App] Failed to initialize service '${serviceName}':`, error);
+      }
+    }
+    
+    console.log('[App] Services booted and initialized');
   }
 
   /**
@@ -360,36 +377,62 @@ class EC0249App {
    */
   async initializeComponents() {
     try {
+      console.log('[App] 🔧 STARTING COMPONENT INITIALIZATION...');
+      
       // Initialize theme toggle
       const themeToggleElement = document.getElementById('themeToggle');
+      console.log('[App] 🎨 ThemeToggle element lookup:', {
+        found: !!themeToggleElement,
+        element: themeToggleElement,
+        innerHTML: themeToggleElement?.innerHTML || 'N/A'
+      });
+      
       if (themeToggleElement) {
+        console.log('[App] 🎨 Creating ThemeToggle component...');
         const themeToggle = new ThemeToggle(themeToggleElement, {
           style: 'button',
           showIcon: true,
           showText: false
         });
         
+        console.log('[App] 🎨 Initializing ThemeToggle...');
         await themeToggle.initialize(container, eventBus);
+        
+        console.log('[App] 🎨 ThemeToggle mounted, checking element content...');
+        console.log('[App] 🎨 Element innerHTML after mount:', themeToggleElement.innerHTML);
+        
         this.components.set('themeToggle', themeToggle);
-        console.log('[App] ThemeToggle component initialized');
+        console.log('[App] ✅ ThemeToggle component initialized successfully');
       } else {
-        console.warn('[App] ThemeToggle element not found');
+        console.error('[App] ❌ ThemeToggle element not found in DOM!');
       }
 
       // Initialize language toggle
       const languageToggleElement = document.getElementById('languageToggle');
+      console.log('[App] 🌐 LanguageToggle element lookup:', {
+        found: !!languageToggleElement,
+        element: languageToggleElement,
+        innerHTML: languageToggleElement?.innerHTML || 'N/A'
+      });
+      
       if (languageToggleElement) {
+        console.log('[App] 🌐 Creating LanguageToggle component...');
         const languageToggle = new LanguageToggle(languageToggleElement, {
           style: 'button',
           showIcon: true,
           showText: true
         });
         
+        console.log('[App] 🌐 Initializing LanguageToggle...');
         await languageToggle.initialize(container, eventBus);
+        
+        console.log('[App] 🌐 LanguageToggle mounted, checking element content...');
+        console.log('[App] 🌐 Element innerHTML after mount:', languageToggleElement.innerHTML);
+        
         this.components.set('languageToggle', languageToggle);
-        console.log('[App] LanguageToggle component initialized');
+        console.log('[App] ✅ LanguageToggle component initialized successfully');
       } else {
-        console.warn('[App] LanguageToggle element not found');
+        console.error('[App] ❌ LanguageToggle element not found in DOM!');
       }
 
       // Initialize welcome video player
@@ -556,50 +599,84 @@ class EC0249App {
   }
 
   /**
-   * Initialize application modules
+   * Initialize application modules (engines)
+   * 
+   * Note: Services are initialized in bootServices(), this method only handles
+   * engines (ContentEngine, AssessmentEngine, etc.) to avoid double initialization.
    */
   async initializeModules() {
-    // Initialize ContentEngine for lesson content rendering
-    const contentEngine = container.resolve('ContentEngine');
-    await contentEngine.initialize(container, eventBus);
-    this.modules.set('contentEngine', contentEngine);
+    // Initialize engines (not services - those are initialized in bootServices)
+    
+    // Declare engine variables for legacy compatibility
+    let contentEngine, assessmentEngine, documentEngine, simulationEngine;
+    
+    const engines = [
+      { name: 'ContentEngine', key: 'contentEngine', variable: 'contentEngine', description: 'lesson content rendering' },
+      { name: 'AssessmentEngine', key: 'assessmentEngine', variable: 'assessmentEngine', description: 'knowledge verification' },
+      { name: 'DocumentEngine', key: 'documentEngine', variable: 'documentEngine', description: 'template-based document generation' },
+      { name: 'SimulationEngine', key: 'simulationEngine', variable: 'simulationEngine', description: 'interview and presentation practice' }
+    ];
 
-    // Initialize AssessmentEngine for knowledge verification
-    const assessmentEngine = container.resolve('AssessmentEngine');
-    await assessmentEngine.initialize(container, eventBus);
-    this.modules.set('assessmentEngine', assessmentEngine);
+    for (const { name, key, variable, description } of engines) {
+      try {
+        const engine = container.resolve(name);
+        
+        // Only initialize if not already initialized
+        if (engine.state === 'uninitialized') {
+          console.log(`[App] Initializing ${name} for ${description}...`);
+          await engine.initialize(container, eventBus);
+          console.log(`[App] ✅ ${name} initialized successfully`);
+        } else {
+          console.log(`[App] ℹ️  ${name} already initialized (state: ${engine.state})`);
+        }
+        
+        // Assign to both modules map and individual variables for legacy compatibility
+        this.modules.set(key, engine);
+        
+        // Assign to individual variables
+        switch (variable) {
+          case 'contentEngine': contentEngine = engine; break;
+          case 'assessmentEngine': assessmentEngine = engine; break;
+          case 'documentEngine': documentEngine = engine; break;
+          case 'simulationEngine': simulationEngine = engine; break;
+        }
+        
+      } catch (error) {
+        console.error(`[App] Failed to initialize ${name}:`, error);
+        throw error;
+      }
+    }
 
-    // Initialize DocumentEngine for template-based document generation
-    const documentEngine = container.resolve('DocumentEngine');
-    await documentEngine.initialize(container, eventBus);
-    this.modules.set('documentEngine', documentEngine);
-
-    // Initialize SimulationEngine for interview and presentation practice
-    const simulationEngine = container.resolve('SimulationEngine');
-    await simulationEngine.initialize(container, eventBus);
-    this.modules.set('simulationEngine', simulationEngine);
-
-    // Initialize RouterService for URL navigation
+    // Get already initialized services (initialized in bootServices)
     const routerService = container.resolve('RouterService');
-    await routerService.initialize(container, eventBus);
     this.modules.set('routerService', routerService);
 
-    // Initialize ProgressService for tracking user completion
     const progressService = container.resolve('ProgressService');
-    await progressService.initialize(container, eventBus);
     this.modules.set('progressService', progressService);
 
     // Expose engines globally for legacy compatibility
     if (typeof window !== 'undefined') {
-      window.contentEngine = contentEngine;
-      window.assessmentEngine = assessmentEngine;
-      window.documentEngine = documentEngine;
-      window.simulationEngine = simulationEngine;
-      window.routerService = routerService;
-      window.progressService = progressService;
+      // Validate engines are properly initialized before exposing
+      const globalExports = {
+        contentEngine,
+        assessmentEngine, 
+        documentEngine,
+        simulationEngine,
+        routerService,
+        progressService
+      };
+      
+      for (const [name, instance] of Object.entries(globalExports)) {
+        if (instance) {
+          window[name] = instance;
+          console.log(`[App] ✅ Exposed ${name} globally`);
+        } else {
+          console.warn(`[App] ⚠️  Failed to expose ${name} - instance is null/undefined`);
+        }
+      }
     }
 
-    console.log('[App] Modules initialized');
+    console.log('[App] ✅ All modules initialized successfully');
   }
 
   /**

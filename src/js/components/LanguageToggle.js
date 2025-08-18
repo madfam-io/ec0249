@@ -709,17 +709,20 @@ class LanguageToggle extends BaseComponent {
    * @param {Object} data - Language change data
    */
   handleLanguageChange(data) {
-    this.updateData();
-    
-    // Close dropdown if open
-    this.closeDropdown();
-    
-    // Emit component event
-    this.emit('language-toggle:changed', {
-      component: this.name,
-      language: data.language,
-      previousLanguage: data.previousLanguage
-    });
+    // Only update if mounted and element still exists
+    if (this.mounted && this.element && this.element.isConnected) {
+      this.updateData();
+      
+      // Close dropdown if open
+      this.closeDropdown();
+      
+      // Emit component event
+      this.emit('language-toggle:changed', {
+        component: this.name,
+        language: data.language,
+        previousLanguage: data.previousLanguage
+      });
+    }
   }
 
   /**

@@ -31,8 +31,9 @@ class ThemeToggle extends BaseComponent {
       languageChange: false
     };
     
-    // Prevent multiple retry attempts
+    // Prevent multiple retry attempts and track timeouts
     this.retryAttempted = false;
+    this.retryTimeouts = [];
   }
 
   async onInitialize() {
@@ -118,10 +119,13 @@ class ThemeToggle extends BaseComponent {
     }
     
     // Also try after a short delay
-    setTimeout(() => {
+    const retryTimeout = setTimeout(() => {
       console.log('[ThemeToggle] Delayed retry of service setup...');
       this.retryServiceSetup();
     }, 1000);
+    
+    // Track timeout for cleanup
+    this.retryTimeouts.push(retryTimeout);
   }
 
   /**
@@ -722,14 +726,17 @@ class ThemeToggle extends BaseComponent {
    * @param {Object} data - Theme change data
    */
   handleThemeChange(data) {
-    this.updateData();
-    
-    // Emit component event
-    this.emit('theme-toggle:changed', {
-      component: this.name,
-      theme: data.theme,
-      previousTheme: data.previousTheme
-    });
+    // Only update if mounted and element still exists
+    if (this.mounted && this.element && this.element.isConnected) {
+      this.updateData();
+      
+      // Emit component event
+      this.emit('theme-toggle:changed', {
+        component: this.name,
+        theme: data.theme,
+        previousTheme: data.previousTheme
+      });
+    }
   }
 
   /**
@@ -737,7 +744,10 @@ class ThemeToggle extends BaseComponent {
    * @param {Object} data - Language change data
    */
   handleLanguageChange(data) {
-    this.updateData();
+    // Only update if mounted and element still exists
+    if (this.mounted && this.element && this.element.isConnected) {
+      this.updateData();
+    }
   }
 
   /**
@@ -772,7 +782,11 @@ class ThemeToggle extends BaseComponent {
     if (this.componentConfig.style === 'tabs') {
       const tabs = this.findAll('.theme-tab');
       tabs.forEach(tab => {
-        tab.addEventListener('click', this.handleTabClick.bind(this));
+        const boundHandler = this.handleTabClick.bind(this);
+        tab.addEventListener('click', boundHandler);
+        
+        // Track tab click listeners for cleanup using BaseComponent helper
+        this.registerExternalListener(tab, 'click', boundHandler, 'theme-tab');
       });
     }
   }
@@ -805,6 +819,12 @@ class ThemeToggle extends BaseComponent {
         console.warn('[ThemeToggle] Failed to remove language change listener:', error);
       }
     }
+    
+    // Clear retry timeouts
+    this.retryTimeouts.forEach(timeout => {
+      clearTimeout(timeout);
+    });
+    this.retryTimeouts = [];
     
     // Clear bound references
     this.boundHandleThemeChange = null;
