@@ -3,6 +3,7 @@
  * Handles document generation, portfolio management, and certification pathway
  */
 import BaseViewController from './BaseViewController.js';
+import ReferenceViewer from '../components/ReferenceViewer.js';
 
 class PortfolioViewController extends BaseViewController {
   constructor(viewId, app) {
@@ -15,6 +16,7 @@ class PortfolioViewController extends BaseViewController {
       status: 'all',
       search: ''
     };
+    this.referenceViewer = null;
   }
 
   async onInitialize() {
@@ -96,11 +98,31 @@ class PortfolioViewController extends BaseViewController {
         this.filterDocuments();
       });
     }
+
+    // Reference docs button
+    this.findElements('.reference-docs-btn').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openReferenceViewer();
+      });
+    });
   }
 
   async onShow() {
     // Load portfolio data when view is shown
     await this.loadPortfolioData();
+    
+    // Listen for portfolio refresh events
+    this.subscribe('portfolio:refresh', this.handlePortfolioRefresh.bind(this));
+  }
+
+  /**
+   * Handle portfolio refresh event
+   */
+  async handlePortfolioRefresh() {
+    console.log('[PortfolioViewController] Refreshing portfolio data...');
+    await this.loadPortfolioData();
+    await this.onRender();
   }
 
   async onRender() {
@@ -395,9 +417,57 @@ class PortfolioViewController extends BaseViewController {
   async createTemplatesSection() {
     const section = this.createElement('section', ['templates-section']);
     
-    const title = this.createElement('h3', ['section-title']);
-    title.textContent = 'Plantillas de Documentos';
-    section.appendChild(title);
+    const header = this.createElement('div', ['templates-header']);
+    header.innerHTML = `
+      <div class="section-header-content">
+        <h3 class="section-title">Documentos del Elemento</h3>
+        <div class="section-actions">
+          <button class="btn btn-outline btn-sm reference-docs-btn">
+            <span class="btn-icon">📚</span>
+            Material de Referencia
+          </button>
+        </div>
+      </div>
+      <style>
+        .templates-header .section-header-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        }
+        .section-actions {
+          display: flex;
+          gap: 0.5rem;
+        }
+        .btn-outline {
+          background: transparent;
+          color: var(--primary, #3b82f6);
+          border: 1px solid var(--primary, #3b82f6);
+          padding: 0.5rem 0.75rem;
+          border-radius: 6px;
+          font-size: 0.875rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          text-decoration: none;
+        }
+        .btn-outline:hover {
+          background: var(--primary, #3b82f6);
+          color: white;
+        }
+        .btn-sm {
+          padding: 0.375rem 0.75rem;
+          font-size: 0.75rem;
+        }
+        .btn-icon {
+          font-size: 1rem;
+        }
+      </style>
+    `;
+    section.appendChild(header);
 
     const templatesGrid = this.createElement('div', ['templates-grid']);
 
@@ -1107,6 +1177,85 @@ class PortfolioViewController extends BaseViewController {
   previewTemplate(templateId) {
     this.showNotification(`Vista previa de plantilla ${templateId} en desarrollo`, 'info');
     // TODO: Implement template preview functionality
+  }
+
+  /**
+   * Open reference viewer
+   */
+  async openReferenceViewer() {
+    console.log('[PortfolioViewController] Opening reference viewer...');
+    
+    try {
+      // Create reference viewer container if it doesn't exist
+      let viewerContainer = document.getElementById('reference-viewer-container');
+      if (!viewerContainer) {
+        viewerContainer = document.createElement('div');
+        viewerContainer.id = 'reference-viewer-container';
+        viewerContainer.className = 'reference-viewer-overlay';
+        document.body.appendChild(viewerContainer);
+      }
+
+      // Clear existing viewer
+      if (this.referenceViewer) {
+        await this.referenceViewer.destroy();
+        this.referenceViewer = null;
+      }
+
+      // Create new reference viewer
+      this.referenceViewer = new ReferenceViewer(viewerContainer);
+
+      // Initialize the viewer
+      await this.referenceViewer.initialize();
+      
+      // Add CSS overlay styles
+      viewerContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--bg-primary, #f8fafc);
+        z-index: 1000;
+        overflow-y: auto;
+      `;
+
+      // Listen for close events
+      this.referenceViewer.on('reference-viewer:close', () => {
+        this.closeReferenceViewer();
+      });
+
+      console.log('[PortfolioViewController] Reference viewer opened successfully');
+      
+    } catch (error) {
+      console.error('[PortfolioViewController] Failed to open reference viewer:', error);
+      this.showNotification('Error al abrir el visor de referencias', 'error');
+    }
+  }
+
+  /**
+   * Close reference viewer
+   */
+  async closeReferenceViewer() {
+    console.log('[PortfolioViewController] Closing reference viewer...');
+    
+    try {
+      // Destroy viewer component
+      if (this.referenceViewer) {
+        await this.referenceViewer.destroy();
+        this.referenceViewer = null;
+      }
+
+      // Remove viewer container
+      const viewerContainer = document.getElementById('reference-viewer-container');
+      if (viewerContainer) {
+        document.body.removeChild(viewerContainer);
+      }
+
+      console.log('[PortfolioViewController] Reference viewer closed successfully');
+      
+    } catch (error) {
+      console.error('[PortfolioViewController] Failed to close reference viewer:', error);
+    }
   }
 
   /**

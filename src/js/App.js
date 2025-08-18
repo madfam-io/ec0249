@@ -61,6 +61,7 @@ import LanguageToggle from './components/LanguageToggle.js';
 import VideoPlayer from './components/VideoPlayer.js';
 import MobileNavigation from './components/MobileNavigation.js';
 import AchievementSystem from './components/AchievementSystem.js';
+import DocumentEditor from './components/DocumentEditor.js';
 import AppConfig, { ConfigManager } from './config/AppConfig.js';
 import { getVideoConfig } from './config/VideoConfig.js';
 import ContentEngine from './engines/ContentEngine.js';
@@ -111,6 +112,9 @@ class EC0249App {
     
     /** @private {ViewManager|null} viewManager - View controller manager */
     this.viewManager = null;
+    
+    /** @private {DocumentEditor|null} documentEditor - Document editor component */
+    this.documentEditor = null;
     
     /** @public {boolean} initialized - Application initialization status */
     this.initialized = false;
@@ -594,6 +598,10 @@ class EC0249App {
     // Subscribe to router events
     eventBus.subscribe('router:navigate', this.handleRouterNavigate.bind(this));
     eventBus.subscribe('router:popstate', this.handleRouterPopstate.bind(this));
+
+    // Subscribe to document editor events
+    eventBus.subscribe('app:open-document-editor', this.handleOpenDocumentEditor.bind(this));
+    eventBus.subscribe('document-editor:close', this.handleCloseDocumentEditor.bind(this));
 
     console.log('[App] Event listeners setup');
   }
@@ -1808,6 +1816,175 @@ class EC0249App {
       console.error('[App] Destruction failed:', error);
       throw error;
     }
+  }
+
+  /**
+   * Handle document editor open event
+   * @param {Object} data - Document editor data
+   */
+  async handleOpenDocumentEditor(data) {
+    console.log('[App] Opening document editor:', data);
+    
+    try {
+      // Create document editor container if it doesn't exist
+      let editorContainer = document.getElementById('document-editor-container');
+      if (!editorContainer) {
+        editorContainer = document.createElement('div');
+        editorContainer.id = 'document-editor-container';
+        editorContainer.className = 'document-editor-overlay';
+        document.body.appendChild(editorContainer);
+      }
+
+      // Clear existing editor
+      if (this.documentEditor) {
+        await this.documentEditor.destroy();
+        this.documentEditor = null;
+      }
+
+      // Create new document editor
+      this.documentEditor = new DocumentEditor(editorContainer, {
+        templateId: data.templateId,
+        documentId: data.documentId,
+        isNew: data.isNew || false
+      });
+
+      // Initialize the editor
+      await this.documentEditor.initialize();
+      
+      // Add CSS overlay styles
+      editorContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        overflow-y: auto;
+      `;
+
+      console.log('[App] Document editor opened successfully');
+      
+    } catch (error) {
+      console.error('[App] Failed to open document editor:', error);
+      
+      // Show error notification
+      this.showNotification('Error al abrir el editor de documentos', 'error');
+      
+      // Clean up on error
+      const editorContainer = document.getElementById('document-editor-container');
+      if (editorContainer) {
+        document.body.removeChild(editorContainer);
+      }
+    }
+  }
+
+  /**
+   * Handle document editor close event
+   * @param {Object} data - Close event data
+   */
+  async handleCloseDocumentEditor(data) {
+    console.log('[App] Closing document editor:', data);
+    
+    try {
+      // Destroy editor component
+      if (this.documentEditor) {
+        await this.documentEditor.destroy();
+        this.documentEditor = null;
+      }
+
+      // Remove editor container
+      const editorContainer = document.getElementById('document-editor-container');
+      if (editorContainer) {
+        document.body.removeChild(editorContainer);
+      }
+
+      // Refresh portfolio view if document was saved
+      if (data.saved) {
+        // Emit event to refresh portfolio
+        eventBus.emit('portfolio:refresh');
+        this.showNotification('Documento guardado correctamente', 'success');
+      }
+
+      console.log('[App] Document editor closed successfully');
+      
+    } catch (error) {
+      console.error('[App] Failed to close document editor:', error);
+    }
+  }
+
+  /**
+   * Show notification to user
+   * @param {string} message - Notification message
+   * @param {string} type - Notification type (success, error, warning, info)
+   */
+  showNotification(message, type = 'info') {
+    // Create or get notification container
+    let notificationContainer = document.getElementById('notification-container');
+    if (!notificationContainer) {
+      notificationContainer = document.createElement('div');
+      notificationContainer.id = 'notification-container';
+      notificationContainer.style.cssText = `
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        pointer-events: none;
+      `;
+      document.body.appendChild(notificationContainer);
+    }
+
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.style.cssText = `
+      background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#3b82f6'};
+      color: white;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      font-weight: 500;
+      max-width: 300px;
+      pointer-events: auto;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    `;
+    notification.textContent = message;
+
+    // Add to container
+    notificationContainer.appendChild(notification);
+
+    // Trigger animation
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 10);
+
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+      notification.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 300);
+    }, 4000);
+
+    // Click to dismiss
+    notification.addEventListener('click', () => {
+      notification.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 300);
+    });
   }
 
   /**
