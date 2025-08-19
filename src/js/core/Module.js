@@ -129,6 +129,14 @@ class Module {
       throw new Error(`Module '${this.name}' is already initialized`);
     }
 
+    // Validate required parameters
+    if (!container) {
+      console.warn(`[Module] ${this.name} - No container provided during initialization`);
+    }
+    if (!eventBus) {
+      console.warn(`[Module] ${this.name} - No eventBus provided during initialization`);
+    }
+
     this.state = 'initializing';
     this.container = container;
     this.eventBus = eventBus;
@@ -227,7 +235,10 @@ class Module {
       this.clearSubscriptions();
       
       this.state = 'destroyed';
-      this.emit('module:destroyed', { module: this.name });
+      // Only emit destroy event if we have an eventBus
+      if (this.eventBus) {
+        this.emit('module:destroyed', { module: this.name });
+      }
       
       console.log(`[Module] Destroyed: ${this.name}`);
     } catch (error) {
@@ -406,14 +417,28 @@ class Module {
    * @since 1.0.0
    */
   emit(event, data) {
+    // If no eventBus is available, handle gracefully based on context
     if (!this.eventBus) {
-      // During initialization, eventBus might not be ready yet - log but don't throw
       if (this.state === 'initializing') {
-        console.debug(`[Module] ${this.name} trying to emit '${event}' during initialization - deferred`);
+        console.debug(`[Module] ${this.name} trying to emit '${event}' during initialization without eventBus - deferred`);
         return Promise.resolve();
       }
-      throw new Error(`Module '${this.name}' not initialized - cannot emit events`);
+      console.warn(`[Module] ${this.name} attempting to emit '${event}' but no eventBus available`);
+      return Promise.resolve();
     }
+    
+    // Allow initialization events to be emitted during initialization process
+    if (this.state === 'initializing' && (event === 'module:initialized' || event.startsWith('component:'))) {
+      console.debug(`[Module] ${this.name} emitting initialization event '${event}'`);
+      return this.eventBus.publish(event, data);
+    }
+    
+    // For other events, ensure module is fully initialized
+    if (this.state !== 'initialized' && this.state !== 'initializing') {
+      console.warn(`[Module] ${this.name} not initialized - cannot emit '${event}'`);
+      return Promise.resolve();
+    }
+    
     return this.eventBus.publish(event, data);
   }
 

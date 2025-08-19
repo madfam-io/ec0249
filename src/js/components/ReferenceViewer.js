@@ -168,6 +168,11 @@ class ReferenceViewer extends BaseComponent {
             Accede a manuales, documentos oficiales y materiales de apoyo para el estándar EC0249
           </p>
         </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost close-viewer" title="Cerrar visor de referencias">
+            <span class="btn-icon">✕</span>
+          </button>
+        </div>
       </header>
     `;
   }
@@ -410,6 +415,7 @@ class ReferenceViewer extends BaseComponent {
   handleClose(event) {
     if (event.target.classList.contains('close-viewer')) {
       // Close the entire reference viewer
+      console.log('[ReferenceViewer] Emitting close event');
       this.emit('reference-viewer:close');
     } else {
       // Just close the current document view

@@ -1,0 +1,1028 @@
+/**
+ * Documents Module - Professional Document Editor Styling
+ * 
+ * @description Comprehensive styling for the EC0249 document editor interface.
+ * Provides modern, professional appearance for all 15 document templates
+ * with element-specific theming and responsive design.
+ * 
+ * @version 2.0.0
+ * @since 2.0.0
+ */
+
+/* ========================================
+   DOCUMENT EDITOR OVERLAY & CONTAINER
+   ======================================== */
+
+.document-editor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.document-editor {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.document-editor.loading {
+  background: var(--bg-secondary);
+  padding: 3rem;
+  text-align: center;
+  max-height: 300px;
+}
+
+/* ========================================
+   ELEMENT THEMING SYSTEM
+   ======================================== */
+
+.document-editor[data-element="E0875"] {
+  --doc-primary: var(--element-e0875-color, #3b82f6);
+  --doc-primary-light: var(--element-e0875-light, #dbeafe);
+  --doc-primary-dark: var(--element-e0875-dark, #1e40af);
+  --doc-accent: #60a5fa;
+}
+
+.document-editor[data-element="E0876"] {
+  --doc-primary: var(--element-e0876-color, #10b981);
+  --doc-primary-light: var(--element-e0876-light, #d1fae5);
+  --doc-primary-dark: var(--element-e0876-dark, #047857);
+  --doc-accent: #34d399;
+}
+
+.document-editor[data-element="E0877"] {
+  --doc-primary: var(--element-e0877-color, #f59e0b);
+  --doc-primary-light: var(--element-e0877-light, #fef3c7);
+  --doc-primary-dark: var(--element-e0877-dark, #d97706);
+  --doc-accent: #fbbf24;
+}
+
+/* ========================================
+   DOCUMENT HEADER
+   ======================================== */
+
+.document-editor-header {
+  background: linear-gradient(135deg, var(--doc-primary) 0%, var(--doc-primary-dark) 100%);
+  color: white;
+  padding: 2rem 2.5rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.document-editor-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(50px, -50px);
+}
+
+.document-header-content {
+  position: relative;
+  z-index: 1;
+}
+
+.document-title-section {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.document-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  flex: 1;
+  padding-right: 1rem;
+}
+
+.document-close-btn {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.document-close-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.05);
+}
+
+.document-meta {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  opacity: 0.95;
+}
+
+.element-badge {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.document-time {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.document-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* ========================================
+   PROGRESS BAR
+   ======================================== */
+
+.document-progress-section {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2.5rem;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.progress-percentage {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--doc-primary);
+}
+
+.document-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--gray-200);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.document-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--doc-primary), var(--doc-accent));
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.document-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+  animation: shimmer 2s infinite;
+}
+
+/* ========================================
+   DOCUMENT FORM CONTENT
+   ======================================== */
+
+.document-form-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  background: var(--bg-primary);
+}
+
+.document-section {
+  border-bottom: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.document-section:last-child {
+  border-bottom: none;
+}
+
+.section-header {
+  background: var(--bg-secondary);
+  padding: 1.5rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: between;
+  align-items: center;
+}
+
+.section-header:hover {
+  background: var(--gray-50);
+}
+
+.section-header.collapsed {
+  border-bottom: none;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.section-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+
+.section-toggle:hover {
+  background: var(--gray-100);
+  color: var(--text-primary);
+}
+
+.section-header.collapsed .section-toggle {
+  transform: rotate(-90deg);
+}
+
+.section-content {
+  padding: 2rem 2.5rem;
+  transition: all 0.3s ease;
+}
+
+.section-content.collapsed {
+  display: none;
+}
+
+.section-description {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 1.5rem 0;
+  padding: 1rem;
+  background: var(--doc-primary-light);
+  border-radius: 8px;
+  border-left: 4px solid var(--doc-primary);
+}
+
+/* ========================================
+   FORM FIELDS
+   ======================================== */
+
+.field-group {
+  margin-bottom: 2rem;
+}
+
+.field-label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.field-required {
+  color: var(--error-500);
+  margin-left: 0.25rem;
+}
+
+.field-description {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.field-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--doc-primary);
+  box-shadow: 0 0 0 3px rgba(var(--doc-primary-rgb, 59, 130, 246), 0.1);
+  background: var(--bg-primary);
+}
+
+.field-input.error {
+  border-color: var(--error-500);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.field-input.success {
+  border-color: var(--success-500);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Textarea specific */
+.field-input[type="textarea"],
+textarea.field-input {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.field-char-count {
+  text-align: right;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.field-char-count.warning {
+  color: var(--warning-600);
+}
+
+.field-char-count.error {
+  color: var(--error-600);
+}
+
+/* ========================================
+   DYNAMIC LISTS
+   ======================================== */
+
+.field-list {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.list-header {
+  background: var(--gray-50);
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.add-item-btn {
+  background: var(--doc-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.add-item-btn:hover {
+  background: var(--doc-primary-dark);
+  transform: translateY(-1px);
+}
+
+.list-items {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.list-item {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: background 0.2s ease;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item:hover {
+  background: var(--gray-25);
+}
+
+.list-item-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.list-item-input:focus {
+  outline: none;
+  border-color: var(--doc-primary);
+}
+
+.remove-item-btn {
+  background: var(--error-500);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-item-btn:hover {
+  background: var(--error-600);
+  transform: scale(1.05);
+}
+
+/* ========================================
+   DATA TABLES
+   ======================================== */
+
+.field-table {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  max-height: 400px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background: var(--doc-primary);
+  color: white;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--doc-primary-dark);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.data-table tbody tr:hover {
+  background: var(--gray-25);
+}
+
+.table-cell-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.table-cell-input:focus {
+  outline: none;
+  border-color: var(--doc-primary);
+  background: var(--bg-primary);
+}
+
+.add-row-btn {
+  background: var(--doc-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.add-row-btn:hover {
+  background: var(--doc-primary-dark);
+}
+
+/* ========================================
+   STRUCTURED FIELDS
+   ======================================== */
+
+.structured-field {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.structured-field-header {
+  background: var(--doc-primary-light);
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.structured-field-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--doc-primary-dark);
+}
+
+.subsection {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.subsection:last-child {
+  border-bottom: none;
+}
+
+.subsection-title {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ========================================
+   VALIDATION & FEEDBACK
+   ======================================== */
+
+.field-validation {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field-validation.error {
+  background: var(--error-50);
+  color: var(--error-700);
+  border: 1px solid var(--error-200);
+}
+
+.field-validation.warning {
+  background: var(--warning-50);
+  color: var(--warning-700);
+  border: 1px solid var(--warning-200);
+}
+
+.field-validation.success {
+  background: var(--success-50);
+  color: var(--success-700);
+  border: 1px solid var(--success-200);
+}
+
+.validation-icon {
+  font-size: 1rem;
+}
+
+/* ========================================
+   DOCUMENT FOOTER
+   ======================================== */
+
+.document-editor-footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.auto-save-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.save-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success-500);
+  animation: pulse 2s infinite;
+}
+
+.save-indicator.saving {
+  background: var(--warning-500);
+}
+
+.save-indicator.error {
+  background: var(--error-500);
+}
+
+.footer-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.doc-action-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+}
+
+.doc-action-btn.primary {
+  background: var(--doc-primary);
+  color: white;
+}
+
+.doc-action-btn.primary:hover {
+  background: var(--doc-primary-dark);
+  transform: translateY(-1px);
+}
+
+.doc-action-btn.secondary {
+  background: var(--gray-100);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.doc-action-btn.secondary:hover {
+  background: var(--gray-200);
+}
+
+.doc-action-btn.success {
+  background: var(--success-500);
+  color: white;
+}
+
+.doc-action-btn.success:hover {
+  background: var(--success-600);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+  .document-editor-overlay {
+    padding: 0.5rem;
+  }
+  
+  .document-editor {
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+  
+  .document-editor-header {
+    padding: 1.5rem 1rem 1rem;
+  }
+  
+  .document-title {
+    font-size: 1.25rem;
+  }
+  
+  .document-title-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .document-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .document-progress-section,
+  .section-content,
+  .document-editor-footer {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .footer-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .doc-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .data-table {
+    font-size: 0.8rem;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .document-editor-header {
+    padding: 1rem 0.75rem;
+  }
+  
+  .document-title {
+    font-size: 1.125rem;
+  }
+  
+  .document-progress-section,
+  .section-content,
+  .document-editor-footer {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .field-input {
+    font-size: 0.9rem;
+  }
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+
+.document-editor.loading .loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--gray-200);
+  border-top: 4px solid var(--primary-500);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   DOCUMENT VIEW OVERLAYS
+   ======================================== */
+
+.document-loading-overlay,
+.document-error-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.document-loading-overlay .loading-content {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.document-error-overlay .error-content {
+  background: var(--bg-primary);
+  border: 1px solid var(--error-200);
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+}
+
+.error-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.error-title {
+  margin: 0 0 1rem 0;
+  color: var(--error-700);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.error-message {
+  margin: 0 0 2rem 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.error-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.document-view-container {
+  /* This will be styled by the document editor itself */
+}
+
+/* ========================================
+   VIDEO SUPPORT INTEGRATION
+   ======================================== */
+
+.document-video-section {
+  background: var(--doc-primary-light);
+  border: 1px solid var(--doc-primary);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.video-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.video-icon {
+  background: var(--doc-primary);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+}
+
+.video-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--doc-primary-dark);
+}
+
+.video-description {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin: 0 0 1rem 0;
+}
+
+.watch-video-btn {
+  background: var(--doc-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.watch-video-btn:hover {
+  background: var(--doc-primary-dark);
+  transform: translateY(-1px);
+}

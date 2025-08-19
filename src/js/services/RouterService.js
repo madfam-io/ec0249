@@ -25,7 +25,37 @@ class RouterService extends Module {
         '/portfolio/element1': 'portfolio',
         '/portfolio/element2': 'portfolio',
         '/portfolio/element3': 'portfolio',
-        '/portfolio/progress': 'portfolio'
+        '/portfolio/progress': 'portfolio',
+        // Document-specific routes
+        '/portfolio/documents/:templateId': 'portfolio',
+        '/portfolio/documents/:templateId/edit': 'portfolio',
+        '/portfolio/documents/:templateId/:documentId': 'portfolio',
+        '/portfolio/documents/:templateId/:documentId/edit': 'portfolio',
+        // Element-specific document routes
+        '/portfolio/element1/:templateId': 'portfolio',
+        '/portfolio/element2/:templateId': 'portfolio', 
+        '/portfolio/element3/:templateId': 'portfolio',
+        // Individual document routes - All 15 EC0249 templates
+        '/document/problem_description': 'document',
+        '/document/current_situation_impact': 'document',
+        '/document/information_integration': 'document',
+        '/document/methodology_report': 'document',
+        '/document/interview_guide': 'document',
+        '/document/questionnaire': 'document',
+        '/document/documentary_search_program': 'document',
+        '/document/field_visit_report': 'document',
+        '/document/impact_analysis_report': 'document',
+        '/document/solution_design': 'document',
+        '/document/work_proposal': 'document',
+        '/document/detailed_solution_description': 'document',
+        '/document/work_plan_presentation': 'document',
+        '/document/activity_development_plan': 'document',
+        '/document/agreement_record': 'document',
+        // Document routes with parameters
+        '/document/:templateId': 'document',
+        '/document/:templateId/edit': 'document',
+        '/document/:templateId/:documentId': 'document',
+        '/document/:templateId/:documentId/edit': 'document'
       }
     });
 
@@ -332,6 +362,72 @@ class RouterService extends Module {
   }
 
   /**
+   * Navigate to document template
+   * @param {string} templateId - Template identifier
+   * @param {Object} options - Navigation options
+   */
+  navigateToDocument(templateId, options = {}) {
+    const { element, documentId, edit = false } = options;
+    
+    let path;
+    if (element) {
+      path = `/portfolio/${element}/${templateId}`;
+    } else if (documentId) {
+      path = `/portfolio/documents/${templateId}/${documentId}`;
+      if (edit) path += '/edit';
+    } else {
+      path = `/portfolio/documents/${templateId}`;
+      if (edit) path += '/edit';
+    }
+    
+    this.navigate(path, options);
+  }
+
+  /**
+   * Check if current route is a document route
+   * @returns {boolean} True if current route is for a document
+   */
+  isDocumentRoute() {
+    const path = window.location.pathname;
+    return path.includes('/portfolio/documents/') || 
+           path.match(/\/portfolio\/element[123]\/\w+/);
+  }
+
+  /**
+   * Get document route information
+   * @returns {Object|null} Document route data or null
+   */
+  getDocumentRouteInfo() {
+    const path = window.location.pathname;
+    const params = this.currentParams;
+    
+    // Check for document routes
+    if (path.includes('/portfolio/documents/')) {
+      return {
+        type: 'document',
+        templateId: params.templateId,
+        documentId: params.documentId || null,
+        isEdit: path.endsWith('/edit'),
+        element: null
+      };
+    }
+    
+    // Check for element-specific routes
+    const elementMatch = path.match(/\/portfolio\/(element[123])\/(\w+)/);
+    if (elementMatch) {
+      return {
+        type: 'element-document',
+        element: elementMatch[1],
+        templateId: elementMatch[2],
+        documentId: null,
+        isEdit: false
+      };
+    }
+    
+    return null;
+  }
+
+  /**
    * Go back in history
    */
   goBack() {
@@ -362,6 +458,115 @@ class RouterService extends Module {
    */
   clearHistory() {
     this.routeHistory = [];
+  }
+
+  /**
+   * Navigate to a document by template ID
+   * @param {string} templateId - Template identifier
+   * @param {Object} options - Navigation options
+   * @param {string} options.mode - 'view' or 'edit'
+   * @param {string} options.documentId - Specific document ID
+   * @param {boolean} options.replace - Replace current history entry
+   */
+  navigateToDocument(templateId, options = {}) {
+    const { mode = 'edit', documentId, replace = false } = options;
+    
+    let path;
+    if (documentId) {
+      path = mode === 'edit' 
+        ? `/document/${templateId}/${documentId}/edit`
+        : `/document/${templateId}/${documentId}`;
+    } else {
+      path = mode === 'edit'
+        ? `/document/${templateId}/edit`
+        : `/document/${templateId}`;
+    }
+    
+    this.navigate(path, { replace });
+  }
+
+  /**
+   * Check if current route is document-related
+   * @returns {boolean} True if current route is a document route
+   */
+  isDocumentRoute() {
+    if (!this.currentRoute) return false;
+    return this.currentRoute.includes('/document/') || 
+           this.currentParams.templateId;
+  }
+
+  /**
+   * Extract document information from current route
+   * @returns {Object|null} Document route information
+   */
+  getDocumentRouteInfo() {
+    if (!this.isDocumentRoute()) return null;
+    
+    return {
+      templateId: this.currentParams.templateId,
+      documentId: this.currentParams.documentId,
+      isEdit: this.currentRoute.includes('/edit'),
+      isNew: !this.currentParams.documentId,
+      path: this.currentRoute
+    };
+  }
+
+  /**
+   * Get all available document routes
+   * @returns {Array} List of all document template routes
+   */
+  getDocumentRoutes() {
+    return [
+      'problem_description',
+      'current_situation_impact', 
+      'information_integration',
+      'methodology_report',
+      'interview_guide',
+      'questionnaire',
+      'documentary_search_program',
+      'field_visit_report',
+      'impact_analysis_report',
+      'solution_design',
+      'work_proposal',
+      'detailed_solution_description',
+      'work_plan_presentation',
+      'activity_development_plan',
+      'agreement_record'
+    ];
+  }
+
+  /**
+   * Navigate to document from element context
+   * @param {string} elementId - Element ID (element1, element2, element3)
+   * @param {string} templateId - Template identifier
+   * @param {Object} options - Navigation options
+   */
+  navigateToElementDocument(elementId, templateId, options = {}) {
+    const path = `/portfolio/${elementId}/${templateId}`;
+    this.navigate(path, options);
+  }
+
+  /**
+   * Build document URL without navigating
+   * @param {string} templateId - Template identifier
+   * @param {Object} options - URL options
+   * @returns {string} Document URL
+   */
+  buildDocumentURL(templateId, options = {}) {
+    const { mode = 'edit', documentId, baseURL = '' } = options;
+    
+    let path;
+    if (documentId) {
+      path = mode === 'edit' 
+        ? `/document/${templateId}/${documentId}/edit`
+        : `/document/${templateId}/${documentId}`;
+    } else {
+      path = mode === 'edit'
+        ? `/document/${templateId}/edit`
+        : `/document/${templateId}`;
+    }
+    
+    return baseURL + path;
   }
 
   async onDestroy() {

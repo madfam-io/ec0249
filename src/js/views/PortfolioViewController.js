@@ -25,6 +25,16 @@ class PortfolioViewController extends BaseViewController {
     this.documentEngine = this.getModule('documentEngine');
     if (!this.documentEngine) {
       console.warn('[PortfolioViewController] DocumentEngine not available yet - will be available after modules initialization');
+    } else {
+      console.log('[PortfolioViewController] DocumentEngine available:', !!this.documentEngine);
+      console.log('[PortfolioViewController] DocumentEngine state:', this.documentEngine.state);
+      console.log('[PortfolioViewController] DocumentEngine templates loaded:', this.documentEngine.templates?.size || 0);
+      
+      // List available template IDs for debugging
+      if (this.documentEngine.templates && this.documentEngine.templates.size > 0) {
+        const templateIds = Array.from(this.documentEngine.templates.keys());
+        console.log('[PortfolioViewController] Available template IDs:', templateIds);
+      }
     }
   }
 
@@ -120,6 +130,20 @@ class PortfolioViewController extends BaseViewController {
     const currentPath = window.location.pathname;
     console.log(`[PortfolioViewController] Checking URL for element routing: ${currentPath}`);
     
+    // Get router service for document route detection
+    const routerService = this.getService('RouterService');
+    
+    // Check for document-specific routes first
+    if (routerService && routerService.isDocumentRoute()) {
+      const documentInfo = routerService.getDocumentRouteInfo();
+      console.log(`[PortfolioViewController] Document route detected:`, documentInfo);
+      
+      if (documentInfo) {
+        this.handleDocumentRoute(documentInfo);
+        return;
+      }
+    }
+    
     // Extract element from URL patterns like /portfolio/element1, /portfolio/element2, etc.
     const elementMatch = currentPath.match(/\/portfolio\/element([1-3])/);
     
@@ -136,6 +160,67 @@ class PortfolioViewController extends BaseViewController {
       console.log(`[PortfolioViewController] URL shows portfolio overview`);
       this.shouldShowElementContent = false;
     }
+  }
+
+  /**
+   * Handle document-specific routing
+   * @param {Object} documentInfo - Document route information
+   */
+  async handleDocumentRoute(documentInfo) {
+    const { templateId, documentId, isEdit, element } = documentInfo;
+    
+    console.log(`[PortfolioViewController] Handling document route:`, documentInfo);
+    
+    if (!templateId) {
+      console.warn('[PortfolioViewController] No template ID in document route');
+      return;
+    }
+    
+    // Set element context if provided
+    if (element) {
+      this.currentElement = element;
+      this.shouldShowElementContent = true;
+    }
+    
+    // Wait for document engine to be available
+    if (!this.documentEngine) {
+      console.log('[PortfolioViewController] Waiting for DocumentEngine...');
+      await this.waitForDocumentEngine();
+    }
+    
+    if (!this.documentEngine) {
+      console.error('[PortfolioViewController] DocumentEngine not available for document route');
+      this.showNotification('Motor de documentos no disponible', 'error');
+      return;
+    }
+    
+    // Open the document based on route parameters
+    if (documentId) {
+      // Open existing document
+      this.editDocument(documentId);
+    } else {
+      // Open template for new document creation
+      await this.openDocumentTemplate(templateId);
+    }
+  }
+
+  /**
+   * Wait for DocumentEngine to become available
+   * @returns {Promise} Resolves when DocumentEngine is available
+   */
+  async waitForDocumentEngine() {
+    return new Promise((resolve) => {
+      const checkEngine = () => {
+        this.documentEngine = this.getModule('documentEngine');
+        if (this.documentEngine) {
+          console.log('[PortfolioViewController] DocumentEngine now available');
+          resolve();
+        } else {
+          setTimeout(checkEngine, 100);
+        }
+      };
+      checkEngine();
+    });
   }
 
   /**
@@ -224,6 +309,7 @@ class PortfolioViewController extends BaseViewController {
       // Create element content container (initially hidden)
       const elementContent = this.createElement('div', ['element-content']);
       elementContent.style.display = 'none';
+      elementContent.setAttribute('data-element', this.currentElement);
       portfolioWrapper.appendChild(elementContent);
       
       // Insert the wrapper after the existing content
@@ -571,7 +657,14 @@ class PortfolioViewController extends BaseViewController {
   createElementHeader() {
     const header = this.createElement('div', ['element-header']);
     
+    // Apply element-specific data attribute for CSS theming
+    const elementDataAttr = this.currentElement;
+    header.setAttribute('data-element', elementDataAttr);
+    
     const elementInfo = this.getElementInfo(this.currentElement);
+    const documentsCount = this.getElementDocuments(this.currentElement).length;
+    const completionPercentage = Math.round((documentsCount / elementInfo.templates) * 100);
+    
     header.innerHTML = `
       <div class="element-title-section">
         <h2>${elementInfo.title}</h2>
@@ -579,8 +672,9 @@ class PortfolioViewController extends BaseViewController {
       </div>
       <p class="element-description">${elementInfo.description}</p>
       <div class="element-stats">
-        <span class="templates-available">${elementInfo.templates} plantillas disponibles</span>
-        <span class="documents-created">${this.getElementDocuments(this.currentElement).length} documentos creados</span>
+        <span class="templates-available">📋 ${elementInfo.templates} plantillas disponibles</span>
+        <span class="documents-created">📄 ${documentsCount} documentos creados</span>
+        <span class="completion-rate">📊 ${completionPercentage}% completado</span>
       </div>
     `;
     
@@ -649,16 +743,39 @@ class PortfolioViewController extends BaseViewController {
 
     if (this.documentEngine) {
       try {
-        const templates = await this.documentEngine.getElementTemplates(this.currentElement);
+        console.log('[PortfolioViewController] Loading templates for element:', this.currentElement);
+        console.log('[PortfolioViewController] DocumentEngine templates available:', this.documentEngine.templates?.size || 0);
         
-        templates.forEach(template => {
-          const templateCard = this.createTemplateCard(template);
-          templatesGrid.appendChild(templateCard);
-        });
+        // Map element names to EC0249 element IDs
+        const elementIdMap = {
+          'element1': 'E0875',
+          'element2': 'E0876', 
+          'element3': 'E0877'
+        };
+        
+        const ec0249ElementId = elementIdMap[this.currentElement] || this.currentElement;
+        console.log('[PortfolioViewController] Mapped element ID:', this.currentElement, '->', ec0249ElementId);
+        
+        const templates = await this.documentEngine.getElementTemplates(ec0249ElementId);
+        console.log('[PortfolioViewController] Templates found for element:', templates?.length || 0);
+        
+        if (templates && templates.length > 0) {
+          templates.forEach(template => {
+            console.log('[PortfolioViewController] Creating card for template:', template.id, template.title);
+            const templateCard = this.createTemplateCard(template);
+            templatesGrid.appendChild(templateCard);
+          });
+        } else {
+          console.warn('[PortfolioViewController] No templates found for element:', this.currentElement);
+          templatesGrid.innerHTML = '<div class="info-message">No hay plantillas disponibles para este elemento</div>';
+        }
       } catch (error) {
         console.error('[PortfolioViewController] Failed to load templates:', error);
         templatesGrid.innerHTML = '<div class="error-message">Error al cargar plantillas</div>';
       }
+    } else {
+      console.warn('[PortfolioViewController] DocumentEngine not available when trying to load templates');
+      templatesGrid.innerHTML = '<div class="error-message">Motor de documentos no disponible</div>';
     }
 
     section.appendChild(templatesGrid);
@@ -675,26 +792,36 @@ class PortfolioViewController extends BaseViewController {
     // Check if user has created this document
     const userDocument = this.getUserDocument(template.id);
     const hasDocument = userDocument !== null;
+    const statusClass = hasDocument ? 'completed' : 'pending';
+    const statusIcon = hasDocument ? '✅' : '📝';
+    const statusText = hasDocument ? 'Completado' : 'Pendiente';
+
+    // Add estimated time and video support indicators
+    const hasVideo = template.videoSupport && template.videoSupport.id;
+    const estimatedTime = template.estimatedTime || 30;
 
     card.innerHTML = `
       <div class="template-header">
         <h4 class="template-title">${template.title}</h4>
-        <div class="template-status ${hasDocument ? 'completed' : 'pending'}">
-          ${hasDocument ? '✅' : '📝'}
+        <div class="template-status ${statusClass}" title="${statusText}">
+          ${statusIcon}
         </div>
       </div>
       <p class="template-description">${template.description}</p>
       <div class="template-metadata">
         <span class="template-category">${template.category || 'General'}</span>
         <span class="template-required ${template.required ? 'required' : 'optional'}">
-          ${template.required ? 'Obligatorio' : 'Opcional'}
+          ${template.required ? '🔴 Obligatorio' : '🔵 Opcional'}
         </span>
+        ${hasVideo ? '<span class="template-video">🎥 Video disponible</span>' : ''}
+        <span class="template-time">⏱️ ${estimatedTime} min</span>
       </div>
       <div class="template-actions">
-        <button class="btn btn-primary btn-sm">
+        <button class="btn btn-primary btn-sm" title="${hasDocument ? 'Editar documento existente' : 'Crear nuevo documento'}">
+          <span class="btn-icon">${hasDocument ? '✏️' : '➕'}</span>
           ${hasDocument ? 'Editar' : 'Crear'} Documento
         </button>
-        ${hasDocument ? '<button class="btn btn-secondary btn-sm">Ver PDF</button>' : ''}
+        ${hasDocument ? '<button class="btn btn-secondary btn-sm" title="Exportar como PDF"><span class="btn-icon">📄</span>Ver PDF</button>' : ''}
       </div>
     `;
 
@@ -845,6 +972,23 @@ class PortfolioViewController extends BaseViewController {
     try {
       // Check if user already has this document
       const existingDocument = this.getUserDocument(templateId);
+      
+      // Update URL to reflect the document being opened
+      const routerService = this.getService('RouterService');
+      if (routerService) {
+        if (existingDocument) {
+          // Navigate to existing document
+          routerService.navigateToDocument(templateId, {
+            documentId: existingDocument.id,
+            edit: true
+          });
+        } else {
+          // Navigate to new document creation
+          routerService.navigateToDocument(templateId, {
+            edit: true
+          });
+        }
+      }
       
       if (existingDocument) {
         // Edit existing document
@@ -1389,19 +1533,31 @@ class PortfolioViewController extends BaseViewController {
 
       // Clear existing viewer
       if (this.referenceViewer) {
-        await this.referenceViewer.destroy();
+        try {
+          await this.referenceViewer.destroy();
+        } catch (error) {
+          console.warn('[PortfolioViewController] Error destroying existing reference viewer:', error);
+        }
         this.referenceViewer = null;
       }
 
       // Create new reference viewer
       this.referenceViewer = new ReferenceViewer(viewerContainer);
-
-      // Properly initialize the viewer with container and event bus
-      this.referenceViewer.container = this.container;
-      this.referenceViewer.eventBus = this.eventBus;
       
-      // Initialize the viewer
-      await this.referenceViewer.initialize();
+      // Initialize the viewer with container and event bus parameters
+      try {
+        await this.referenceViewer.initialize(this.app.container, this.app.eventBus);
+        console.log('[PortfolioViewController] ReferenceViewer initialized successfully');
+        
+        // Ensure the component is mounted if autoMount failed
+        if (!this.referenceViewer.mounted) {
+          console.log('[PortfolioViewController] Manually mounting ReferenceViewer...');
+          await this.referenceViewer.mount();
+        }
+      } catch (initError) {
+        console.error('[PortfolioViewController] ReferenceViewer initialization failed:', initError);
+        throw new Error(`Failed to initialize reference viewer: ${initError.message}`);
+      }
       
       // Add CSS overlay styles
       viewerContainer.style.cssText = `
@@ -1415,10 +1571,12 @@ class PortfolioViewController extends BaseViewController {
         overflow-y: auto;
       `;
 
-      // Listen for close events
-      this.referenceViewer.on('reference-viewer:close', () => {
-        this.closeReferenceViewer();
-      });
+      // Listen for close events through the eventBus after initialization
+      if (this.app.eventBus) {
+        this.app.eventBus.subscribe('reference-viewer:close', () => {
+          this.closeReferenceViewer();
+        });
+      }
 
       console.log('[PortfolioViewController] Reference viewer opened successfully');
       
@@ -1532,6 +1690,7 @@ class PortfolioViewController extends BaseViewController {
     const elementContent = this.findElement('.element-content');
     if (elementContent) {
       elementContent.style.display = 'block';
+      elementContent.setAttribute('data-element', this.currentElement);
       console.log('[PortfolioViewController] Element content shown');
     } else {
       console.error('[PortfolioViewController] Element content container not found');

@@ -25,6 +25,8 @@
     "toggle": "Cambiar idioma",
     "spanish": "Español",
     "english": "Inglés",
+    "es": "Español",
+    "en": "Inglés", 
     "changed": "Idioma cambiado a español"
   },
   "dashboard": {

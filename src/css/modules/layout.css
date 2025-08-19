@@ -28,7 +28,8 @@
 }
 
 .header-content {
-  max-width: 1200px;
+  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
   padding: 1rem;
   display: flex;
@@ -36,6 +37,8 @@
   align-items: center;
   gap: 1rem;
   position: relative;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Logo Styles */
@@ -63,12 +66,14 @@
 /* Main Content Layout */
 .main-content {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  max-width: 1200px;
+  grid-template-columns: minmax(250px, 280px) 1fr;
+  max-width: 100%;
   margin: 0 auto;
   padding: 2rem 1rem;
   gap: 2rem;
   min-height: calc(100vh - 140px);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Sidebar Styles */
@@ -130,11 +135,19 @@
   box-shadow: var(--shadow);
   transition: background-color var(--transition-normal), border-color var(--transition-normal);
   min-height: 600px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* View Container */
 .view {
   display: none;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .view.active {
@@ -143,6 +156,9 @@
 
 .view-content {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Portfolio View Specific Styles */
@@ -327,7 +343,16 @@
   color: var(--text-secondary);
 }
 
-/* Responsive Adjustments */
+/* Enhanced Responsive Adjustments */
+@media (max-width: 968px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .main-content {
     grid-template-columns: 1fr;

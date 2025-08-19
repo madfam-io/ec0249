@@ -289,6 +289,14 @@ class BaseComponent extends Module {
         await this.applyStyles();
       }
 
+      // Re-bind events after content replacement (critical for re-renders)
+      if (this.mounted) {
+        console.log(`[Component] 🔗 ${this.name} - Re-binding events after re-render...`);
+        // Clear old event listeners first to prevent memory leaks
+        this.unbindEvents();
+        this.bindEvents();
+      }
+
       // Update reactive bindings
       if (this.componentConfig.reactive) {
         this.updateReactiveBindings();

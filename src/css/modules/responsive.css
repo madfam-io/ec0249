@@ -1,16 +1,75 @@
 /* EC0249 Educational Platform - Responsive Styles */
 
 /* Enhanced Responsive Design System */
+
+/* Large Desktop (1200px+) - Optimal layout */
+@media (min-width: 1200px) {
+  .main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+/* Desktop to Tablet (968px-1199px) - Constrained layout */
+@media (max-width: 1199px) {
+  .main-content {
+    max-width: 100%;
+    padding: 1.5rem 1rem;
+  }
+  
+  .header-content {
+    max-width: 100%;
+    padding: 1rem;
+  }
+}
+
+/* Tablet Landscape (968px-1023px) - Single column prep */
+@media (max-width: 1023px) and (min-width: 968px) {
+  .main-content {
+    grid-template-columns: minmax(240px, 260px) 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Tablet Portrait and smaller (968px and below) - Single column */
 @media (max-width: 968px) {
   .main-content {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 1rem;
     max-width: 100%;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Ensure template grids work on tablets */
+  .templates-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: 1rem;
+    margin: 1rem -0.5rem;
   }
   
   .sidebar {
     display: none; /* Hide on mobile, use mobile nav instead */
+  }
+  
+  /* Comprehensive mobile overflow prevention */
+  .app-container,
+  .main-content,
+  .content-area,
+  .view,
+  .portfolio-wrapper,
+  .element-content {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
   }
   
   .header-content {
@@ -55,8 +114,10 @@
   /* Grid layouts become single or two-column */
   .modules-grid,
   .features-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.25rem;
+    width: 100%;
+    max-width: 100%;
   }
   
   .assessment-options {

@@ -45,6 +45,7 @@ import DashboardViewController from './DashboardViewController.js';
 import ModulesViewController from './ModulesViewController.js';
 import AssessmentViewController from './AssessmentViewController.js';
 import PortfolioViewController from './PortfolioViewController.js';
+import DocumentViewController from './DocumentViewController.js';
 
 class ViewManager {
   /**
@@ -86,6 +87,7 @@ class ViewManager {
     this.controllers.set('modules', new ModulesViewController('modules', this.app));
     this.controllers.set('assessment', new AssessmentViewController('assessment', this.app));
     this.controllers.set('portfolio', new PortfolioViewController('portfolio', this.app));
+    this.controllers.set('document', new DocumentViewController());
 
     // Initialize all controllers
     for (const [viewId, controller] of this.controllers) {
@@ -148,6 +150,41 @@ class ViewManager {
     eventBus.subscribe('app:section-change', (data) => {
       this.showSection(data.section);
     });
+
+    // Listen for router navigation to handle document routes
+    eventBus.subscribe('router:navigate', this.handleRouterNavigation.bind(this));
+  }
+
+  /**
+   * Handle router navigation events for document routing
+   * @param {Object} data - Router navigation data
+   */
+  async handleRouterNavigation(data) {
+    const { route, path, params } = data;
+    
+    // Handle direct document routes
+    if (route === 'document') {
+      console.log('[ViewManager] Direct document route detected:', path);
+      
+      // The DocumentViewController will handle this automatically
+      // since it subscribes to router events
+      return;
+    }
+    
+    // Handle portfolio document routes
+    if (route !== 'portfolio') return;
+    
+    // If this is a document route, make sure portfolio view is active
+    const routerService = this.app.getService('RouterService');
+    if (routerService && routerService.isDocumentRoute()) {
+      // Switch to portfolio view if not already there
+      if (this.currentView !== 'portfolio') {
+        await this.showView('portfolio');
+      }
+      
+      // The PortfolioViewController will handle the document-specific routing
+      console.log('[ViewManager] Portfolio document route detected, delegating to PortfolioViewController');
+    }
   }
 
   /**

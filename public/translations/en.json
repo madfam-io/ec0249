@@ -485,6 +485,8 @@
   },
   "language": {
     "toggle": "Change language",
+    "spanish": "Spanish",
+    "english": "English",
     "es": "Spanish",
     "en": "English"
   },

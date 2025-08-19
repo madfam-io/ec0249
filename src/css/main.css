@@ -77,6 +77,9 @@
 /* 13. Template Systems */
 @import 'modules/templates.css';
 
+/* 13a. Document Editor Styles */
+@import 'modules/documents.css';
+
 /* 14. Achievement System */
 @import 'modules/achievements.css';
 

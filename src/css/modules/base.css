@@ -20,4 +20,84 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   transition: background-color var(--transition-normal), color var(--transition-normal);
+  overflow-x: hidden;
+  min-width: 320px;
+}
+
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Prevent flex/grid children from overflowing */
+* {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Container width constraints */
+.container {
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Application container overflow prevention */
+.app-container {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Comprehensive overflow prevention for all major containers */
+.main-content,
+.content-area,
+.view,
+.view-content,
+.portfolio-wrapper,
+.element-content,
+.templates-section,
+.documents-section {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Grid and flex container constraints */
+.grid-container,
+.flex-container,
+[class*="grid"],
+[class*="templates"] {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Specific component constraints */
+.section-header-content,
+.templates-header,
+.documents-header {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Content area constraints */
+.content-area {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* View container constraints */
+.view {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }

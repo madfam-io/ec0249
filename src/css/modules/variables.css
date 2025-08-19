@@ -51,7 +51,7 @@
   --transition-slow: 0.3s ease;
   
   /* Mobile Navigation Variables */
-  --mobile-nav-width: 320px;
+  --mobile-nav-width: 280px;
   --mobile-nav-overlay: rgba(0, 0, 0, 0.5);
   --mobile-nav-z-index: 1000;
 }

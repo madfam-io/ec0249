@@ -98,6 +98,13 @@ class EC0249App {
     /** @private {ConfigManager} config - Application configuration manager */
     this.config = new ConfigManager({ ...AppConfig, ...config });
     
+    /** @private {ServiceContainer} container - Service container instance */
+    this.container = container;
+    
+    /** @private {EventBus} eventBus - Event bus instance */
+    this.eventBus = eventBus;
+    
+    
     /** @private {StateManager|null} state - Application state manager */
     this.state = null;
     
@@ -2025,8 +2032,16 @@ class EC0249App {
         isNew: data.isNew || false
       });
 
-      // Initialize the editor
-      await this.documentEditor.initialize();
+      // Initialize the editor with container and eventBus
+      await this.documentEditor.initialize(this.container, this.eventBus);
+      
+      // Ensure the editor is mounted and rendered
+      if (!this.documentEditor.mounted) {
+        await this.documentEditor.mount();
+      }
+      
+      // Force a render to ensure content is displayed
+      this.documentEditor.render();
       
       // Add CSS overlay styles
       editorContainer.style.cssText = `

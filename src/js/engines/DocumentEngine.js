@@ -64,6 +64,10 @@ class DocumentEngine extends Module {
 
       console.log(`[DocumentEngine] Loaded ${this.templates.size} templates (${validTemplates} valid)`);
       
+      // Log all template IDs for debugging
+      const templateIds = Array.from(this.templates.keys());
+      console.log('[DocumentEngine] Available template IDs:', templateIds);
+      
       // Log template statistics
       const stats = this.templateLoader.getStatistics();
       console.log('[DocumentEngine] Template statistics:', stats);
@@ -424,18 +428,20 @@ class DocumentEngine extends Module {
     const htmlExport = this.exportToHTML(document, template);
     
     try {
-      // Create PDF using modern browser print API
-      const pdfContent = await this.generatePDFContent(htmlExport.content, document, template);
+      // Generate PDF using browser print functionality (opens print dialog)
+      const pdfResult = await this.generatePDFContent(htmlExport.content, document, template);
       
-      return {
-        content: pdfContent,
-        filename: `${document.templateId}_${document.id}.pdf`,
-        mimeType: 'application/pdf'
-      };
+      // Return the PDF result (which opens browser print dialog)
+      return pdfResult;
+      
     } catch (error) {
       console.error('[DocumentEngine] PDF export failed:', error);
       // Fallback to HTML export
-      return htmlExport;
+      return {
+        ...htmlExport,
+        filename: htmlExport.filename.replace('.html', '_pdf_fallback.html'),
+        note: 'PDF export failed - exported as HTML instead'
+      };
     }
   }
 
@@ -591,9 +597,15 @@ class DocumentEngine extends Module {
             document.body.removeChild(iframe);
           }, 1000);
           
-          // For now, return the HTML content as PDF placeholder
-          // In a real implementation, you would use a PDF library like jsPDF or PDFKit
-          resolve(enhancedHtml);
+          // Return PDF-ready HTML content that user can save via browser
+          // This triggers the browser's print dialog where user can "Save as PDF"
+          resolve({
+            content: enhancedHtml,
+            filename: `${document.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${Date.now()}.pdf`,
+            mimeType: 'text/html',
+            isPrintReady: true,
+            note: 'PDF generated via browser print dialog - use "Save as PDF" option'
+          });
           
         } catch (error) {
           document.body.removeChild(iframe);
@@ -704,6 +716,52 @@ class DocumentEngine extends Module {
       default:
         return `<p>${data || ''}</p>`;
     }
+  }
+
+  /**
+   * Export to DOCX format
+   * Note: This is a placeholder implementation that exports to HTML format
+   * A full DOCX implementation would require a library like docx.js
+   */
+  async exportToDocx(document, template) {
+    try {
+      console.log('[DocumentEngine] DOCX export requested - using HTML fallback');
+      
+      // For now, export as HTML with DOCX-friendly formatting
+      const htmlExport = this.exportToHTML(document, template);
+      
+      // Modify the export to be more DOCX-compatible
+      const docxCompatibleHTML = this.convertHTMLForDOCX(htmlExport.content);
+      
+      return {
+        content: docxCompatibleHTML,
+        filename: `${document.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${Date.now()}.html`,
+        mimeType: 'text/html',
+        note: 'Exported as HTML format - DOCX export requires additional library'
+      };
+      
+    } catch (error) {
+      console.error('[DocumentEngine] DOCX export failed:', error);
+      throw new Error(`DOCX export failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Convert HTML to be more DOCX-compatible
+   */
+  convertHTMLForDOCX(htmlContent) {
+    // Add DOCX-compatible styling and structure
+    return htmlContent
+      .replace(/<div class="document-container">/g, '<div style="width: 21cm; margin: 0 auto; padding: 2cm; font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.6;">')
+      .replace(/<h1>/g, '<h1 style="font-size: 18pt; font-weight: bold; margin-bottom: 1em;">')
+      .replace(/<h2>/g, '<h2 style="font-size: 16pt; font-weight: bold; margin: 1.5em 0 1em 0;">')
+      .replace(/<h3>/g, '<h3 style="font-size: 14pt; font-weight: bold; margin: 1em 0 0.5em 0;">')
+      .replace(/<p>/g, '<p style="margin-bottom: 1em;">')
+      .replace(/<ul>/g, '<ul style="margin: 1em 0; padding-left: 2em;">')
+      .replace(/<ol>/g, '<ol style="margin: 1em 0; padding-left: 2em;">')
+      .replace(/<table>/g, '<table style="border-collapse: collapse; width: 100%; margin: 1em 0;">')
+      .replace(/<th>/g, '<th style="border: 1px solid #333; padding: 8px; background-color: #f5f5f5; font-weight: bold;">')
+      .replace(/<td>/g, '<td style="border: 1px solid #333; padding: 8px;">');
   }
 
   /**
