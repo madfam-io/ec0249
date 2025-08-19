@@ -18,7 +18,9 @@ class DocumentEditor extends BaseComponent {
         'click .save-btn': 'handleSave',
         'click .export-btn': 'handleExport',
         'click .validate-btn': 'handleValidate',
-        'click .close-btn': 'handleClose'
+        'click .close-btn': 'handleClose',
+        'click .document-close-btn': 'handleClose',
+        'click .watch-video-btn': 'handleVideoPlay'
       },
       autoMount: true,
       reactive: true
@@ -113,14 +115,7 @@ class DocumentEditor extends BaseComponent {
   }
 
   setupAutoSave() {
-    // Save when the user stops typing
-    this.debouncedSave = this.debounce(() => {
-      if (this.isDirty) {
-        this.saveDocument();
-      }
-    }, this.autoSaveDelay);
-
-    // Periodic auto-save as backup
+    // Set up auto-save interval
     this.autoSaveInterval = setInterval(() => {
       if (this.isDirty) {
         this.saveDocument();
@@ -129,12 +124,16 @@ class DocumentEditor extends BaseComponent {
   }
 
   defaultTemplate() {
+    console.log('[DocumentEditor] defaultTemplate called - template:', !!this.template, 'document:', !!this.document);
+    
     if (!this.template || !this.document) {
+      console.log('[DocumentEditor] Rendering loading state');
       return this.renderLoadingState();
     }
 
+    console.log('[DocumentEditor] Rendering full editor');
     return `
-      <div class="document-editor">
+      <div class="document-editor" data-element="${this.template.element}">
         ${this.renderHeader()}
         ${this.renderProgressBar()}
         ${this.renderForm()}
@@ -149,106 +148,123 @@ class DocumentEditor extends BaseComponent {
       <div class="document-editor loading">
         <div class="loading-content">
           <div class="loading-spinner"></div>
-          <p>Cargando editor de documentos...</p>
+          <div class="loading-text">Cargando documento...</div>
         </div>
       </div>
     `;
   }
 
   renderHeader() {
-    const { document, template } = this.data;
+    const { template } = this;
+    
     return `
-      <header class="editor-header">
-        <div class="header-main">
-          <div class="document-info">
-            <h1 class="document-title">${template.title}</h1>
-            <div class="document-metadata">
-              <span class="element-badge">${template.element}</span>
-              <span class="status-badge status-${document.status}">${this.getStatusLabel(document.status)}</span>
-              ${this.isDirty ? '<span class="dirty-indicator">• Sin guardar</span>' : '<span class="saved-indicator">✓ Guardado</span>'}
+      <div class="document-editor-header">
+        <div class="document-header-content">
+          <div class="document-title-section">
+            <h2 class="document-title">${template.title}</h2>
+            <button class="document-close-btn" data-action="close">
+              <span>✕</span>
+            </button>
+          </div>
+          <div class="document-meta">
+            <div class="element-badge">${template.elementName}</div>
+            <div class="document-time">
+              <span>⏱️</span>
+              <span>${template.estimatedTime} min</span>
+            </div>
+            <div class="document-status">
+              <span>📝</span>
+              <span>${this.isNewDocument ? 'Nuevo documento' : 'Editando documento'}</span>
             </div>
           </div>
-          <div class="header-actions">
-            <button class="btn btn-secondary validate-btn" title="Validar documento">
-              <span class="btn-icon">✓</span>
-              Validar
-            </button>
-            <button class="btn btn-primary save-btn" title="Guardar documento">
-              <span class="btn-icon">💾</span>
-              Guardar
-            </button>
-            <button class="btn btn-secondary export-btn" title="Exportar documento">
-              <span class="btn-icon">📄</span>
-              Exportar
-            </button>
-            <button class="btn btn-ghost close-btn" title="Cerrar editor">
-              <span class="btn-icon">✕</span>
-            </button>
-          </div>
         </div>
-        ${template.description ? `<p class="document-description">${template.description}</p>` : ''}
         ${template.videoSupport ? this.renderVideoSupport(template.videoSupport) : ''}
-      </header>
+      </div>
     `;
   }
 
   renderVideoSupport(videoSupport) {
     return `
-      <div class="video-support">
-        <div class="video-info">
-          <span class="video-icon">📹</span>
-          <span class="video-title">${videoSupport.title}</span>
-          <button class="btn btn-sm btn-outline video-btn" data-video-id="${videoSupport.id}">
-            Ver Video Explicativo
-          </button>
+      <div class="document-video-section">
+        <div class="video-header">
+          <div class="video-icon">📹</div>
+          <h4 class="video-title">${videoSupport.title}</h4>
         </div>
+        <p class="video-description">${videoSupport.description}</p>
+        <button class="watch-video-btn" data-video-id="${videoSupport.id}">
+          <span>▶️</span>
+          <span>Ver video explicativo</span>
+        </button>
       </div>
     `;
   }
 
   renderProgressBar() {
-    const { document } = this.data;
-    const progress = document.completionPercentage || 0;
+    const completedSections = this.getCompletedSections();
+    const totalSections = this.template.sections.length;
+    const percentage = Math.round((completedSections / totalSections) * 100);
     
     return `
-      <div class="progress-section">
-        <div class="progress-info">
+      <div class="document-progress-section">
+        <div class="progress-header">
           <span class="progress-label">Progreso del documento</span>
-          <span class="progress-value">${progress}%</span>
+          <span class="progress-percentage">${percentage}%</span>
         </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: ${progress}%"></div>
+        <div class="document-progress-bar">
+          <div class="document-progress-fill" style="width: ${percentage}%"></div>
         </div>
       </div>
     `;
   }
 
+  getCompletedSections() {
+    if (!this.document || !this.template) return 0;
+    
+    return this.template.sections.filter(section => {
+      const sectionData = this.document.data[section.id];
+      return sectionData && this.isSectionComplete(section, sectionData);
+    }).length;
+  }
+
+  isSectionComplete(section, data) {
+    if (!data) return false;
+    
+    switch (section.type) {
+      case 'text':
+      case 'textarea':
+        return data && data.toString().trim().length > 0;
+      case 'list':
+        return Array.isArray(data) && data.length > 0;
+      case 'table':
+        return Array.isArray(data) && data.length > 0;
+      case 'structured':
+        return data && Object.keys(data).length > 0;
+      default:
+        return !!data;
+    }
+  }
+
   renderForm() {
-    const { template, document } = this.data;
+    const { template, document } = this;
     
     return `
-      <form class="document-form" autocomplete="off">
+      <div class="document-form-content">
         ${template.sections.map(section => this.renderSection(section, document.data[section.id])).join('')}
-      </form>
+      </div>
     `;
   }
 
   renderSection(section, data) {
-    const sectionId = `section-${section.id}`;
-    const isRequired = section.required ? 'required' : '';
-    const isComplete = this.isSectionComplete(section, data);
+    const isCompleted = this.isSectionComplete(section, data);
     
     return `
-      <div class="form-section ${isRequired}" data-section="${section.id}">
-        <div class="section-header">
-          <h3 class="section-title">
-            ${section.title}
-            ${section.required ? '<span class="required-indicator">*</span>' : ''}
-            ${isComplete ? '<span class="complete-indicator">✓</span>' : ''}
-          </h3>
-          ${section.description ? `<p class="section-description">${section.description}</p>` : ''}
+      <div class="document-section" data-section="${section.id}">
+        <div class="section-header" data-toggle-section="${section.id}">
+          <h3 class="section-title">${section.title}</h3>
+          <button class="section-toggle">▼</button>
         </div>
-        <div class="section-content">
+        <div class="section-content" data-section-content="${section.id}">
+          ${section.description ? `<p class="section-description">${section.description}</p>` : ''}
           ${this.renderSectionFields(section, data)}
         </div>
       </div>
@@ -264,7 +280,6 @@ class DocumentEditor extends BaseComponent {
       case 'list':
         return this.renderListField(section, data);
       case 'table':
-      case 'matrix':
         return this.renderTableField(section, data);
       case 'structured':
         return this.renderStructuredField(section, data);
@@ -277,18 +292,27 @@ class DocumentEditor extends BaseComponent {
 
   renderTextField(section, data) {
     const value = data || '';
-    const maxLength = section.validation?.maxLength || '';
+    const fieldId = `field-${section.id}`;
+    const maxLength = section.maxLength || 500;
+    const isRequired = section.required;
+    const validation = this.validateField(section, value);
     
     return `
       <div class="field-group">
+        <label class="field-label" for="${fieldId}">
+          ${section.title}
+          ${isRequired ? '<span class="field-required">*</span>' : ''}
+        </label>
+        ${section.description ? `<p class="field-description">${section.description}</p>` : ''}
         <input 
           type="text" 
-          class="field-input text-input" 
-          data-section="${section.id}"
-          value="${this.escapeHtml(value)}"
+          id="${fieldId}"
+          class="field-input${validation.isValid ? '' : ' error'}"
+          data-field="${section.id}"
+          value="${value}"
           placeholder="${section.placeholder || ''}"
-          ${maxLength ? `maxlength="${maxLength}"` : ''}
-          ${section.required ? 'required' : ''}
+          maxlength="${maxLength}"
+          ${isRequired ? 'required' : ''}
         />
         ${this.renderFieldValidation(section, value)}
       </div>
@@ -297,22 +321,30 @@ class DocumentEditor extends BaseComponent {
 
   renderTextareaField(section, data) {
     const value = data || '';
-    const minLength = section.validation?.minLength || 0;
-    const maxLength = section.validation?.maxLength || '';
+    const fieldId = `field-${section.id}`;
+    const maxLength = section.maxLength || 2000;
+    const minRows = section.minRows || 4;
+    const isRequired = section.required;
+    const validation = this.validateField(section, value);
     
     return `
       <div class="field-group">
+        <label class="field-label" for="${fieldId}">
+          ${section.title}
+          ${isRequired ? '<span class="field-required">*</span>' : ''}
+        </label>
+        ${section.description ? `<p class="field-description">${section.description}</p>` : ''}
         <textarea 
-          class="field-input textarea-input" 
-          data-section="${section.id}"
+          id="${fieldId}"
+          class="field-input${validation.isValid ? '' : ' error'}"
+          data-field="${section.id}"
           placeholder="${section.placeholder || ''}"
-          rows="6"
-          ${maxLength ? `maxlength="${maxLength}"` : ''}
-          ${section.required ? 'required' : ''}
-        >${this.escapeHtml(value)}</textarea>
-        <div class="field-meta">
-          <span class="char-count">${value.length}${maxLength ? `/${maxLength}` : ''} caracteres</span>
-          ${minLength ? `<span class="min-length">Mínimo: ${minLength} caracteres</span>` : ''}
+          maxlength="${maxLength}"
+          rows="${minRows}"
+          ${isRequired ? 'required' : ''}
+        >${value}</textarea>
+        <div class="field-char-count ${value.length > maxLength * 0.8 ? 'warning' : ''}">
+          ${value.length}/${maxLength} caracteres
         </div>
         ${this.renderFieldValidation(section, value)}
       </div>
@@ -321,30 +353,43 @@ class DocumentEditor extends BaseComponent {
 
   renderListField(section, data) {
     const items = Array.isArray(data) ? data : [];
+    const fieldId = `field-${section.id}`;
+    const isRequired = section.required;
     
     return `
-      <div class="field-group list-field">
-        <div class="list-items">
-          ${items.map((item, index) => `
-            <div class="list-item" data-index="${index}">
-              <input 
-                type="text" 
-                class="field-input list-item-input" 
-                data-section="${section.id}"
-                data-index="${index}"
-                value="${this.escapeHtml(item)}"
-                placeholder="Elemento ${index + 1}"
-              />
-              <button type="button" class="btn btn-sm btn-danger remove-item-btn" data-index="${index}">
-                <span class="btn-icon">🗑️</span>
-              </button>
-            </div>
-          `).join('')}
+      <div class="field-group">
+        <label class="field-label">
+          ${section.title}
+          ${isRequired ? '<span class="field-required">*</span>' : ''}
+        </label>
+        ${section.description ? `<p class="field-description">${section.description}</p>` : ''}
+        <div class="field-list" data-field="${section.id}">
+          <div class="list-header">
+            <h4 class="list-title">${section.title}</h4>
+            <button type="button" class="add-item-btn" data-action="add-item" data-field="${section.id}">
+              <span>+</span>
+              <span>Agregar elemento</span>
+            </button>
+          </div>
+          <div class="list-items">
+            ${items.map((item, index) => `
+              <div class="list-item" data-index="${index}">
+                <input 
+                  type="text" 
+                  class="list-item-input"
+                  value="${item}"
+                  data-field="${section.id}"
+                  data-index="${index}"
+                  placeholder="Ingrese elemento..."
+                />
+                <button type="button" class="remove-item-btn" data-action="remove-item" data-field="${section.id}" data-index="${index}">
+                  <span>✕</span>
+                </button>
+              </div>
+            `).join('')}
+            ${items.length === 0 ? '<div class="list-empty">No hay elementos agregados</div>' : ''}
+          </div>
         </div>
-        <button type="button" class="btn btn-sm btn-secondary add-item-btn" data-section="${section.id}">
-          <span class="btn-icon">+</span>
-          Agregar elemento
-        </button>
         ${this.renderFieldValidation(section, items)}
       </div>
     `;
@@ -352,1422 +397,460 @@ class DocumentEditor extends BaseComponent {
 
   renderTableField(section, data) {
     const rows = Array.isArray(data) ? data : [];
-    const headers = section.headers || ['Columna 1', 'Columna 2', 'Columna 3'];
+    const headers = section.headers || [];
+    const fieldId = `field-${section.id}`;
+    const isRequired = section.required;
     
     return `
-      <div class="field-group table-field">
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                ${headers.map(header => `<th>${header}</th>`).join('')}
-                <th class="actions-column">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rows.map((row, rowIndex) => `
-                <tr data-row="${rowIndex}">
-                  ${headers.map((header, colIndex) => `
-                    <td>
-                      <input 
-                        type="text" 
-                        class="field-input table-cell-input" 
-                        data-section="${section.id}"
-                        data-row="${rowIndex}"
-                        data-column="${header}"
-                        value="${this.escapeHtml(row[header] || '')}"
-                        placeholder="${header}"
-                      />
-                    </td>
-                  `).join('')}
-                  <td class="actions-cell">
-                    <button type="button" class="btn btn-sm btn-danger remove-row-btn" data-row="${rowIndex}">
-                      <span class="btn-icon">🗑️</span>
-                    </button>
-                  </td>
+      <div class="field-group">
+        <label class="field-label">
+          ${section.title}
+          ${isRequired ? '<span class="field-required">*</span>' : ''}
+        </label>
+        ${section.description ? `<p class="field-description">${section.description}</p>` : ''}
+        <div class="field-table" data-field="${section.id}">
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  ${headers.map(header => `<th>${header}</th>`).join('')}
+                  <th class="actions-column">Acciones</th>
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                ${rows.map((row, rowIndex) => `
+                  <tr data-row="${rowIndex}">
+                    ${headers.map((header, colIndex) => `
+                      <td>
+                        <input 
+                          type="text" 
+                          class="table-cell-input"
+                          value="${row[colIndex] || ''}"
+                          data-field="${section.id}"
+                          data-row="${rowIndex}"
+                          data-col="${colIndex}"
+                          placeholder="${header}"
+                        />
+                      </td>
+                    `).join('')}
+                    <td>
+                      <button type="button" class="remove-row-btn" data-action="remove-row" data-field="${section.id}" data-row="${rowIndex}">
+                        <span>🗑️</span>
+                      </button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="add-row-btn" data-action="add-row" data-field="${section.id}">
+            <span>+</span>
+            <span>Agregar fila</span>
+          </button>
         </div>
-        <button type="button" class="btn btn-sm btn-secondary add-row-btn" data-section="${section.id}">
-          <span class="btn-icon">+</span>
-          Agregar fila
-        </button>
         ${this.renderFieldValidation(section, rows)}
       </div>
     `;
   }
 
   renderStructuredField(section, data) {
-    if (!section.subsections) return '';
+    const structuredData = data || {};
+    const subsections = section.subsections || [];
     
     return `
-      <div class="structured-field">
-        ${section.subsections.map(subsection => {
-          const subsectionData = data?.[subsection.id];
-          return `
-            <div class="subsection" data-subsection="${subsection.id}">
-              <h4 class="subsection-title">${subsection.title}</h4>
-              ${this.renderSectionFields(subsection, subsectionData)}
-            </div>
-          `;
-        }).join('')}
+      <div class="field-group">
+        <div class="structured-field" data-field="${section.id}">
+          <div class="structured-field-header">
+            <h4 class="structured-field-title">${section.title}</h4>
+          </div>
+          ${subsections.map(subsection => {
+            const subsectionData = structuredData[subsection.id] || {};
+            return `
+              <div class="subsection" data-subsection="${subsection.id}">
+                <h5 class="subsection-title">${subsection.title}</h5>
+                ${this.renderSectionFields(subsection, subsectionData)}
+              </div>
+            `;
+          }).join('')}
+        </div>
       </div>
     `;
   }
 
   renderFormFields(section, data) {
-    if (!section.fields) return '';
+    // This would handle complex form field collections
+    // For now, render as structured field
+    return this.renderStructuredField(section, data);
+  }
+
+  renderFieldValidation(section, value) {
+    const validation = this.validateField(section, value);
+    
+    if (validation.isValid) {
+      return '';
+    }
     
     return `
-      <div class="form-fields">
-        ${section.fields.map(field => {
-          const fieldData = data?.[field.name] || '';
-          return `
-            <div class="form-field">
-              <label class="field-label">${field.label}</label>
-              <input 
-                type="${field.type || 'text'}" 
-                class="field-input form-field-input" 
-                data-section="${section.id}"
-                data-field="${field.name}"
-                value="${this.escapeHtml(fieldData)}"
-                placeholder="${field.placeholder || ''}"
-                ${field.required ? 'required' : ''}
-              />
-            </div>
-          `;
-        }).join('')}
+      <div class="field-validation error">
+        <span class="validation-icon">⚠️</span>
+        <span>${validation.message}</span>
       </div>
     `;
   }
 
-  renderFieldValidation(section, value) {
-    if (!section.validation) return '';
-    
-    const validation = section.validation;
-    let validationHtml = '<div class="field-validation">';
-    
-    if (validation.required && (!value || (Array.isArray(value) && value.length === 0))) {
-      validationHtml += '<span class="validation-error">Este campo es obligatorio</span>';
+  validateField(section, value) {
+    // Basic validation logic
+    if (section.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
+      return {
+        isValid: false,
+        message: 'Este campo es obligatorio'
+      };
     }
     
-    if (validation.minLength && typeof value === 'string' && value.length < validation.minLength) {
-      validationHtml += `<span class="validation-warning">Se requieren al menos ${validation.minLength} caracteres</span>`;
+    if (section.minLength && typeof value === 'string' && value.length < section.minLength) {
+      return {
+        isValid: false,
+        message: `Mínimo ${section.minLength} caracteres requeridos`
+      };
     }
     
-    if (validation.minItems && Array.isArray(value) && value.length < validation.minItems) {
-      validationHtml += `<span class="validation-warning">Se requieren al menos ${validation.minItems} elementos</span>`;
+    if (section.maxLength && typeof value === 'string' && value.length > section.maxLength) {
+      return {
+        isValid: false,
+        message: `Máximo ${section.maxLength} caracteres permitidos`
+      };
     }
     
-    if (validation.minRows && Array.isArray(value) && value.length < validation.minRows) {
-      validationHtml += `<span class="validation-warning">Se requieren al menos ${validation.minRows} filas</span>`;
-    }
-    
-    validationHtml += '</div>';
-    return validationHtml;
+    return { isValid: true };
   }
 
   renderFooter() {
-    const { template } = this.data;
-    
     return `
-      <footer class="editor-footer">
+      <div class="document-editor-footer">
         <div class="footer-info">
-          <p class="template-info">
-            <strong>Elemento:</strong> ${template.element} - ${template.elementName || ''}
-          </p>
-          ${template.estimatedTime ? `<p class="time-info">Tiempo estimado: ${template.estimatedTime} minutos</p>` : ''}
+          <div class="auto-save-status">
+            <div class="save-indicator${this.isDirty ? ' saving' : ''}"></div>
+            <span>${this.isDirty ? 'Guardando...' : 'Documento guardado'}</span>
+          </div>
+          <div class="document-stats">
+            <span>${this.getCompletedSections()}/${this.template.sections.length} secciones completadas</span>
+          </div>
         </div>
         <div class="footer-actions">
-          <button class="btn btn-secondary cancel-btn close-btn">Cancelar</button>
-          <button class="btn btn-primary save-btn">Guardar y Continuar</button>
+          <button type="button" class="doc-action-btn secondary validate-btn" data-action="validate">
+            <span>✓</span>
+            <span>Validar</span>
+          </button>
+          <button type="button" class="doc-action-btn primary save-btn" data-action="save">
+            <span>💾</span>
+            <span>Guardar</span>
+          </button>
+          <button type="button" class="doc-action-btn success export-btn" data-action="export">
+            <span>📄</span>
+            <span>Exportar</span>
+          </button>
+          <button type="button" class="doc-action-btn secondary close-btn" data-action="close">
+            <span>✕</span>
+            <span>Cerrar</span>
+          </button>
         </div>
-      </footer>
+      </div>
     `;
   }
 
   renderValidationResults() {
-    if (!this.validationResults) return '';
-    
-    const { validationResults } = this;
+    if (!this.validationResults || this.validationResults.length === 0) {
+      return '';
+    }
     
     return `
-      <div class="validation-results ${validationResults.isValid ? 'valid' : 'invalid'}">
-        <div class="validation-header">
-          <h3>Resultados de Validación</h3>
-          <span class="validation-status ${validationResults.isValid ? 'valid' : 'invalid'}">
-            ${validationResults.isValid ? '✓ Válido' : '✗ Contiene errores'}
-          </span>
-        </div>
-        
-        ${validationResults.errors.length > 0 ? `
-          <div class="validation-errors">
-            <h4>Errores encontrados:</h4>
-            <ul>
-              ${validationResults.errors.map(error => `
-                <li>
-                  <strong>${error.sectionTitle}:</strong>
-                  <ul>
-                    ${error.errors.map(err => `<li>${err}</li>`).join('')}
-                  </ul>
-                </li>
-              `).join('')}
-            </ul>
+      <div class="validation-results">
+        <h4>Resultados de validación</h4>
+        ${this.validationResults.map(result => `
+          <div class="validation-item ${result.type}">
+            <span class="validation-icon">${result.type === 'error' ? '❌' : '⚠️'}</span>
+            <span>${result.message}</span>
           </div>
-        ` : ''}
-        
-        ${validationResults.warnings.length > 0 ? `
-          <div class="validation-warnings">
-            <h4>Advertencias:</h4>
-            <ul>
-              ${validationResults.warnings.map(warning => `
-                <li>
-                  <strong>${warning.sectionTitle}:</strong>
-                  <ul>
-                    ${warning.warnings.map(warn => `<li>${warn}</li>`).join('')}
-                  </ul>
-                </li>
-              `).join('')}
-            </ul>
-          </div>
-        ` : ''}
-        
-        <div class="validation-summary">
-          <p>Progreso: ${validationResults.completionPercentage}% completado</p>
-          <p>Secciones validadas: ${validationResults.sectionsValidated}</p>
-          ${validationResults.sectionsWithErrors > 0 ? `<p>Secciones con errores: ${validationResults.sectionsWithErrors}</p>` : ''}
-        </div>
+        `).join('')}
       </div>
     `;
   }
 
   // Event handlers
-  handleFieldChange(event) {
-    const input = event.target;
-    const sectionId = input.getAttribute('data-section');
+  async handleFieldChange(event) {
+    const target = event.target;
+    const fieldId = target.dataset.field;
+    const value = target.value;
     
-    if (!sectionId) return;
-    
-    this.updateDocumentData(input);
-    this.markAsDirty();
-    this.debouncedSave();
-  }
-
-  updateDocumentData(input) {
-    const sectionId = input.getAttribute('data-section');
-    const section = this.template.sections.find(s => s.id === sectionId);
-    
-    if (!section) return;
-    
-    let value;
-    
-    switch (section.type) {
-      case 'list':
-        value = this.updateListData(input);
-        break;
-      case 'table':
-      case 'matrix':
-        value = this.updateTableData(input);
-        break;
-      case 'structured':
-        value = this.updateStructuredData(input);
-        break;
-      case 'form_fields':
-        value = this.updateFormFieldsData(input);
-        break;
-      default:
-        value = input.value;
-    }
+    if (!fieldId) return;
     
     // Update document data
-    if (!this.document.data) this.document.data = {};
-    this.document.data[sectionId] = value;
-    
-    // Update completion percentage
-    this.updateProgress();
-  }
-
-  updateListData(input) {
-    const sectionId = input.getAttribute('data-section');
-    const index = parseInt(input.getAttribute('data-index'));
-    const currentData = this.document.data[sectionId] || [];
-    
-    currentData[index] = input.value;
-    return currentData.filter(item => item.trim() !== ''); // Remove empty items
-  }
-
-  updateTableData(input) {
-    const sectionId = input.getAttribute('data-section');
-    const rowIndex = parseInt(input.getAttribute('data-row'));
-    const column = input.getAttribute('data-column');
-    const currentData = this.document.data[sectionId] || [];
-    
-    if (!currentData[rowIndex]) {
-      currentData[rowIndex] = {};
+    if (!this.document.data[fieldId]) {
+      this.document.data[fieldId] = '';
     }
     
-    currentData[rowIndex][column] = input.value;
-    return currentData;
-  }
-
-  updateStructuredData(input) {
-    const sectionId = input.getAttribute('data-section');
-    const subsectionEl = input.closest('[data-subsection]');
-    const subsectionId = subsectionEl?.getAttribute('data-subsection');
+    if (target.dataset.index !== undefined) {
+      // Handle list item changes
+      const index = parseInt(target.dataset.index);
+      if (!Array.isArray(this.document.data[fieldId])) {
+        this.document.data[fieldId] = [];
+      }
+      this.document.data[fieldId][index] = value;
+    } else if (target.dataset.row !== undefined && target.dataset.col !== undefined) {
+      // Handle table cell changes
+      const row = parseInt(target.dataset.row);
+      const col = parseInt(target.dataset.col);
+      if (!Array.isArray(this.document.data[fieldId])) {
+        this.document.data[fieldId] = [];
+      }
+      if (!Array.isArray(this.document.data[fieldId][row])) {
+        this.document.data[fieldId][row] = [];
+      }
+      this.document.data[fieldId][row][col] = value;
+    } else {
+      // Handle simple field changes
+      this.document.data[fieldId] = value;
+    }
     
-    if (!subsectionId) return this.document.data[sectionId];
+    // Mark as dirty and schedule auto-save
+    this.isDirty = true;
+    this.scheduleAutoSave();
     
-    const currentData = this.document.data[sectionId] || {};
-    currentData[subsectionId] = input.value;
-    return currentData;
-  }
-
-  updateFormFieldsData(input) {
-    const sectionId = input.getAttribute('data-section');
-    const fieldName = input.getAttribute('data-field');
-    const currentData = this.document.data[sectionId] || {};
-    
-    currentData[fieldName] = input.value;
-    return currentData;
-  }
-
-  handleAddRow(event) {
-    const button = event.target.closest('.add-row-btn');
-    const sectionId = button.getAttribute('data-section');
-    const section = this.template.sections.find(s => s.id === sectionId);
-    
-    if (!section || !section.headers) return;
-    
-    const currentData = this.document.data[sectionId] || [];
-    const newRow = {};
-    section.headers.forEach(header => {
-      newRow[header] = '';
-    });
-    
-    currentData.push(newRow);
-    this.document.data[sectionId] = currentData;
-    
-    this.markAsDirty();
-    this.render();
-  }
-
-  handleRemoveRow(event) {
-    const button = event.target.closest('.remove-row-btn');
-    const rowIndex = parseInt(button.getAttribute('data-row'));
-    const table = button.closest('.table-field');
-    const sectionId = table.querySelector('.add-row-btn').getAttribute('data-section');
-    
-    const currentData = this.document.data[sectionId] || [];
-    currentData.splice(rowIndex, 1);
-    this.document.data[sectionId] = currentData;
-    
-    this.markAsDirty();
-    this.render();
-  }
-
-  handleAddItem(event) {
-    const button = event.target.closest('.add-item-btn');
-    const sectionId = button.getAttribute('data-section');
-    
-    const currentData = this.document.data[sectionId] || [];
-    currentData.push('');
-    this.document.data[sectionId] = currentData;
-    
-    this.markAsDirty();
-    this.render();
-  }
-
-  handleRemoveItem(event) {
-    const button = event.target.closest('.remove-item-btn');
-    const index = parseInt(button.getAttribute('data-index'));
-    const listField = button.closest('.list-field');
-    const sectionId = listField.querySelector('.add-item-btn').getAttribute('data-section');
-    
-    const currentData = this.document.data[sectionId] || [];
-    currentData.splice(index, 1);
-    this.document.data[sectionId] = currentData;
-    
-    this.markAsDirty();
-    this.render();
+    console.log('[DocumentEditor] Field changed:', fieldId, value);
   }
 
   async handleSave(event) {
-    event.preventDefault();
-    await this.saveDocument();
-  }
-
-  async handleValidate(event) {
-    event.preventDefault();
+    event?.preventDefault();
     
     try {
-      this.validationResults = this.documentEngine.validateDocument(this.documentId);
-      
-      // Update display
-      this.setData({
-        ...this.data,
-        validationResults: this.validationResults
-      });
-      
-      if (this.validationResults.isValid) {
-        this.showSuccess('Documento validado correctamente');
-      } else {
-        this.showWarning(`Documento contiene ${this.validationResults.errors.length} errores`);
-      }
-      
+      console.log('[DocumentEditor] Saving document...');
+      await this.documentEngine.saveDocument(this.document);
+      this.isDirty = false;
+      console.log('[DocumentEditor] Document saved successfully');
+      this.render(); // Re-render to show updated state
     } catch (error) {
-      console.error('[DocumentEditor] Validation failed:', error);
-      this.showError('Error al validar el documento');
+      console.error('[DocumentEditor] Save failed:', error);
     }
   }
 
   async handleExport(event) {
-    event.preventDefault();
+    event?.preventDefault();
     
     try {
-      // Save before export
-      await this.saveDocument();
-      
-      // Show export options
-      this.showExportOptions();
-      
+      console.log('[DocumentEditor] Exporting document...');
+      await this.documentEngine.exportDocument(this.document, 'pdf');
     } catch (error) {
       console.error('[DocumentEditor] Export failed:', error);
-      this.showError('Error al exportar el documento');
+    }
+  }
+
+  async handleValidate(event) {
+    event?.preventDefault();
+    
+    try {
+      console.log('[DocumentEditor] Validating document...');
+      const validation = await this.documentEngine.validateDocument(this.document);
+      this.validationResults = validation.results;
+      this.render(); // Re-render to show validation results
+    } catch (error) {
+      console.error('[DocumentEditor] Validation failed:', error);
     }
   }
 
   handleClose(event) {
-    event.preventDefault();
+    event?.preventDefault();
     
     if (this.isDirty) {
       if (confirm('Hay cambios sin guardar. ¿Desea guardar antes de cerrar?')) {
-        this.saveDocument().then(() => {
-          this.closeEditor();
-        });
-        return;
+        this.handleSave();
       }
     }
     
-    this.closeEditor();
+    // Emit close event
+    this.emit('document:close', { documentId: this.documentId });
   }
 
-  // Helper methods
-  async saveDocument() {
-    try {
-      // Update document timestamp
-      this.document.updatedAt = Date.now();
-      
-      // Save using DocumentEngine
-      await this.documentEngine.saveDocument(this.documentId, this.document.data);
-      
-      // Mark as clean
-      this.markAsClean();
-      
-      // Update progress
-      this.updateProgress();
-      
-      this.showSuccess('Documento guardado correctamente');
-      
-    } catch (error) {
-      console.error('[DocumentEditor] Save failed:', error);
-      this.showError('Error al guardar el documento');
+  handleVideoPlay(event) {
+    event?.preventDefault();
+    
+    const videoId = event.target.dataset.videoId;
+    if (videoId) {
+      this.emit('video:play', { videoId });
     }
   }
 
-  updateProgress() {
-    if (this.documentEngine) {
-      const completionPercentage = this.documentEngine.calculateCompletionPercentage(this.document);
-      this.document.completionPercentage = completionPercentage;
-      
-      // Update progress bar
-      const progressFill = this.findElement('.progress-fill');
-      const progressValue = this.findElement('.progress-value');
-      
-      if (progressFill) progressFill.style.width = `${completionPercentage}%`;
-      if (progressValue) progressValue.textContent = `${completionPercentage}%`;
+  handleAddRow(event) {
+    event?.preventDefault();
+    
+    const button = event.target;
+    const fieldId = button.dataset.fieldId;
+    
+    if (!fieldId) {
+      console.error('[DocumentEditor] No field ID found for add row action');
+      return;
     }
+    
+    // Initialize field data if it doesn't exist
+    if (!Array.isArray(this.document.data[fieldId])) {
+      this.document.data[fieldId] = [];
+    }
+    
+    // Add a new empty row (array)
+    this.document.data[fieldId].push([]);
+    
+    // Mark as dirty and schedule auto-save
+    this.isDirty = true;
+    this.scheduleAutoSave();
+    
+    // Re-render to show the new row
+    this.render();
+    
+    console.log('[DocumentEditor] Row added to field:', fieldId);
   }
 
-  markAsDirty() {
-    if (!this.isDirty) {
+  handleRemoveRow(event) {
+    event?.preventDefault();
+    
+    const button = event.target;
+    const fieldId = button.dataset.fieldId;
+    const rowIndex = parseInt(button.dataset.rowIndex);
+    
+    if (!fieldId) {
+      console.error('[DocumentEditor] No field ID found for remove row action');
+      return;
+    }
+    
+    if (isNaN(rowIndex)) {
+      console.error('[DocumentEditor] No valid row index found for remove row action');
+      return;
+    }
+    
+    // Initialize field data if it doesn't exist
+    if (!Array.isArray(this.document.data[fieldId])) {
+      this.document.data[fieldId] = [];
+    }
+    
+    // Remove the row at the specified index
+    if (rowIndex >= 0 && rowIndex < this.document.data[fieldId].length) {
+      this.document.data[fieldId].splice(rowIndex, 1);
+      
+      // Mark as dirty and schedule auto-save
       this.isDirty = true;
-      this.updateDirtyIndicator();
-    }
-  }
-
-  markAsClean() {
-    if (this.isDirty) {
-      this.isDirty = false;
-      this.updateDirtyIndicator();
-    }
-  }
-
-  updateDirtyIndicator() {
-    const dirtyIndicator = this.findElement('.dirty-indicator');
-    const savedIndicator = this.findElement('.saved-indicator');
-    
-    if (this.isDirty) {
-      if (savedIndicator) savedIndicator.style.display = 'none';
-      if (dirtyIndicator) dirtyIndicator.style.display = 'inline';
+      this.scheduleAutoSave();
+      
+      // Re-render to show the updated table
+      this.render();
+      
+      console.log('[DocumentEditor] Row removed from field:', fieldId, 'at index:', rowIndex);
     } else {
-      if (dirtyIndicator) dirtyIndicator.style.display = 'none';
-      if (savedIndicator) savedIndicator.style.display = 'inline';
+      console.error('[DocumentEditor] Invalid row index for removal:', rowIndex);
     }
   }
 
-  isSectionComplete(section, data) {
-    if (!section.required) return true;
+  handleAddItem(event) {
+    event?.preventDefault();
     
-    return this.documentEngine.isSectionComplete(section, data);
+    const button = event.target;
+    const fieldId = button.dataset.fieldId;
+    
+    if (!fieldId) {
+      console.error('[DocumentEditor] No field ID found for add item action');
+      return;
+    }
+    
+    // Initialize field data if it doesn't exist
+    if (!Array.isArray(this.document.data[fieldId])) {
+      this.document.data[fieldId] = [];
+    }
+    
+    // Add a new empty item to the list
+    this.document.data[fieldId].push('');
+    
+    // Mark as dirty and schedule auto-save
+    this.isDirty = true;
+    this.scheduleAutoSave();
+    
+    // Re-render to show the new item
+    this.render();
+    
+    console.log('[DocumentEditor] Item added to field:', fieldId);
   }
 
-  showExportOptions() {
-    // Create export modal
-    const exportModal = document.createElement('div');
-    exportModal.className = 'export-modal';
-    exportModal.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Exportar Documento</h3>
-          <button class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p>Seleccione el formato de exportación:</p>
-          <div class="export-options">
-            <button class="btn btn-primary export-option" data-format="html">
-              <span class="btn-icon">🌐</span>
-              HTML
-            </button>
-            <button class="btn btn-primary export-option" data-format="pdf">
-              <span class="btn-icon">📄</span>
-              PDF
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
+  handleRemoveItem(event) {
+    event?.preventDefault();
     
-    document.body.appendChild(exportModal);
+    const button = event.target;
+    const fieldId = button.dataset.fieldId;
+    const itemIndex = parseInt(button.dataset.itemIndex);
     
-    // Handle export option selection
-    exportModal.addEventListener('click', async (e) => {
-      if (e.target.classList.contains('export-option')) {
-        const format = e.target.getAttribute('data-format');
-        await this.exportDocument(format);
-        document.body.removeChild(exportModal);
-      } else if (e.target.classList.contains('modal-close')) {
-        document.body.removeChild(exportModal);
+    if (!fieldId) {
+      console.error('[DocumentEditor] No field ID found for remove item action');
+      return;
+    }
+    
+    if (isNaN(itemIndex)) {
+      console.error('[DocumentEditor] No valid item index found for remove item action');
+      return;
+    }
+    
+    // Initialize field data if it doesn't exist
+    if (!Array.isArray(this.document.data[fieldId])) {
+      this.document.data[fieldId] = [];
+    }
+    
+    // Remove the item at the specified index
+    if (itemIndex >= 0 && itemIndex < this.document.data[fieldId].length) {
+      this.document.data[fieldId].splice(itemIndex, 1);
+      
+      // Mark as dirty and schedule auto-save
+      this.isDirty = true;
+      this.scheduleAutoSave();
+      
+      // Re-render to show the updated list
+      this.render();
+      
+      console.log('[DocumentEditor] Item removed from field:', fieldId, 'at index:', itemIndex);
+    } else {
+      console.error('[DocumentEditor] Invalid item index for removal:', itemIndex);
+    }
+  }
+
+  scheduleAutoSave() {
+    if (this.autoSaveTimer) {
+      clearTimeout(this.autoSaveTimer);
+    }
+    
+    this.autoSaveTimer = setTimeout(() => {
+      if (this.isDirty) {
+        this.handleSave();
       }
-    });
-  }
-
-  async exportDocument(format) {
-    try {
-      if (format === 'pdf') {
-        // Use native browser print-to-PDF for better compatibility
-        await this.exportToPDF();
-      } else {
-        // Use DocumentEngine for other formats
-        const exportResult = await this.documentEngine.exportDocument(this.documentId, format);
-        
-        // Create download link
-        const blob = new Blob([exportResult.content], { type: exportResult.mimeType });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = exportResult.filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        
-        URL.revokeObjectURL(url);
-      }
-      
-      this.showSuccess(`Documento exportado como ${format.toUpperCase()}`);
-      
-    } catch (error) {
-      console.error('[DocumentEditor] Export failed:', error);
-      this.showError('Error al exportar el documento');
-    }
-  }
-
-  async exportToPDF() {
-    // Create a print-optimized window
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
-    
-    if (!printWindow) {
-      throw new Error('No se pudo abrir ventana de impresión. Verifique que las ventanas emergentes estén permitidas.');
-    }
-
-    try {
-      // Get document data for export
-      const exportResult = await this.documentEngine.exportDocument(this.documentId, 'html');
-      
-      // Enhanced PDF-ready styles
-      const pdfStyles = `
-        <style>
-          @page {
-            size: A4;
-            margin: 20mm;
-          }
-          
-          @media print {
-            body {
-              font-family: Arial, sans-serif;
-              font-size: 12pt;
-              line-height: 1.4;
-              color: #000;
-              background: white;
-              margin: 0;
-              padding: 0;
-            }
-            
-            .header {
-              border-bottom: 2pt solid #333;
-              padding-bottom: 10pt;
-              margin-bottom: 15pt;
-              page-break-inside: avoid;
-            }
-            
-            .header h1 {
-              font-size: 18pt;
-              font-weight: bold;
-              margin: 0 0 5pt 0;
-              color: #1a365d;
-            }
-            
-            .section {
-              margin-bottom: 15pt;
-              page-break-inside: avoid;
-            }
-            
-            .section-title {
-              font-size: 14pt;
-              font-weight: bold;
-              color: #2d3748;
-              border-bottom: 1pt solid #ccc;
-              padding-bottom: 3pt;
-              margin-bottom: 8pt;
-            }
-            
-            .table {
-              width: 100%;
-              border-collapse: collapse;
-              margin: 8pt 0;
-              font-size: 11pt;
-            }
-            
-            .table th,
-            .table td {
-              border: 1pt solid #666;
-              padding: 6pt;
-              text-align: left;
-              vertical-align: top;
-            }
-            
-            .table th {
-              background-color: #f0f0f0;
-              font-weight: bold;
-            }
-            
-            .list {
-              margin: 8pt 0;
-              padding-left: 15pt;
-            }
-            
-            .list li {
-              margin: 3pt 0;
-            }
-            
-            .metadata {
-              font-size: 10pt;
-              color: #666;
-              margin-bottom: 10pt;
-            }
-            
-            /* Hide screen-only elements */
-            .no-print {
-              display: none !important;
-            }
-            
-            /* Ensure proper page breaks */
-            .page-break {
-              page-break-before: always;
-            }
-            
-            /* EC0249 Branding */
-            .ec0249-header {
-              text-align: center;
-              margin-bottom: 20pt;
-              padding: 10pt;
-              border: 2pt solid #1a365d;
-            }
-            
-            .ec0249-logo {
-              font-size: 16pt;
-              font-weight: bold;
-              color: #1a365d;
-            }
-            
-            .certification-info {
-              font-size: 10pt;
-              color: #666;
-              margin-top: 5pt;
-            }
-          }
-          
-          @media screen {
-            body {
-              padding: 20px;
-              max-width: 21cm;
-              margin: 0 auto;
-            }
-          }
-        </style>
-      `;
-      
-      // Create complete HTML document
-      const printContent = `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>${this.document.title} - EC0249</title>
-          ${pdfStyles}
-        </head>
-        <body>
-          <div class="ec0249-header">
-            <div class="ec0249-logo">EC0249</div>
-            <div class="certification-info">Proporcionar servicios de consultoría general</div>
-          </div>
-          
-          ${exportResult.content.match(/<body[^>]*>(.*)<\/body>/s)?.[1] || exportResult.content}
-          
-          <div class="page-break"></div>
-          <div style="text-align: center; font-size: 10pt; color: #666; margin-top: 20pt;">
-            <p>Documento generado el ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}</p>
-            <p>EC0249 - Plataforma Educativa | Documento ID: ${this.documentId}</p>
-          </div>
-        </body>
-        </html>
-      `;
-      
-      // Write content to print window
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      
-      // Wait for content to load, then trigger print
-      printWindow.onload = () => {
-        setTimeout(() => {
-          printWindow.print();
-          
-          // Close window after print dialog
-          printWindow.onafterprint = () => {
-            printWindow.close();
-          };
-          
-          // Fallback: close after 10 seconds
-          setTimeout(() => {
-            if (!printWindow.closed) {
-              printWindow.close();
-            }
-          }, 10000);
-        }, 500);
-      };
-      
-    } catch (error) {
-      printWindow.close();
-      throw error;
-    }
-  }
-
-  closeEditor() {
-    this.emit('document-editor:close', {
-      documentId: this.documentId,
-      saved: !this.isDirty
-    });
-  }
-
-  getStatusLabel(status) {
-    const labels = {
-      draft: 'Borrador',
-      in_progress: 'En Progreso',
-      completed: 'Completado',
-      reviewed: 'Revisado'
-    };
-    return labels[status] || 'Borrador';
-  }
-
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
-
-  showSuccess(message) {
-    console.log(`[DocumentEditor] Success: ${message}`);
-    // Emit notification event
-    this.emit('notification', { type: 'success', message });
+    }, this.autoSaveDelay);
   }
 
   showError(message) {
-    console.error(`[DocumentEditor] Error: ${message}`);
-    // Emit notification event
-    this.emit('notification', { type: 'error', message });
+    console.error('[DocumentEditor]', message);
+    // Could emit an error event here for notification system
   }
 
-  showWarning(message) {
-    console.warn(`[DocumentEditor] Warning: ${message}`);
-    // Emit notification event
-    this.emit('notification', { type: 'warning', message });
-  }
-
-  async getStyles() {
-    return `
-      .document-editor {
-        max-width: 1200px;
-        margin: 0 auto;
-        background: var(--bg-secondary, #ffffff);
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-      }
-
-      .document-editor.loading {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 400px;
-      }
-
-      .loading-content {
-        text-align: center;
-      }
-
-      .loading-spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid var(--primary, #3b82f6);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 1rem;
-      }
-
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-
-      /* Header */
-      .editor-header {
-        background: var(--bg-primary, #f8fafc);
-        border-bottom: 1px solid var(--border, #e5e7eb);
-        padding: 1.5rem 2rem;
-      }
-
-      .header-main {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-      }
-
-      .document-info h1 {
-        margin: 0 0 0.5rem 0;
-        color: var(--text-primary, #111827);
-        font-size: 1.5rem;
-        font-weight: 600;
-      }
-
-      .document-metadata {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-
-      .element-badge, .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-
-      .element-badge {
-        background: var(--primary, #3b82f6);
-        color: white;
-      }
-
-      .status-badge {
-        background: var(--gray-200, #e5e7eb);
-        color: var(--gray-700, #374151);
-      }
-
-      .status-badge.status-completed {
-        background: var(--green-100, #dcfce7);
-        color: var(--green-700, #15803d);
-      }
-
-      .status-badge.status-in_progress {
-        background: var(--yellow-100, #fef3c7);
-        color: var(--yellow-700, #a16207);
-      }
-
-      .dirty-indicator {
-        color: var(--orange-600, #ea580c);
-        font-weight: 500;
-      }
-
-      .saved-indicator {
-        color: var(--green-600, #16a34a);
-        font-weight: 500;
-      }
-
-      .header-actions {
-        display: flex;
-        gap: 0.75rem;
-      }
-
-      .document-description {
-        margin: 0 0 1rem 0;
-        color: var(--text-secondary, #6b7280);
-      }
-
-      /* Video Support */
-      .video-support {
-        background: var(--blue-50, #eff6ff);
-        border: 1px solid var(--blue-200, #bfdbfe);
-        border-radius: 8px;
-        padding: 1rem;
-      }
-
-      .video-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .video-icon {
-        font-size: 1.2rem;
-      }
-
-      .video-title {
-        flex: 1;
-        font-weight: 500;
-        color: var(--blue-700, #1d4ed8);
-      }
-
-      /* Progress */
-      .progress-section {
-        background: var(--bg-secondary, #ffffff);
-        border-bottom: 1px solid var(--border, #e5e7eb);
-        padding: 1rem 2rem;
-      }
-
-      .progress-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-      }
-
-      .progress-label {
-        font-weight: 500;
-        color: var(--text-primary, #111827);
-      }
-
-      .progress-value {
-        font-weight: 600;
-        color: var(--primary, #3b82f6);
-      }
-
-      .progress-bar {
-        height: 8px;
-        background: var(--gray-200, #e5e7eb);
-        border-radius: 4px;
-        overflow: hidden;
-      }
-
-      .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--primary, #3b82f6), var(--blue-400, #60a5fa));
-        transition: width 0.3s ease;
-      }
-
-      /* Form */
-      .document-form {
-        padding: 2rem;
-      }
-
-      .form-section {
-        margin-bottom: 2.5rem;
-        border: 1px solid var(--border, #e5e7eb);
-        border-radius: 8px;
-        overflow: hidden;
-      }
-
-      .form-section.required {
-        border-left: 4px solid var(--primary, #3b82f6);
-      }
-
-      .section-header {
-        background: var(--gray-50, #f9fafb);
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border, #e5e7eb);
-      }
-
-      .section-title {
-        margin: 0 0 0.5rem 0;
-        color: var(--text-primary, #111827);
-        font-size: 1.125rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .required-indicator {
-        color: var(--red-500, #ef4444);
-      }
-
-      .complete-indicator {
-        color: var(--green-500, #10b981);
-      }
-
-      .section-description {
-        margin: 0;
-        color: var(--text-secondary, #6b7280);
-        font-size: 0.875rem;
-      }
-
-      .section-content {
-        padding: 1.5rem;
-      }
-
-      /* Field Groups */
-      .field-group {
-        margin-bottom: 1.5rem;
-      }
-
-      .field-input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border, #e5e7eb);
-        border-radius: 6px;
-        font-size: 0.875rem;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      .field-input:focus {
-        outline: none;
-        border-color: var(--primary, #3b82f6);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      }
-
-      .textarea-input {
-        resize: vertical;
-        min-height: 120px;
-        font-family: inherit;
-      }
-
-      .field-meta {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 0.5rem;
-        font-size: 0.75rem;
-        color: var(--text-secondary, #6b7280);
-      }
-
-      /* Lists */
-      .list-field .list-items {
-        margin-bottom: 1rem;
-      }
-
-      .list-item {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .list-item-input {
-        flex: 1;
-      }
-
-      /* Tables */
-      .table-container {
-        overflow-x: auto;
-        margin-bottom: 1rem;
-      }
-
-      .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid var(--border, #e5e7eb);
-        border-radius: 6px;
-      }
-
-      .data-table th,
-      .data-table td {
-        padding: 0.75rem;
-        border-bottom: 1px solid var(--border, #e5e7eb);
-        text-align: left;
-      }
-
-      .data-table th {
-        background: var(--gray-50, #f9fafb);
-        font-weight: 600;
-        color: var(--text-primary, #111827);
-      }
-
-      .table-cell-input {
-        border: none;
-        padding: 0.5rem;
-        width: 100%;
-      }
-
-      .actions-column {
-        width: 80px;
-      }
-
-      .actions-cell {
-        text-align: center;
-      }
-
-      /* Structured Fields */
-      .structured-field .subsection {
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        border: 1px solid var(--gray-200, #e5e7eb);
-        border-radius: 6px;
-        background: var(--gray-25, #fafafa);
-      }
-
-      .subsection-title {
-        margin: 0 0 1rem 0;
-        color: var(--text-primary, #111827);
-        font-size: 1rem;
-        font-weight: 600;
-      }
-
-      /* Form Fields */
-      .form-fields .form-field {
-        margin-bottom: 1rem;
-      }
-
-      .field-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: var(--text-primary, #111827);
-      }
-
-      /* Validation */
-      .field-validation {
-        margin-top: 0.5rem;
-      }
-
-      .validation-error {
-        display: block;
-        color: var(--red-600, #dc2626);
-        font-size: 0.75rem;
-        font-weight: 500;
-      }
-
-      .validation-warning {
-        display: block;
-        color: var(--amber-600, #d97706);
-        font-size: 0.75rem;
-      }
-
-      .validation-results {
-        margin: 2rem;
-        padding: 1.5rem;
-        border-radius: 8px;
-      }
-
-      .validation-results.valid {
-        background: var(--green-50, #f0fdf4);
-        border: 1px solid var(--green-200, #bbf7d0);
-      }
-
-      .validation-results.invalid {
-        background: var(--red-50, #fef2f2);
-        border: 1px solid var(--red-200, #fecaca);
-      }
-
-      .validation-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-      }
-
-      .validation-status.valid {
-        color: var(--green-700, #15803d);
-        font-weight: 600;
-      }
-
-      .validation-status.invalid {
-        color: var(--red-700, #b91c1c);
-        font-weight: 600;
-      }
-
-      /* Footer */
-      .editor-footer {
-        background: var(--bg-primary, #f8fafc);
-        border-top: 1px solid var(--border, #e5e7eb);
-        padding: 1.5rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .footer-info {
-        color: var(--text-secondary, #6b7280);
-        font-size: 0.875rem;
-      }
-
-      .footer-actions {
-        display: flex;
-        gap: 1rem;
-      }
-
-      /* Buttons */
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border: 1px solid transparent;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-
-      .btn:hover {
-        transform: translateY(-1px);
-      }
-
-      .btn:active {
-        transform: translateY(0);
-      }
-
-      .btn-primary {
-        background: var(--primary, #3b82f6);
-        color: white;
-        border-color: var(--primary, #3b82f6);
-      }
-
-      .btn-primary:hover {
-        background: var(--blue-600, #2563eb);
-        border-color: var(--blue-600, #2563eb);
-      }
-
-      .btn-secondary {
-        background: var(--gray-100, #f3f4f6);
-        color: var(--gray-700, #374151);
-        border-color: var(--gray-300, #d1d5db);
-      }
-
-      .btn-secondary:hover {
-        background: var(--gray-200, #e5e7eb);
-      }
-
-      .btn-danger {
-        background: var(--red-500, #ef4444);
-        color: white;
-        border-color: var(--red-500, #ef4444);
-      }
-
-      .btn-danger:hover {
-        background: var(--red-600, #dc2626);
-      }
-
-      .btn-ghost {
-        background: transparent;
-        color: var(--gray-600, #4b5563);
-        border-color: transparent;
-      }
-
-      .btn-ghost:hover {
-        background: var(--gray-100, #f3f4f6);
-      }
-
-      .btn-outline {
-        background: transparent;
-        color: var(--primary, #3b82f6);
-        border-color: var(--primary, #3b82f6);
-      }
-
-      .btn-outline:hover {
-        background: var(--primary, #3b82f6);
-        color: white;
-      }
-
-      .btn-sm {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.75rem;
-      }
-
-      .btn-icon {
-        font-size: 1rem;
-        line-height: 1;
-      }
-
-      /* Export Modal */
-      .export-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-      }
-
-      .modal-content {
-        background: var(--bg-secondary, #ffffff);
-        border-radius: 12px;
-        max-width: 400px;
-        width: 100%;
-        margin: 1rem;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      }
-
-      .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem 1.5rem 0;
-      }
-
-      .modal-header h3 {
-        margin: 0;
-        font-size: 1.125rem;
-        font-weight: 600;
-      }
-
-      .modal-close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: var(--gray-500, #6b7280);
-        line-height: 1;
-      }
-
-      .modal-body {
-        padding: 1.5rem;
-      }
-
-      .export-options {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-top: 1rem;
-      }
-
-      .export-option {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        text-align: center;
-      }
-
-      .export-option .btn-icon {
-        font-size: 1.5rem;
-      }
-
-      /* Responsive */
-      @media (max-width: 768px) {
-        .document-editor {
-          margin: 0;
-          border-radius: 0;
-        }
-
-        .editor-header {
-          padding: 1rem;
-        }
-
-        .header-main {
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .header-actions {
-          width: 100%;
-          justify-content: space-between;
-        }
-
-        .document-form {
-          padding: 1rem;
-        }
-
-        .section-content {
-          padding: 1rem;
-        }
-
-        .editor-footer {
-          padding: 1rem;
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .footer-actions {
-          width: 100%;
-          justify-content: space-between;
-        }
-
-        .table-container {
-          font-size: 0.75rem;
-        }
-
-        .export-options {
-          grid-template-columns: 1fr;
-        }
-      }
-    `;
+  showSuccess(message) {
+    console.log('[DocumentEditor]', message);
+    // Could emit a success event here for notification system
   }
 
   async onDestroy() {
+    // Clear auto-save interval
+    if (this.autoSaveInterval) {
+      clearInterval(this.autoSaveInterval);
+    }
+    
     // Clear auto-save timer
     if (this.autoSaveTimer) {
       clearTimeout(this.autoSaveTimer);
     }
     
-    if (this.autoSaveInterval) {
-      clearInterval(this.autoSaveInterval);
-    }
-    
     // Save if dirty
     if (this.isDirty) {
-      await this.saveDocument();
+      await this.handleSave();
     }
     
     await super.onDestroy();
