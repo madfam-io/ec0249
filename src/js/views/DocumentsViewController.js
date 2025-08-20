@@ -64,10 +64,8 @@ class DocumentsViewController extends BaseViewController {
   async onShow() {
     console.log('[DocumentsViewController] View shown, loading template data...');
     
-    // Show loading state while templates load
-    this.showLoadingState();
-    
     // Load template data when view is shown with proper waiting
+    // (Loading state is shown by default in createTemplatesGrid)
     await this.loadTemplateDataWithRetry();
     
     console.log('[DocumentsViewController] View shown and templates loaded');
@@ -121,13 +119,13 @@ class DocumentsViewController extends BaseViewController {
     // Create main structure
     const container = this.createElement('div', ['documents-view']);
     
-    // Add page header
+    // Add page header (with initial empty state)
     container.appendChild(this.createPageHeader());
     
     // Add filters section
     container.appendChild(this.createFiltersSection());
     
-    // Add templates grid
+    // Add templates grid (will show loading initially)
     container.appendChild(this.createTemplatesGrid());
     
     // Add footer actions
@@ -138,8 +136,8 @@ class DocumentsViewController extends BaseViewController {
     // Bind event listeners
     this.bindEvents();
     
-    // Apply initial filtering
-    this.applyFilters();
+    // Don't apply initial filtering here - wait for templates to load
+    // The filtering will be applied after templates are loaded in loadTemplateDataWithRetry()
     
     console.log('[DocumentsViewController] Rendering completed');
   }
@@ -267,15 +265,14 @@ class DocumentsViewController extends BaseViewController {
       </div>
       
       <div class="templates-container">
-        <div id="templatesGrid" class="templates-grid view-grid">
+        <div id="templatesGrid" class="templates-grid view-grid" style="display: none;">
           <!-- Templates will be populated here -->
         </div>
         
-        <div id="noResults" class="no-results" style="display: none;">
-          <div class="no-results-icon">🔍</div>
-          <h4>No se encontraron plantillas</h4>
-          <p>Intenta ajustar tus filtros de búsqueda o explorar diferentes elementos.</p>
-          <button class="btn btn-secondary" data-action="clear-filters">Limpiar Filtros</button>
+        <div id="noResults" class="no-results" style="display: block;">
+          <div class="no-results-icon">⏳</div>
+          <h4>Cargando plantillas...</h4>
+          <p>Preparando las plantillas de documentos EC0249...</p>
         </div>
       </div>
     `;
@@ -350,6 +347,7 @@ class DocumentsViewController extends BaseViewController {
         if (this.allTemplates.length > 0) {
           this.renderTemplateCards();
           this.updateHeaderStats();
+          this.applyFilters(); // Apply filters now that templates are loaded
         }
         return;
       }
