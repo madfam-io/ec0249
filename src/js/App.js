@@ -56,12 +56,14 @@ import I18nService from './services/I18nService.js';
 import StorageService from './services/StorageService.js';
 import RouterService from './services/RouterService.js';
 import ProgressService from './services/ProgressService.js';
+import LeaderboardService from './services/LeaderboardService.js';
 import ThemeToggle from './components/ThemeToggle.js';
 import LanguageToggle from './components/LanguageToggle.js';
 import VideoPlayer from './components/VideoPlayer.js';
 import MobileNavigation from './components/MobileNavigation.js';
 import AchievementSystem from './components/AchievementSystem.js';
 import DocumentEditor from './components/DocumentEditor.js';
+import GamificationDashboard from './components/GamificationDashboard.js';
 import AppConfig, { ConfigManager } from './config/AppConfig.js';
 import { getVideoConfig } from './config/VideoConfig.js';
 import ContentEngine from './engines/ContentEngine.js';
@@ -312,6 +314,10 @@ class EC0249App {
       dependencies: ['StorageService', 'EventBus']
     });
 
+    container.singleton('LeaderboardService', LeaderboardService, {
+      dependencies: ['StorageService', 'EventBus']
+    });
+
     // Register engine modules
     container.singleton('ContentEngine', ContentEngine, {
       dependencies: ['StateManager', 'I18nService', 'StorageService', 'EventBus']
@@ -344,7 +350,7 @@ class EC0249App {
     await container.boot();
     
     // Initialize services that extend Module
-    const servicesToInitialize = ['ThemeService', 'I18nService', 'StorageService', 'RouterService', 'ProgressService'];
+    const servicesToInitialize = ['ThemeService', 'I18nService', 'StorageService', 'RouterService', 'ProgressService', 'LeaderboardService'];
     
     for (const serviceName of servicesToInitialize) {
       try {
@@ -622,6 +628,23 @@ class EC0249App {
       await achievementSystem.initialize(container, eventBus);
       this.components.set('achievementSystem', achievementSystem);
       console.log('[App] Achievement system initialized');
+
+      // Initialize gamification dashboard
+      const gamificationDashboardElement = document.getElementById('gamificationDashboard');
+      if (gamificationDashboardElement) {
+        const gamificationDashboard = new GamificationDashboard(gamificationDashboardElement, {
+          showLeaderboards: true,
+          showAchievements: true,
+          showStreaks: true,
+          refreshInterval: 60000
+        });
+        
+        await gamificationDashboard.initialize(container, eventBus);
+        this.components.set('gamificationDashboard', gamificationDashboard);
+        console.log('[App] Gamification dashboard initialized');
+      } else {
+        console.warn('[App] Gamification dashboard element not found');
+      }
 
       console.log('[App] UI components initialized');
     } catch (error) {

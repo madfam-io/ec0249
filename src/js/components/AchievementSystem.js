@@ -268,6 +268,7 @@ class AchievementSystem {
     this.eventBus.subscribe('video:completed', this.handleVideoCompleted.bind(this));
     this.eventBus.subscribe('lesson:completed', this.handleLessonCompleted.bind(this));
     this.eventBus.subscribe('quiz:completed', this.handleQuizCompleted.bind(this));
+    this.eventBus.subscribe('quiz:perfect_score', this.handlePerfectScore.bind(this));
     this.eventBus.subscribe('module:completed', this.handleModuleCompleted.bind(this));
     this.eventBus.subscribe('document:generated', this.handleDocumentGenerated.bind(this));
     this.eventBus.subscribe('progress:updated', this.handleProgressUpdated.bind(this));
@@ -304,6 +305,15 @@ class AchievementSystem {
       this.userProgress.stats.perfectScores++;
     }
     
+    await this.checkAndUnlockAchievements();
+    await this.saveUserProgress();
+  }
+
+  /**
+   * Handle perfect score achievement
+   */
+  async handlePerfectScore(data) {
+    this.userProgress.stats.perfectScores++;
     await this.checkAndUnlockAchievements();
     await this.saveUserProgress();
   }

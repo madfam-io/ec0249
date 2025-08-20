@@ -328,10 +328,74 @@ class AssessmentEngine extends Module {
       passed: scoreResult.passed
     });
 
+    // Emit achievement events based on results
+    this.checkAchievementResults(this.currentAssessment.assessmentId, scoreResult, results);
+
     // Clear current assessment
     this.currentAssessment = null;
 
     return results;
+  }
+
+  /**
+   * Check for achievement-worthy results and emit appropriate events
+   * @param {string} assessmentId - Assessment identifier
+   * @param {Object} scoreResult - Scoring results
+   * @param {Object} results - Complete assessment results
+   */
+  checkAchievementResults(assessmentId, scoreResult, results) {
+    // Quiz completed achievement
+    this.emit('quiz:completed', {
+      assessmentId,
+      score: scoreResult.percentage,
+      passed: scoreResult.passed,
+      duration: results.duration,
+      timestamp: Date.now()
+    });
+
+    // Perfect score achievement (100%)
+    if (scoreResult.percentage === 100) {
+      this.emit('quiz:perfect_score', {
+        assessmentId,
+        score: scoreResult.percentage,
+        timestamp: Date.now()
+      });
+      
+      console.log('[AssessmentEngine] Perfect score achieved:', assessmentId);
+    }
+
+    // High performance achievement (90%+)
+    if (scoreResult.percentage >= 90) {
+      this.emit('quiz:high_performance', {
+        assessmentId,
+        score: scoreResult.percentage,
+        timestamp: Date.now()
+      });
+    }
+
+    // Module completion assessment
+    if (assessmentId.includes('module') && scoreResult.passed) {
+      const moduleId = this.extractModuleId(assessmentId);
+      this.emit('module:assessment_passed', {
+        moduleId,
+        assessmentId,
+        score: scoreResult.percentage,
+        timestamp: Date.now()
+      });
+    }
+
+    console.log('[AssessmentEngine] Assessment completed with score:', scoreResult.percentage);
+  }
+
+  /**
+   * Extract module ID from assessment ID
+   * @param {string} assessmentId - Assessment identifier
+   * @returns {string} Module identifier
+   */
+  extractModuleId(assessmentId) {
+    // Extract module ID from assessment ID (e.g., 'module1-quiz' -> 'module1')
+    const match = assessmentId.match(/^(module\d+)/);
+    return match ? match[1] : 'unknown';
   }
 
   /**

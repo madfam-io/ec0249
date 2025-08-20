@@ -80,6 +80,12 @@
 /* 13a. Document Editor Styles */
 @import 'modules/documents.css';
 
+/* 13b. Documents View Styles */
+@import 'modules/documents-view.css';
+
+/* 13c. Progress View Styles */
+@import 'modules/progress-view.css';
+
 /* 14. Achievement System */
 @import 'modules/achievements.css';
 

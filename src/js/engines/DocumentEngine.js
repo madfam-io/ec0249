@@ -224,7 +224,58 @@ class DocumentEngine extends Module {
       timestamp: Date.now()
     });
 
+    // Check for achievement-worthy document progress
+    this.checkDocumentAchievements(document);
+
     return document;
+  }
+
+  /**
+   * Check for achievement-worthy document progress and emit appropriate events
+   * @param {Object} document - Document object
+   */
+  checkDocumentAchievements(document) {
+    const template = this.templates.get(document.templateId);
+    const previousStatus = document.previousStatus || 'not_started';
+    
+    // Document completion achievement (100%)
+    if (document.status === 'completed' && previousStatus !== 'completed') {
+      this.emit('document:generated', {
+        documentId: document.id,
+        templateId: document.templateId,
+        elementId: template?.element || 'unknown',
+        title: template?.title || 'Document',
+        timestamp: Date.now()
+      });
+      
+      console.log('[DocumentEngine] Document completed:', document.id);
+    }
+
+    // First document milestone (25% completion)
+    if (document.completionPercentage >= 25 && (document.previousCompletionPercentage || 0) < 25) {
+      this.emit('document:progress_milestone', {
+        documentId: document.id,
+        templateId: document.templateId,
+        progress: document.completionPercentage,
+        milestone: 'quarter',
+        timestamp: Date.now()
+      });
+    }
+
+    // Half completion milestone (50%)
+    if (document.completionPercentage >= 50 && (document.previousCompletionPercentage || 0) < 50) {
+      this.emit('document:progress_milestone', {
+        documentId: document.id,
+        templateId: document.templateId,
+        progress: document.completionPercentage,
+        milestone: 'half',
+        timestamp: Date.now()
+      });
+    }
+
+    // Store previous values for next comparison
+    document.previousStatus = document.status;
+    document.previousCompletionPercentage = document.completionPercentage;
   }
 
   /**

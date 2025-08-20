@@ -21,6 +21,8 @@ class RouterService extends Module {
         '/modules/module4': 'modules',
         '/assessment': 'assessment',
         '/portfolio': 'portfolio',
+        '/documents': 'documents',
+        '/progress': 'progress',
         '/portfolio/documents': 'portfolio',
         '/portfolio/element1': 'portfolio',
         '/portfolio/element2': 'portfolio',

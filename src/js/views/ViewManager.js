@@ -46,6 +46,8 @@ import ModulesViewController from './ModulesViewController.js';
 import AssessmentViewController from './AssessmentViewController.js';
 import PortfolioViewController from './PortfolioViewController.js';
 import DocumentViewController from './DocumentViewController.js';
+import DocumentsViewController from './DocumentsViewController.js';
+import ProgressViewController from './ProgressViewController.js';
 
 class ViewManager {
   /**
@@ -87,6 +89,8 @@ class ViewManager {
     this.controllers.set('modules', new ModulesViewController('modules', this.app));
     this.controllers.set('assessment', new AssessmentViewController('assessment', this.app));
     this.controllers.set('portfolio', new PortfolioViewController('portfolio', this.app));
+    this.controllers.set('documents', new DocumentsViewController('documents', this.app));
+    this.controllers.set('progress', new ProgressViewController('progress', this.app));
     this.controllers.set('document', new DocumentViewController());
 
     // Initialize all controllers
@@ -283,7 +287,11 @@ class ViewManager {
     }
 
     // Update section-specific content
-    if (typeof this.currentController.showSection === 'function') {
+    // For dedicated views (documents, progress), the view switch is sufficient
+    // For section-based views (portfolio, modules), call showSection
+    if (targetView && (targetView === 'documents' || targetView === 'progress')) {
+      console.log(`[ViewManager] Section ${sectionId} uses dedicated view ${targetView} - no additional section handling needed`);
+    } else if (typeof this.currentController.showSection === 'function') {
       console.log(`[ViewManager] Calling showSection(${sectionId}) on ${this.currentView} controller`);
       await this.currentController.showSection(sectionId);
       console.log(`[ViewManager] showSection(${sectionId}) completed on ${this.currentView} controller`);
@@ -322,16 +330,16 @@ class ViewManager {
       'module3': 'modules',
       'module4': 'modules',
       
-      // Document sections go to portfolio view
-      'documents': 'portfolio',
+      // Documents section goes to dedicated documents view
+      'documents': 'documents',
       
       // Element sections go to portfolio view
       'element1': 'portfolio',
       'element2': 'portfolio',
       'element3': 'portfolio',
       
-      // Progress section goes to portfolio view
-      'progress': 'portfolio',
+      // Progress section goes to dedicated progress view
+      'progress': 'progress',
       
       // Overview stays on dashboard
       'overview': 'dashboard'

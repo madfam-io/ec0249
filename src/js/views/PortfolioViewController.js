@@ -935,29 +935,37 @@ class PortfolioViewController extends BaseViewController {
   async showElement(elementId) {
     console.log(`[PortfolioViewController] showElement called with: ${elementId}`);
     
-    if (this.currentElement === elementId) {
-      console.log(`[PortfolioViewController] Element ${elementId} already active, skipping`);
-      return;
-    }
-    
+    // Always update the current element (don't skip if same, as we might need to re-render)
     this.currentElement = elementId;
+    this.shouldShowElementContent = true;
     console.log(`[PortfolioViewController] Current element set to: ${this.currentElement}`);
     
-    // Update element navigation
-    this.updateElementNavigation();
-    
-    // Update URL to reflect current element
-    const newUrl = `/portfolio/${elementId}`;
-    if (window.location.pathname !== newUrl) {
-      window.history.pushState(null, '', newUrl);
-      console.log(`[PortfolioViewController] URL updated to: ${newUrl}`);
+    try {
+      // Update element navigation
+      this.updateElementNavigation();
+      
+      // Update URL to reflect current element  
+      const newUrl = `/portfolio/${elementId}`;
+      if (window.location.pathname !== newUrl) {
+        window.history.pushState(null, '', newUrl);
+        console.log(`[PortfolioViewController] URL updated to: ${newUrl}`);
+      }
+      
+      // Ensure element content container exists and is visible
+      this.showElementSection();
+      
+      // Re-render current element content
+      console.log(`[PortfolioViewController] Rendering element content for: ${elementId}`);
+      await this.renderCurrentElement();
+      
+      console.log(`[PortfolioViewController] Element ${elementId} shown successfully`);
+      
+    } catch (error) {
+      console.error(`[PortfolioViewController] Error showing element ${elementId}:`, error);
+      // Fallback to overview if element display fails
+      this.hideElementSection();
+      throw error;
     }
-    
-    // Re-render current element content
-    console.log(`[PortfolioViewController] Rendering element content for: ${elementId}`);
-    await this.renderCurrentElement();
-    
-    console.log(`[PortfolioViewController] Element ${elementId} shown successfully`);
   }
 
   /**
@@ -1634,35 +1642,58 @@ class PortfolioViewController extends BaseViewController {
   async showSection(sectionId) {
     console.log(`[PortfolioViewController] Showing section: ${sectionId}`);
     
+    // Wait for proper initialization if needed
+    if (!this.element) {
+      console.log('[PortfolioViewController] Waiting for element initialization...');
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
     // Ensure proper structure exists
     this.ensurePortfolioStructure();
     
-    switch (sectionId) {
-      case 'element1':
-      case 'element2':
-      case 'element3':
-        // Hide portfolio overview and show element content
-        this.showElementSection();
-        await this.showElement(sectionId);
-        break;
-      
-      case 'documents':
-        // Show general documents/templates view
-        this.hideElementSection();
-        await this.showTemplatesOverview();
-        break;
-      
-      case 'progress':
-        // Show portfolio progress view
-        this.hideElementSection();
-        await this.showProgressOverview();
-        break;
-      
-      default:
-        // Default to overview if section not recognized
-        console.log(`[PortfolioViewController] Unknown section ${sectionId}, showing overview`);
-        this.hideElementSection();
-        await this.onRender();
+    try {
+      switch (sectionId) {
+        case 'element1':
+        case 'element2':
+        case 'element3':
+          console.log(`[PortfolioViewController] Processing element section: ${sectionId}`);
+          // Set current element first
+          this.currentElement = sectionId;
+          this.shouldShowElementContent = true;
+          
+          // Hide portfolio overview and show element content
+          this.showElementSection();
+          await this.showElement(sectionId);
+          
+          console.log(`[PortfolioViewController] Element section ${sectionId} displayed successfully`);
+          break;
+        
+        case 'documents':
+          console.log('[PortfolioViewController] Processing documents section');
+          // Show general documents/templates view
+          this.hideElementSection();
+          await this.showTemplatesOverview();
+          break;
+        
+        case 'progress':
+          console.log('[PortfolioViewController] Processing progress section');
+          // Show portfolio progress view
+          this.hideElementSection();
+          await this.showProgressOverview();
+          break;
+        
+        default:
+          // Default to overview if section not recognized
+          console.log(`[PortfolioViewController] Unknown section ${sectionId}, showing overview`);
+          this.shouldShowElementContent = false;
+          this.hideElementSection();
+          await this.onRender();
+      }
+    } catch (error) {
+      console.error(`[PortfolioViewController] Error showing section ${sectionId}:`, error);
+      // Fallback to overview on error
+      this.hideElementSection();
+      await this.onRender();
     }
   }
 
@@ -1672,14 +1703,17 @@ class PortfolioViewController extends BaseViewController {
   showElementSection() {
     console.log('[PortfolioViewController] Showing element section...');
     
-    // Hide static overview
+    // Ensure proper structure exists first
+    this.ensurePortfolioStructure();
+    
+    // Hide static overview (from index.html)
     const staticOverview = this.findElement('.portfolio-overview:not(.dynamic-overview)');
     if (staticOverview) {
       staticOverview.style.display = 'none';
       console.log('[PortfolioViewController] Static overview hidden');
     }
     
-    // Hide dynamic overview
+    // Hide dynamic overview (created by controller)
     const dynamicOverview = this.findElement('.portfolio-wrapper .portfolio-overview');
     if (dynamicOverview) {
       dynamicOverview.style.display = 'none';
@@ -1687,16 +1721,27 @@ class PortfolioViewController extends BaseViewController {
     }
     
     // Show element content
-    const elementContent = this.findElement('.element-content');
+    let elementContent = this.findElement('.element-content');
+    if (!elementContent) {
+      // Create element content if it doesn't exist
+      console.log('[PortfolioViewController] Creating missing element content container');
+      const wrapper = this.findElement('.portfolio-wrapper') || this.element;
+      if (wrapper) {
+        elementContent = this.createElement('div', ['element-content']);
+        elementContent.style.display = 'none';
+        wrapper.appendChild(elementContent);
+      }
+    }
+    
     if (elementContent) {
       elementContent.style.display = 'block';
       elementContent.setAttribute('data-element', this.currentElement);
       console.log('[PortfolioViewController] Element content shown');
     } else {
-      console.error('[PortfolioViewController] Element content container not found');
+      console.error('[PortfolioViewController] Unable to create or find element content container');
     }
     
-    // Hide competency elements section
+    // Hide competency elements section (from index.html)
     const competencyElements = this.findElement('.competency-elements');
     if (competencyElements) {
       competencyElements.style.display = 'none';
@@ -1710,14 +1755,17 @@ class PortfolioViewController extends BaseViewController {
   hideElementSection() {
     console.log('[PortfolioViewController] Hiding element section...');
     
-    // Show static overview
+    // Reset element content visibility state
+    this.shouldShowElementContent = false;
+    
+    // Show static overview (from index.html)
     const staticOverview = this.findElement('.portfolio-overview:not(.dynamic-overview)');
     if (staticOverview) {
       staticOverview.style.display = 'block';
       console.log('[PortfolioViewController] Static overview shown');
     }
     
-    // Show dynamic overview
+    // Show dynamic overview (created by controller)
     const dynamicOverview = this.findElement('.portfolio-wrapper .portfolio-overview');
     if (dynamicOverview) {
       dynamicOverview.style.display = 'block';
@@ -1731,7 +1779,7 @@ class PortfolioViewController extends BaseViewController {
       console.log('[PortfolioViewController] Element content hidden');
     }
     
-    // Show competency elements section
+    // Show competency elements section (from index.html) 
     const competencyElements = this.findElement('.competency-elements');
     if (competencyElements) {
       competencyElements.style.display = 'block';

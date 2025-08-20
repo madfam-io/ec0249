@@ -857,14 +857,84 @@ class ContentEngine extends Module {
   handleProgressUpdate(data) {
     // Update content progress
     if (this.currentContent) {
+      const previousProgress = this.currentContent.progress || 0;
       this.currentContent.progress = data.progress;
       this.saveProgress();
+      
+      // Emit achievement events based on progress
+      this.checkAchievementProgress(data, previousProgress);
     }
+  }
+
+  /**
+   * Check for achievement-worthy progress and emit appropriate events
+   * @param {Object} data - Progress data
+   * @param {number} previousProgress - Previous progress value
+   */
+  checkAchievementProgress(data, previousProgress) {
+    const currentProgress = data.progress || 0;
+    
+    // Lesson completion (100% progress)
+    if (currentProgress === 100 && previousProgress < 100) {
+      this.emit('lesson:completed', {
+        contentId: this.currentContent.id,
+        contentType: this.currentContent.type,
+        moduleId: this.extractModuleId(this.currentContent.id),
+        timestamp: Date.now(),
+        timeSpent: data.timeSpent || 0
+      });
+      
+      console.log('[ContentEngine] Lesson completed:', this.currentContent.id);
+    }
+    
+    // Module completion check
+    if (data.moduleCompleted) {
+      this.emit('module:completed', {
+        moduleId: data.moduleId,
+        timestamp: Date.now(),
+        lessonsCompleted: data.lessonsInModule || 1
+      });
+      
+      console.log('[ContentEngine] Module completed:', data.moduleId);
+    }
+    
+    // First lesson milestone
+    if (currentProgress >= 25 && previousProgress < 25) {
+      this.emit('progress:milestone', {
+        type: 'lesson_quarter',
+        contentId: this.currentContent.id,
+        progress: currentProgress
+      });
+    }
+  }
+
+  /**
+   * Extract module ID from content ID
+   * @param {string} contentId - Content identifier
+   * @returns {string} Module identifier
+   */
+  extractModuleId(contentId) {
+    // Extract module ID from content ID (e.g., 'module1-lesson1' -> 'module1')
+    const match = contentId.match(/^(module\d+)/);
+    return match ? match[1] : 'unknown';
   }
 
   handleMediaPlay(data) {
     // Handle media play events
     console.log('[ContentEngine] Media play:', data);
+    
+    // Track video completion for achievements
+    if (data.type === 'video' && data.completed) {
+      this.emit('video:completed', {
+        videoId: data.videoId,
+        contentId: this.currentContent?.id,
+        moduleId: this.extractModuleId(this.currentContent?.id || ''),
+        timestamp: Date.now(),
+        duration: data.duration || 0
+      });
+      
+      console.log('[ContentEngine] Video completed:', data.videoId);
+    }
   }
 
   handleInteractiveActivate(data) {
