@@ -501,7 +501,12 @@ class DocumentsViewController extends BaseViewController {
    * Bind events for template cards
    */
   bindTemplateCardEvents() {
-    this.findElements('.template-card').forEach(card => {
+    const cards = this.findElements('.template-card');
+    const actionButtons = this.findElements('.template-action');
+    
+    console.log(`[DocumentsViewController] Binding events for ${cards.length} cards and ${actionButtons.length} action buttons`);
+    
+    cards.forEach(card => {
       card.addEventListener('click', (e) => {
         if (e.target.closest('.template-actions')) {
           return; // Let action buttons handle their own events
@@ -509,23 +514,41 @@ class DocumentsViewController extends BaseViewController {
         
         const templateId = card.dataset.templateId;
         if (templateId) {
+          console.log(`[DocumentsViewController] Card clicked, previewing template: ${templateId}`);
           this.previewTemplate(templateId);
         }
       });
     });
     
     // Template action buttons
-    this.findElements('.template-action').forEach(button => {
+    actionButtons.forEach(button => {
+      const action = button.dataset.action;
+      const templateId = button.dataset.templateId;
+      
+      console.log(`[DocumentsViewController] Binding action button: ${action} for template: ${templateId}`);
+      
       button.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         
-        const action = button.dataset.action;
-        const templateId = button.dataset.templateId;
+        console.log(`[DocumentsViewController] Action button clicked: ${action} for template: ${templateId}`);
         
         if (action && templateId) {
           this.handleTemplateAction(action, templateId, button);
+        } else {
+          console.warn(`[DocumentsViewController] Missing action or templateId:`, { action, templateId });
         }
+      });
+    });
+    
+    // Log preview buttons specifically
+    const previewButtons = this.findElements('[data-action="preview-template"]');
+    console.log(`[DocumentsViewController] Found ${previewButtons.length} preview buttons`);
+    previewButtons.forEach((btn, index) => {
+      console.log(`[DocumentsViewController] Preview button ${index}:`, {
+        action: btn.dataset.action,
+        templateId: btn.dataset.templateId,
+        text: btn.textContent.trim()
       });
     });
   }
@@ -720,13 +743,17 @@ class DocumentsViewController extends BaseViewController {
    * Handle template-specific actions
    */
   async handleTemplateAction(action, templateId, button) {
+    console.log(`[DocumentsViewController] handleTemplateAction called:`, { action, templateId, button });
+    
     switch (action) {
       case 'create-document':
+        console.log(`[DocumentsViewController] Creating document for template: ${templateId}`);
         await this.createDocument(templateId);
         break;
       
       case 'preview-template':
-        this.previewTemplate(templateId);
+        console.log(`[DocumentsViewController] Previewing template: ${templateId}`);
+        await this.previewTemplate(templateId);
         break;
       
       default:
@@ -766,19 +793,28 @@ class DocumentsViewController extends BaseViewController {
    * Preview template
    */
   async previewTemplate(templateId) {
+    console.log(`[DocumentsViewController] previewTemplate called for: ${templateId}`);
+    
     try {
       if (!this.documentEngine) {
+        console.error('[DocumentsViewController] DocumentEngine not available');
         this.showNotification('Motor de documentos no disponible', 'error');
         return;
       }
 
+      console.log(`[DocumentsViewController] DocumentEngine available, getting template: ${templateId}`);
+      
       // Get template data
       const template = this.documentEngine.getTemplate(templateId);
       if (!template) {
+        console.error(`[DocumentsViewController] Template not found: ${templateId}`);
         this.showNotification('Plantilla no encontrada', 'error');
         return;
       }
 
+      console.log(`[DocumentsViewController] Template found:`, template);
+      console.log(`[DocumentsViewController] Showing preview modal for: ${template.title}`);
+      
       // Show preview modal
       this.showTemplatePreviewModal(template);
 
@@ -792,39 +828,52 @@ class DocumentsViewController extends BaseViewController {
    * Show template preview modal
    */
   showTemplatePreviewModal(template) {
+    console.log(`[DocumentsViewController] showTemplatePreviewModal called for:`, template.title);
+    
     // Remove existing modal if any
     this.hideTemplatePreviewModal();
 
     // Create modal overlay
     const modalOverlay = this.createElement('div', ['template-preview-modal-overlay']);
+    console.log(`[DocumentsViewController] Modal overlay created:`, modalOverlay);
+    
     modalOverlay.addEventListener('click', (e) => {
       if (e.target === modalOverlay) {
+        console.log(`[DocumentsViewController] Modal overlay clicked, closing modal`);
         this.hideTemplatePreviewModal();
       }
     });
 
     // Create modal content
     const modalContent = this.createElement('div', ['template-preview-modal-content']);
+    console.log(`[DocumentsViewController] Creating modal content for template:`, template.id);
+    
     modalContent.innerHTML = this.createTemplatePreviewContent(template);
+    console.log(`[DocumentsViewController] Modal content created, length:`, modalContent.innerHTML.length);
 
     modalOverlay.appendChild(modalContent);
     document.body.appendChild(modalOverlay);
+    console.log(`[DocumentsViewController] Modal added to DOM`);
 
     // Bind modal events
     this.bindPreviewModalEvents(template);
 
     // Show modal with animation
     requestAnimationFrame(() => {
+      console.log(`[DocumentsViewController] Adding 'show' class to modal`);
       modalOverlay.classList.add('show');
     });
 
     // Handle ESC key
     this.escKeyHandler = (e) => {
       if (e.key === 'Escape') {
+        console.log(`[DocumentsViewController] ESC key pressed, closing modal`);
         this.hideTemplatePreviewModal();
       }
     };
     document.addEventListener('keydown', this.escKeyHandler);
+    
+    console.log(`[DocumentsViewController] Modal setup complete`);
   }
 
   /**
