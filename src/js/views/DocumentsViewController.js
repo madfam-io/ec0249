@@ -765,9 +765,257 @@ class DocumentsViewController extends BaseViewController {
   /**
    * Preview template
    */
-  previewTemplate(templateId) {
-    // TODO: Implement template preview functionality
-    this.showNotification(`Vista previa de plantilla ${templateId} en desarrollo`, 'info');
+  async previewTemplate(templateId) {
+    try {
+      if (!this.documentEngine) {
+        this.showNotification('Motor de documentos no disponible', 'error');
+        return;
+      }
+
+      // Get template data
+      const template = this.documentEngine.getTemplate(templateId);
+      if (!template) {
+        this.showNotification('Plantilla no encontrada', 'error');
+        return;
+      }
+
+      // Show preview modal
+      this.showTemplatePreviewModal(template);
+
+    } catch (error) {
+      console.error('[DocumentsViewController] Failed to preview template:', error);
+      this.showNotification('Error al mostrar vista previa', 'error');
+    }
+  }
+
+  /**
+   * Show template preview modal
+   */
+  showTemplatePreviewModal(template) {
+    // Remove existing modal if any
+    this.hideTemplatePreviewModal();
+
+    // Create modal overlay
+    const modalOverlay = this.createElement('div', ['template-preview-modal-overlay']);
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        this.hideTemplatePreviewModal();
+      }
+    });
+
+    // Create modal content
+    const modalContent = this.createElement('div', ['template-preview-modal-content']);
+    modalContent.innerHTML = this.createTemplatePreviewContent(template);
+
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+
+    // Bind modal events
+    this.bindPreviewModalEvents(template);
+
+    // Show modal with animation
+    requestAnimationFrame(() => {
+      modalOverlay.classList.add('show');
+    });
+
+    // Handle ESC key
+    this.escKeyHandler = (e) => {
+      if (e.key === 'Escape') {
+        this.hideTemplatePreviewModal();
+      }
+    };
+    document.addEventListener('keydown', this.escKeyHandler);
+  }
+
+  /**
+   * Hide template preview modal
+   */
+  hideTemplatePreviewModal() {
+    const modal = document.querySelector('.template-preview-modal-overlay');
+    if (modal) {
+      modal.classList.remove('show');
+      setTimeout(() => {
+        modal.remove();
+      }, 300); // Match CSS transition duration
+    }
+
+    // Remove ESC key handler
+    if (this.escKeyHandler) {
+      document.removeEventListener('keydown', this.escKeyHandler);
+      this.escKeyHandler = null;
+    }
+  }
+
+  /**
+   * Create template preview modal content
+   */
+  createTemplatePreviewContent(template) {
+    const statusConfig = this.getStatusConfig(template.status || 'new');
+    const elementConfig = this.getElementConfig(template.element);
+    
+    return `
+      <div class="template-preview-header">
+        <div class="template-preview-title-section">
+          <div class="template-preview-icon">${template.icon || '📄'}</div>
+          <div class="template-preview-title-content">
+            <h2 class="template-preview-title">${template.title}</h2>
+            <div class="template-preview-meta">
+              <span class="template-element ${elementConfig.class}">${elementConfig.label}</span>
+              ${template.required ? '<span class="template-required">Obligatorio</span>' : '<span class="template-optional">Opcional</span>'}
+              <span class="template-status ${statusConfig.class}">
+                ${statusConfig.icon} ${statusConfig.label}
+              </span>
+            </div>
+          </div>
+        </div>
+        <button class="template-preview-close" data-action="close-preview">
+          <span class="btn-icon">✕</span>
+        </button>
+      </div>
+
+      <div class="template-preview-body">
+        <div class="template-preview-overview">
+          <div class="overview-item">
+            <h4><span class="info-icon">📝</span> Descripción</h4>
+            <p>${template.description}</p>
+          </div>
+          
+          <div class="overview-stats">
+            <div class="stat-item">
+              <span class="stat-icon">⏱️</span>
+              <span class="stat-label">Tiempo estimado</span>
+              <span class="stat-value">${template.estimatedTime || 30} min</span>
+            </div>
+            ${template.videoSupport ? `
+              <div class="stat-item">
+                <span class="stat-icon">🎥</span>
+                <span class="stat-label">Video de apoyo</span>
+                <span class="stat-value">Disponible</span>
+              </div>
+            ` : ''}
+            ${template.sections ? `
+              <div class="stat-item">
+                <span class="stat-icon">📋</span>
+                <span class="stat-label">Secciones</span>
+                <span class="stat-value">${template.sections.length}</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        ${template.evaluationCriteria && template.evaluationCriteria.length > 0 ? `
+          <div class="template-preview-criteria">
+            <h4><span class="info-icon">✅</span> Criterios de Evaluación</h4>
+            <ul class="criteria-list">
+              ${template.evaluationCriteria.map(criterion => `
+                <li class="criteria-item">${criterion}</li>
+              `).join('')}
+            </ul>
+          </div>
+        ` : ''}
+
+        ${template.sections && template.sections.length > 0 ? `
+          <div class="template-preview-sections">
+            <h4><span class="info-icon">📝</span> Estructura del Documento</h4>
+            <div class="sections-list">
+              ${template.sections.map((section, index) => `
+                <div class="section-item ${section.required ? 'required' : 'optional'}">
+                  <div class="section-header">
+                    <span class="section-number">${index + 1}</span>
+                    <h5 class="section-title">${section.title}</h5>
+                    ${section.required ? '<span class="section-required">Obligatorio</span>' : '<span class="section-optional">Opcional</span>'}
+                  </div>
+                  <div class="section-details">
+                    <span class="section-type">Tipo: ${this.getSectionTypeLabel(section.type)}</span>
+                    ${section.validation && section.validation.minLength ? `
+                      <span class="section-validation">Mín. ${section.validation.minLength} caracteres</span>
+                    ` : ''}
+                  </div>
+                  ${section.placeholder ? `
+                    <p class="section-placeholder">${section.placeholder}</p>
+                  ` : ''}
+                  ${section.subsections && section.subsections.length > 0 ? `
+                    <div class="subsections">
+                      <span class="subsections-label">Subsecciones:</span>
+                      <ul class="subsections-list">
+                        ${section.subsections.map(sub => `
+                          <li>${sub.title} (${this.getSectionTypeLabel(sub.type)})</li>
+                        `).join('')}
+                      </ul>
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${template.videoSupport ? `
+          <div class="template-preview-video">
+            <h4><span class="info-icon">🎥</span> Video de Apoyo</h4>
+            <div class="video-info">
+              <div class="video-title">${template.videoSupport.title}</div>
+              <div class="video-description">${template.videoSupport.description}</div>
+              <div class="video-id">ID: ${template.videoSupport.id}</div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+
+      <div class="template-preview-footer">
+        <button class="btn btn-outline" data-action="close-preview">
+          <span class="btn-icon">👁️</span>
+          Cerrar Vista Previa
+        </button>
+        <button class="btn btn-primary" data-action="create-from-preview" data-template-id="${template.id}">
+          <span class="btn-icon">${template.status === 'completed' ? '✏️' : '➕'}</span>
+          ${template.status === 'completed' ? 'Editar' : 'Crear'} Documento
+        </button>
+      </div>
+    `;
+  }
+
+  /**
+   * Get section type label for display
+   */
+  getSectionTypeLabel(type) {
+    const labels = {
+      'textarea': 'Texto largo',
+      'text': 'Texto corto',
+      'structured': 'Estructurado',
+      'matrix': 'Matriz',
+      'list': 'Lista',
+      'number': 'Numérico',
+      'date': 'Fecha',
+      'select': 'Selección'
+    };
+    return labels[type] || type;
+  }
+
+  /**
+   * Bind preview modal events
+   */
+  bindPreviewModalEvents(template) {
+    const modal = document.querySelector('.template-preview-modal-overlay');
+    if (!modal) return;
+
+    // Close button
+    modal.querySelectorAll('[data-action="close-preview"]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.hideTemplatePreviewModal();
+      });
+    });
+
+    // Create document button
+    const createButton = modal.querySelector('[data-action="create-from-preview"]');
+    if (createButton) {
+      createButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        this.hideTemplatePreviewModal();
+        await this.createDocument(template.id);
+      });
+    }
   }
 
   /**
