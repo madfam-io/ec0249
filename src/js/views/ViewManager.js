@@ -157,6 +157,33 @@ class ViewManager {
 
     // Listen for router navigation to handle document routes
     eventBus.subscribe('router:navigate', this.handleRouterNavigation.bind(this));
+    eventBus.subscribe('router:navigation-state-changed', this.handleRouterNavigationState.bind(this));
+  }
+
+  /**
+   * Handle router navigation state changes
+   * @param {Object} navigationState - Navigation state from RouterService
+   */
+  handleRouterNavigationState(navigationState) {
+    console.log('[ViewManager] Router navigation state changed:', navigationState);
+    
+    // Ensure ViewManager state is synchronized with router state
+    const { activeView, activeSection } = navigationState;
+    
+    if (activeView && activeView !== this.currentView) {
+      console.log(`[ViewManager] Syncing view from router: ${this.currentView} -> ${activeView}`);
+      // Don't call showView to avoid loops, just update internal state
+      this.currentView = activeView;
+      
+      // Update app state if available
+      if (this.app.appState) {
+        this.app.appState.currentView = activeView;
+      }
+    }
+    
+    if (activeSection && this.app.appState) {
+      this.app.appState.currentSection = activeSection;
+    }
   }
 
   /**

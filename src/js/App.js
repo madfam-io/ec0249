@@ -769,6 +769,7 @@ class EC0249App {
     // Subscribe to router events
     eventBus.subscribe('router:navigate', this.handleRouterNavigate.bind(this));
     eventBus.subscribe('router:popstate', this.handleRouterPopstate.bind(this));
+    eventBus.subscribe('router:navigation-state-changed', this.handleRouterNavigationStateChanged.bind(this));
 
     // Subscribe to document editor events
     eventBus.subscribe('app:open-document-editor', this.handleOpenDocumentEditor.bind(this));
@@ -1882,6 +1883,41 @@ class EC0249App {
         });
       }
     }
+  }
+
+  /**
+   * Handle router navigation state changes to update desktop navigation
+   * @param {Object} navigationState - Navigation state from RouterService
+   */
+  handleRouterNavigationStateChanged(navigationState) {
+    console.log('[App] Router navigation state changed:', navigationState);
+    this.updateDesktopNavigationStates(navigationState);
+  }
+
+  /**
+   * Update desktop navigation active states (nav-tabs and sidebar-nav)
+   * @param {Object} navigationState - Navigation state with activeView and activeSection
+   */
+  updateDesktopNavigationStates(navigationState) {
+    const { activeView, activeSection } = navigationState;
+    
+    // Update header nav-tabs
+    const navTabs = document.querySelectorAll('.nav-tab');
+    navTabs.forEach(tab => {
+      const isActive = tab.dataset.view === activeView;
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-selected', isActive.toString());
+    });
+    
+    // Update sidebar navigation
+    const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+    sidebarLinks.forEach(link => {
+      const isActive = link.dataset.section === activeSection || 
+                      (activeView === 'dashboard' && link.dataset.section === 'overview');
+      link.classList.toggle('active', isActive);
+    });
+    
+    console.log(`[App] Updated desktop navigation - view: ${activeView}, section: ${activeSection}`);
   }
 
   /**

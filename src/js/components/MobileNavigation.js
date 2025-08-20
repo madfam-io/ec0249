@@ -219,6 +219,7 @@ class MobileNavigation {
     if (this.app.eventBus) {
       this.app.eventBus.subscribe('view:changed', this.updateActiveStates.bind(this));
       this.app.eventBus.subscribe('section:changed', this.updateActiveStates.bind(this));
+      this.app.eventBus.subscribe('router:navigation-state-changed', this.handleRouterStateUpdate.bind(this));
     }
   }
 
@@ -355,23 +356,36 @@ class MobileNavigation {
   }
 
   /**
-   * Update active navigation states
+   * Handle router navigation state updates
+   * @param {Object} navigationState - Navigation state from RouterService
    */
-  updateActiveStates() {
+  handleRouterStateUpdate(navigationState) {
+    console.log('[MobileNavigation] Router state update received:', navigationState);
+    this.updateActiveStates(navigationState);
+  }
+
+  /**
+   * Update active navigation states
+   * @param {Object} navigationState - Optional navigation state from router
+   */
+  updateActiveStates(navigationState = null) {
     // Remove all active states
     this.drawer.querySelectorAll('.mobile-nav-item').forEach(item => {
       item.classList.remove('active');
     });
 
-    // Get current app state
-    const currentView = this.app.appState?.currentView;
-    const currentSection = this.app.appState?.currentSection;
+    // Use provided navigation state or get from app state
+    const currentView = navigationState?.activeView || this.app.appState?.currentView;
+    const currentSection = navigationState?.activeSection || this.app.appState?.currentSection;
+
+    console.log(`[MobileNavigation] Updating active states - view: ${currentView}, section: ${currentSection}`);
 
     // Highlight current view
     if (currentView) {
       const viewItem = this.drawer.querySelector(`[data-view="${currentView}"]`);
       if (viewItem) {
         viewItem.classList.add('active');
+        console.log(`[MobileNavigation] Activated view: ${currentView}`);
       }
     }
 
@@ -380,6 +394,7 @@ class MobileNavigation {
       const sectionItem = this.drawer.querySelector(`[data-section="${currentSection}"]`);
       if (sectionItem) {
         sectionItem.classList.add('active');
+        console.log(`[MobileNavigation] Activated section: ${currentSection}`);
       }
     }
   }

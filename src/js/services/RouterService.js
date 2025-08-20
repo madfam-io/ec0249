@@ -117,6 +117,9 @@ class RouterService extends Module {
         params: this.currentParams,
         options: { initial: true }
       });
+      
+      // Emit initial navigation state
+      this.emitNavigationStateUpdate();
     }
   }
 
@@ -246,6 +249,9 @@ class RouterService extends Module {
           params: this.currentParams,
           options
         });
+        
+        // Emit navigation state update for UI components
+        this.emitNavigationStateUpdate();
       }
       
       console.log(`[RouterService] Navigated to: ${path}`);
@@ -266,6 +272,9 @@ class RouterService extends Module {
       params: this.currentParams,
       state: event.state
     });
+    
+    // Also emit navigation state update for UI synchronization
+    this.emitNavigationStateUpdate();
   }
 
   /**
@@ -569,6 +578,90 @@ class RouterService extends Module {
     }
     
     return baseURL + path;
+  }
+
+  /**
+   * Emit navigation state update for UI components
+   */
+  emitNavigationStateUpdate() {
+    const currentPath = window.location.pathname;
+    const navigationState = {
+      path: currentPath,
+      route: this.currentRoute,
+      params: this.currentParams,
+      activeView: this.getActiveView(currentPath),
+      activeSection: this.getActiveSection(currentPath),
+      breadcrumb: this.getBreadcrumb(currentPath)
+    };
+    
+    this.emit('router:navigation-state-changed', navigationState);
+    
+    console.log('[RouterService] Navigation state updated:', navigationState);
+  }
+
+  /**
+   * Get active view from current path
+   * @param {string} path - Current path
+   * @returns {string} Active view name
+   */
+  getActiveView(path) {
+    if (path.startsWith('/modules')) return 'modules';
+    if (path.startsWith('/assessment')) return 'assessment';
+    if (path.startsWith('/portfolio')) return 'portfolio';
+    if (path.startsWith('/documents')) return 'documents';
+    if (path.startsWith('/progress')) return 'progress';
+    if (path.startsWith('/document')) return 'document';
+    return 'dashboard';
+  }
+
+  /**
+   * Get active section from current path
+   * @param {string} path - Current path
+   * @returns {string|null} Active section name
+   */
+  getActiveSection(path) {
+    // Module sections
+    if (path.includes('/modules/module1')) return 'module1';
+    if (path.includes('/modules/module2')) return 'module2';
+    if (path.includes('/modules/module3')) return 'module3';
+    if (path.includes('/modules/module4')) return 'module4';
+    
+    // Portfolio sections
+    if (path.includes('/portfolio/documents')) return 'documents';
+    if (path.includes('/portfolio/progress')) return 'progress';
+    if (path.includes('/portfolio/element1')) return 'element1';
+    if (path.includes('/portfolio/element2')) return 'element2';
+    if (path.includes('/portfolio/element3')) return 'element3';
+    
+    return null;
+  }
+
+  /**
+   * Generate breadcrumb for current path
+   * @param {string} path - Current path
+   * @returns {Array} Breadcrumb items
+   */
+  getBreadcrumb(path) {
+    const breadcrumb = [{ label: 'Inicio', path: '/dashboard' }];
+    
+    if (path.startsWith('/modules')) {
+      breadcrumb.push({ label: 'Módulos', path: '/modules' });
+      if (path.includes('/module1')) breadcrumb.push({ label: 'Módulo 1', path: '/modules/module1' });
+      if (path.includes('/module2')) breadcrumb.push({ label: 'Módulo 2', path: '/modules/module2' });
+      if (path.includes('/module3')) breadcrumb.push({ label: 'Módulo 3', path: '/modules/module3' });
+      if (path.includes('/module4')) breadcrumb.push({ label: 'Módulo 4', path: '/modules/module4' });
+    } else if (path.startsWith('/portfolio')) {
+      breadcrumb.push({ label: 'Portafolio', path: '/portfolio' });
+      if (path.includes('/documents')) breadcrumb.push({ label: 'Documentos', path: '/portfolio/documents' });
+      if (path.includes('/progress')) breadcrumb.push({ label: 'Mi Progreso', path: '/portfolio/progress' });
+      if (path.includes('/element1')) breadcrumb.push({ label: 'Elemento 1', path: '/portfolio/element1' });
+      if (path.includes('/element2')) breadcrumb.push({ label: 'Elemento 2', path: '/portfolio/element2' });
+      if (path.includes('/element3')) breadcrumb.push({ label: 'Elemento 3', path: '/portfolio/element3' });
+    } else if (path.startsWith('/assessment')) {
+      breadcrumb.push({ label: 'Evaluación', path: '/assessment' });
+    }
+    
+    return breadcrumb;
   }
 
   async onDestroy() {
