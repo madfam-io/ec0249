@@ -182,7 +182,7 @@ class PortfolioViewController extends BaseViewController {
       this.shouldShowElementContent = true;
     }
     
-    // Wait for document engine to be available
+    // Wait for document engine to be available and templates to be loaded
     if (!this.documentEngine) {
       console.log('[PortfolioViewController] Waiting for DocumentEngine...');
       await this.waitForDocumentEngine();
@@ -192,6 +192,18 @@ class PortfolioViewController extends BaseViewController {
       console.error('[PortfolioViewController] DocumentEngine not available for document route');
       this.showNotification('Motor de documentos no disponible', 'error');
       return;
+    }
+    
+    // Ensure templates are loaded before proceeding
+    if (!this.documentEngine.areTemplatesLoaded()) {
+      console.log('[PortfolioViewController] Waiting for templates to load for document route...');
+      try {
+        await this.documentEngine.waitForTemplatesLoaded();
+      } catch (error) {
+        console.error('[PortfolioViewController] Failed to wait for templates:', error);
+        this.showNotification('Error al cargar plantillas', 'error');
+        return;
+      }
     }
     
     // Open the document based on route parameters
@@ -205,21 +217,39 @@ class PortfolioViewController extends BaseViewController {
   }
 
   /**
-   * Wait for DocumentEngine to become available
-   * @returns {Promise} Resolves when DocumentEngine is available
+   * Wait for DocumentEngine to become available and templates to be loaded
+   * @returns {Promise} Resolves when DocumentEngine is available and templates are loaded
    */
   async waitForDocumentEngine() {
-    return new Promise((resolve) => {
-      const checkEngine = () => {
+    return new Promise(async (resolve) => {
+      const maxAttempts = 20;
+      const retryDelay = 250;
+      
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
         this.documentEngine = this.getModule('documentEngine');
+        
         if (this.documentEngine) {
-          console.log('[PortfolioViewController] DocumentEngine now available');
-          resolve();
-        } else {
-          setTimeout(checkEngine, 100);
+          console.log('[PortfolioViewController] DocumentEngine found, checking template loading...');
+          
+          try {
+            // Wait for templates to be loaded
+            await this.documentEngine.waitForTemplatesLoaded();
+            console.log('[PortfolioViewController] DocumentEngine templates loaded');
+            resolve();
+            return;
+          } catch (error) {
+            console.warn('[PortfolioViewController] Error waiting for templates:', error);
+          }
         }
-      };
-      checkEngine();
+        
+        if (attempt < maxAttempts - 1) {
+          console.log(`[PortfolioViewController] Waiting for DocumentEngine... attempt ${attempt + 1}/${maxAttempts}`);
+          await new Promise(r => setTimeout(r, retryDelay));
+        }
+      }
+      
+      console.warn('[PortfolioViewController] DocumentEngine or templates not available after waiting');
+      resolve(); // Don't block forever
     });
   }
 
@@ -735,51 +765,180 @@ class PortfolioViewController extends BaseViewController {
         .btn-icon {
           font-size: 1rem;
         }
+        .loading-message {
+          text-align: center;
+          padding: 2rem;
+          color: #6b7280;
+          font-style: italic;
+        }
+        .error-message {
+          text-align: center;
+          padding: 2rem;
+          color: #ef4444;
+          background-color: #fef2f2;
+          border: 1px solid #fecaca;
+          border-radius: 6px;
+          margin: 1rem 0;
+        }
+        .retry-button {
+          margin-top: 1rem;
+          padding: 0.5rem 1rem;
+          background-color: #3b82f6;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
       </style>
     `;
     section.appendChild(header);
 
     const templatesGrid = this.createElement('div', ['templates-grid']);
 
-    if (this.documentEngine) {
-      try {
-        console.log('[PortfolioViewController] Loading templates for element:', this.currentElement);
-        console.log('[PortfolioViewController] DocumentEngine templates available:', this.documentEngine.templates?.size || 0);
-        
-        // Map element names to EC0249 element IDs
-        const elementIdMap = {
-          'element1': 'E0875',
-          'element2': 'E0876', 
-          'element3': 'E0877'
-        };
-        
-        const ec0249ElementId = elementIdMap[this.currentElement] || this.currentElement;
-        console.log('[PortfolioViewController] Mapped element ID:', this.currentElement, '->', ec0249ElementId);
-        
-        const templates = await this.documentEngine.getElementTemplates(ec0249ElementId);
-        console.log('[PortfolioViewController] Templates found for element:', templates?.length || 0);
-        
-        if (templates && templates.length > 0) {
-          templates.forEach(template => {
-            console.log('[PortfolioViewController] Creating card for template:', template.id, template.title);
-            const templateCard = this.createTemplateCard(template);
-            templatesGrid.appendChild(templateCard);
-          });
-        } else {
-          console.warn('[PortfolioViewController] No templates found for element:', this.currentElement);
-          templatesGrid.innerHTML = '<div class="info-message">No hay plantillas disponibles para este elemento</div>';
-        }
-      } catch (error) {
-        console.error('[PortfolioViewController] Failed to load templates:', error);
-        templatesGrid.innerHTML = '<div class="error-message">Error al cargar plantillas</div>';
-      }
+    // Check DocumentEngine availability and template loading state
+    if (!this.documentEngine) {
+      console.warn('[PortfolioViewController] DocumentEngine not available');
+      templatesGrid.innerHTML = `
+        <div class="loading-message">
+          <div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
+          <p>Preparando plantillas de documentos...</p>
+          <small>El sistema se está inicializando</small>
+        </div>
+      `;
+      
+      // Attempt to load after a delay
+      setTimeout(async () => {
+        await this.retryTemplateLoading(templatesGrid);
+      }, 1000);
+      
+    } else if (!this.documentEngine.areTemplatesLoaded()) {
+      console.log('[PortfolioViewController] Templates not yet loaded, waiting...');
+      templatesGrid.innerHTML = `
+        <div class="loading-message">
+          <div style="font-size: 2rem; margin-bottom: 1rem;">📋</div>
+          <p>Cargando plantillas...</p>
+          <small>Esto puede tomar unos segundos</small>
+        </div>
+      `;
+      
+      // Wait for templates and then load
+      this.loadTemplatesWhenReady(templatesGrid);
+      
     } else {
-      console.warn('[PortfolioViewController] DocumentEngine not available when trying to load templates');
-      templatesGrid.innerHTML = '<div class="error-message">Motor de documentos no disponible</div>';
+      // Templates are ready, load them immediately
+      await this.loadTemplatesForElement(templatesGrid);
     }
 
     section.appendChild(templatesGrid);
     return section;
+  }
+  
+  /**
+   * Load templates when DocumentEngine is ready
+   */
+  async loadTemplatesWhenReady(templatesGrid) {
+    try {
+      await this.documentEngine.waitForTemplatesLoaded();
+      await this.loadTemplatesForElement(templatesGrid);
+    } catch (error) {
+      console.error('[PortfolioViewController] Error waiting for templates:', error);
+      this.showTemplateError(templatesGrid, error);
+    }
+  }
+  
+  /**
+   * Retry template loading when DocumentEngine becomes available
+   */
+  async retryTemplateLoading(templatesGrid) {
+    // Try to get DocumentEngine again
+    this.documentEngine = this.getModule('documentEngine');
+    
+    if (this.documentEngine) {
+      console.log('[PortfolioViewController] DocumentEngine now available, loading templates...');
+      await this.loadTemplatesWhenReady(templatesGrid);
+    } else {
+      // Still not available, show error with retry option
+      this.showTemplateError(templatesGrid, new Error('DocumentEngine no disponible'));
+    }
+  }
+  
+  /**
+   * Load templates for the current element
+   */
+  async loadTemplatesForElement(templatesGrid) {
+    try {
+      console.log('[PortfolioViewController] Loading templates for element:', this.currentElement);
+      console.log('[PortfolioViewController] DocumentEngine templates available:', this.documentEngine.templates?.size || 0);
+      
+      // Map element names to EC0249 element IDs
+      const elementIdMap = {
+        'element1': 'E0875',
+        'element2': 'E0876', 
+        'element3': 'E0877'
+      };
+      
+      const ec0249ElementId = elementIdMap[this.currentElement] || this.currentElement;
+      console.log('[PortfolioViewController] Mapped element ID:', this.currentElement, '->', ec0249ElementId);
+      
+      const templates = this.documentEngine.getElementTemplates(ec0249ElementId);
+      console.log('[PortfolioViewController] Templates found for element:', templates?.length || 0);
+      
+      if (templates && templates.length > 0) {
+        // Clear loading message
+        templatesGrid.innerHTML = '';
+        
+        templates.forEach(template => {
+          console.log('[PortfolioViewController] Creating card for template:', template.id, template.title);
+          const templateCard = this.createTemplateCard(template);
+          templatesGrid.appendChild(templateCard);
+        });
+        
+        console.log('[PortfolioViewController] Template cards created successfully');
+      } else {
+        console.warn('[PortfolioViewController] No templates found for element:', this.currentElement);
+        templatesGrid.innerHTML = `
+          <div class="info-message">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">📝</div>
+            <p>No hay plantillas disponibles para este elemento</p>
+            <small>Verifica que el elemento ${this.currentElement} tenga plantillas configuradas</small>
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error('[PortfolioViewController] Failed to load templates:', error);
+      this.showTemplateError(templatesGrid, error);
+    }
+  }
+  
+  /**
+   * Show template loading error with retry option
+   */
+  showTemplateError(templatesGrid, error) {
+    templatesGrid.innerHTML = `
+      <div class="error-message">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
+        <h4>Error al cargar plantillas</h4>
+        <p>No se pudieron cargar las plantillas del elemento.</p>
+        <small>Error: ${error.message}</small>
+        <button class="retry-button" onclick="this.retryTemplateLoad()">Reintentar</button>
+      </div>
+    `;
+    
+    // Add retry functionality
+    const retryButton = templatesGrid.querySelector('.retry-button');
+    if (retryButton) {
+      retryButton.onclick = async () => {
+        console.log('[PortfolioViewController] User requested template loading retry');
+        templatesGrid.innerHTML = `
+          <div class="loading-message">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🔄</div>
+            <p>Reintentando cargar plantillas...</p>
+          </div>
+        `;
+        
+        await this.retryTemplateLoading(templatesGrid);
+      };
+    }
   }
 
   /**

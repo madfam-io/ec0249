@@ -481,12 +481,21 @@ class EC0249App {
         currentController: this.viewManager.currentController?.viewId || null
       };
     }
+    
+    // Get DocumentEngine state
+    const documentEngine = this.modules.get('documentEngine');
+    const documentEngineState = {
+      available: !!documentEngine,
+      templatesLoaded: documentEngine?.areTemplatesLoaded() || false,
+      templateCount: documentEngine?.templates?.size || 0
+    };
 
     console.log('[App] Final state validation:', {
       url: currentPath,
       appState: { view: appView, section: appSection },
       viewManagerState: viewManagerState,
       viewManagerInitialized: !!this.viewManager,
+      documentEngineState: documentEngineState,
       allStatesConsistent: viewManagerState?.currentView === appView
     });
 
@@ -496,10 +505,37 @@ class EC0249App {
       console.warn(`[App] URL: ${currentPath}, App View: ${appView}`);
       console.warn('[App] This indicates the routing synchronization may have failed');
     }
+    
+    // Check DocumentEngine template loading for portfolio/documents routes
+    if (currentPath.includes('/portfolio') || currentPath.includes('/documents')) {
+      if (!documentEngineState.available) {
+        console.warn('[App] TEMPLATE LOADING ISSUE: Portfolio/documents route but DocumentEngine not available');
+      } else if (!documentEngineState.templatesLoaded) {
+        console.warn('[App] TEMPLATE LOADING ISSUE: Portfolio/documents route but templates not loaded');
+        console.warn('[App] This may cause empty template lists on direct navigation');
+      } else {
+        console.log(`[App] ✅ DocumentEngine ready for portfolio routes: ${documentEngineState.templateCount} templates loaded`);
+      }
+    }
 
     if (this.viewManager && viewManagerState?.currentView !== appView) {
       console.error('[App] CRITICAL ISSUE: ViewManager and App state are out of sync!');
       console.error(`[App] App View: ${appView}, ViewManager View: ${viewManagerState?.currentView}`);
+    }
+    
+    // Final validation summary
+    const validationSummary = {
+      routingConsistent: viewManagerState?.currentView === appView,
+      documentEngineReady: documentEngineState.available && documentEngineState.templatesLoaded,
+      templatesAvailable: documentEngineState.templateCount > 0
+    };
+    
+    console.log('[App] Initialization validation summary:', validationSummary);
+    
+    if (validationSummary.routingConsistent && validationSummary.documentEngineReady) {
+      console.log('[App] ✅ All systems validated successfully');
+    } else {
+      console.warn('[App] ⚠️ Some systems may have initialization issues');
     }
   }
 
@@ -775,6 +811,9 @@ class EC0249App {
     eventBus.subscribe('app:open-document-editor', this.handleOpenDocumentEditor.bind(this));
     eventBus.subscribe('document-editor:close', this.handleCloseDocumentEditor.bind(this));
 
+    // Subscribe to notification events
+    eventBus.subscribe('notification:show', this.handleNotificationShow.bind(this));
+
     console.log('[App] Event listeners setup');
   }
 
@@ -889,7 +928,8 @@ class EC0249App {
   async waitForCriticalServices() {
     await Promise.all([
       this.waitForI18nService(),
-      this.waitForThemeService()
+      this.waitForThemeService(),
+      this.waitForDocumentEngineTemplates()
     ]);
   }
 
@@ -966,6 +1006,36 @@ class EC0249App {
       console.info('[App] ThemeService loading slowly - components will use fallbacks');
     } catch (error) {
       console.error('[App] Error waiting for ThemeService:', error);
+    }
+  }
+  
+  /**
+   * Wait for DocumentEngine templates to be loaded
+   */
+  async waitForDocumentEngineTemplates() {
+    console.log('[App] Waiting for DocumentEngine templates to load...');
+    
+    try {
+      // Get DocumentEngine from modules
+      const documentEngine = this.modules.get('documentEngine');
+      
+      if (!documentEngine) {
+        console.warn('[App] DocumentEngine not found in modules, skipping template validation');
+        return;
+      }
+      
+      // Wait for templates to be loaded
+      await documentEngine.waitForTemplatesLoaded();
+      
+      console.log('[App] DocumentEngine templates loaded successfully');
+      
+      // Log template loading status for debugging
+      const templateCount = documentEngine.templates?.size || 0;
+      console.log(`[App] Template validation complete: ${templateCount} templates available`);
+      
+    } catch (error) {
+      console.error('[App] Error waiting for DocumentEngine templates:', error);
+      // Don't block app initialization for template loading issues
     }
   }
 
@@ -1967,18 +2037,6 @@ class EC0249App {
     }
   }
 
-  /**
-   * Show notification to user
-   * @param {string} message - Notification message
-   * @param {string} type - Notification type (info, success, warning, error)
-   */
-  showNotification(message, type = 'info') {
-    eventBus.publish('notification:show', {
-      message,
-      type,
-      timestamp: Date.now()
-    });
-  }
 
   /**
    * Get application state
@@ -2132,6 +2190,15 @@ class EC0249App {
         document.body.removeChild(editorContainer);
       }
     }
+  }
+
+  /**
+   * Handle notification show event
+   * @param {Object} data - Notification data
+   */
+  handleNotificationShow(data) {
+    // Use the existing showNotification implementation
+    this.showNotification(data.message, data.type);
   }
 
   /**

@@ -26,6 +26,11 @@ class DocumentEngine extends Module {
     this.validationRules = new Map();
     this.userDocuments = new Map();
     this.documentHistory = new Map();
+    
+    // Template loading state management
+    this.templatesLoaded = false;
+    this.templateLoadingPromise = null;
+    this.templateLoadingResolvers = [];
   }
 
   async onInitialize() {
@@ -51,6 +56,8 @@ class DocumentEngine extends Module {
    */
   async loadTemplateDefinitions() {
     try {
+      console.log('[DocumentEngine] Starting template loading...');
+      
       // Load templates using the TemplateLoader
       this.templates = await this.templateLoader.loadAllTemplates();
       
@@ -72,8 +79,29 @@ class DocumentEngine extends Module {
       const stats = this.templateLoader.getStatistics();
       console.log('[DocumentEngine] Template statistics:', stats);
       
+      // Mark templates as loaded and notify waiting resolvers
+      this.templatesLoaded = true;
+      
+      // Resolve all waiting promises
+      this.templateLoadingResolvers.forEach(resolve => resolve());
+      this.templateLoadingResolvers = [];
+      
+      // Emit templates loaded event
+      this.emit('templates:loaded', {
+        templateCount: this.templates.size,
+        validTemplates: validTemplates,
+        timestamp: Date.now()
+      });
+      
+      console.log('[DocumentEngine] Template loading completed successfully');
+      
     } catch (error) {
       console.error('[DocumentEngine] Failed to load template definitions:', error);
+      
+      // Reject all waiting promises
+      this.templateLoadingResolvers.forEach(resolve => resolve());
+      this.templateLoadingResolvers = [];
+      
       throw error;
     }
   }
@@ -845,6 +873,36 @@ class DocumentEngine extends Module {
     return this.getUserDocuments().filter(doc => doc.status === status);
   }
 
+  /**
+   * Wait for templates to be loaded
+   * @returns {Promise<void>} Promise that resolves when templates are loaded
+   */
+  async waitForTemplatesLoaded() {
+    if (this.templatesLoaded) {
+      return Promise.resolve();
+    }
+    
+    // Return existing promise if already waiting
+    if (this.templateLoadingPromise) {
+      return this.templateLoadingPromise;
+    }
+    
+    // Create new promise for template loading
+    this.templateLoadingPromise = new Promise((resolve) => {
+      this.templateLoadingResolvers.push(resolve);
+    });
+    
+    return this.templateLoadingPromise;
+  }
+  
+  /**
+   * Check if templates are loaded
+   * @returns {boolean} True if templates are loaded
+   */
+  areTemplatesLoaded() {
+    return this.templatesLoaded;
+  }
+
   getAvailableTemplates() {
     return Array.from(this.templates.values());
   }
@@ -911,6 +969,11 @@ class DocumentEngine extends Module {
     this.documents.clear();
     this.userDocuments.clear();
     this.documentHistory.clear();
+    
+    // Reset template loading state
+    this.templatesLoaded = false;
+    this.templateLoadingPromise = null;
+    this.templateLoadingResolvers = [];
   }
 }
 
