@@ -23,16 +23,16 @@ class RouterService extends Module {
         '/portfolio': 'portfolio',
         '/documents': 'documents',
         '/progress': 'progress',
-        '/portfolio/documents': 'portfolio',
+        '/portfolio/documents': 'documents', // Fix: Route to dedicated documents view
         '/portfolio/element1': 'portfolio',
         '/portfolio/element2': 'portfolio',
         '/portfolio/element3': 'portfolio',
-        '/portfolio/progress': 'portfolio',
+        '/portfolio/progress': 'progress', // Fix: Route to dedicated progress view
         // Document-specific routes
-        '/portfolio/documents/:templateId': 'portfolio',
-        '/portfolio/documents/:templateId/edit': 'portfolio',
-        '/portfolio/documents/:templateId/:documentId': 'portfolio',
-        '/portfolio/documents/:templateId/:documentId/edit': 'portfolio',
+        '/portfolio/documents/:templateId': 'document', // Fix: Route to document view for template access
+        '/portfolio/documents/:templateId/edit': 'document', // Fix: Route to document view for editing
+        '/portfolio/documents/:templateId/:documentId': 'document', // Fix: Route to document view for specific documents
+        '/portfolio/documents/:templateId/:documentId/edit': 'document', // Fix: Route to document view for editing specific documents
         // Element-specific document routes
         '/portfolio/element1/:templateId': 'portfolio',
         '/portfolio/element2/:templateId': 'portfolio', 

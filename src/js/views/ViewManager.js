@@ -202,6 +202,28 @@ class ViewManager {
       return;
     }
     
+    // Handle documents view routes
+    if (route === 'documents') {
+      console.log('[ViewManager] Documents view route detected:', path);
+      
+      // Switch to documents view if not already there
+      if (this.currentView !== 'documents') {
+        await this.showView('documents');
+      }
+      return;
+    }
+    
+    // Handle progress view routes
+    if (route === 'progress') {
+      console.log('[ViewManager] Progress view route detected:', path);
+      
+      // Switch to progress view if not already there
+      if (this.currentView !== 'progress') {
+        await this.showView('progress');
+      }
+      return;
+    }
+    
     // Handle portfolio document routes
     if (route !== 'portfolio') return;
     
