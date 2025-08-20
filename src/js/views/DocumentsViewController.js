@@ -62,8 +62,8 @@ class DocumentsViewController extends BaseViewController {
   }
 
   async onShow() {
-    // Load template data when view is shown
-    await this.loadTemplateData();
+    // Load template data when view is shown with retry mechanism
+    await this.loadTemplateDataWithRetry();
     
     console.log('[DocumentsViewController] View shown');
   }
@@ -277,15 +277,50 @@ class DocumentsViewController extends BaseViewController {
   /**
    * Load template data from DocumentEngine
    */
+  /**
+   * Load template data with retry mechanism for DocumentEngine availability
+   */
+  async loadTemplateDataWithRetry() {
+    const maxRetries = 5;
+    const retryDelay = 500; // 500ms
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        if (await this.loadTemplateData()) {
+          // Success - templates loaded
+          if (this.allTemplates.length > 0) {
+            // Re-render if templates were loaded after initial render
+            this.renderTemplateCards();
+            this.updateHeaderStats();
+          }
+          return;
+        }
+        
+        // Wait before retry
+        if (attempt < maxRetries - 1) {
+          console.log(`[DocumentsViewController] Retry ${attempt + 1}/${maxRetries} for DocumentEngine...`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+        }
+      } catch (error) {
+        console.error(`[DocumentsViewController] Attempt ${attempt + 1} failed:`, error);
+      }
+    }
+    
+    console.warn('[DocumentsViewController] Failed to load templates after all retries');
+    this.showLoadingError();
+  }
+
+  /**
+   * Load template data from DocumentEngine
+   * @returns {boolean} True if successful, false if DocumentEngine not available
+   */
   async loadTemplateData() {
     try {
       if (!this.documentEngine) {
-        // Wait for DocumentEngine if not available
+        // Try to get DocumentEngine
         this.documentEngine = this.getModule('documentEngine');
         if (!this.documentEngine) {
-          console.warn('[DocumentsViewController] DocumentEngine still not available');
-          this.allTemplates = [];
-          return;
+          return false; // Not available yet
         }
       }
 
@@ -300,10 +335,12 @@ class DocumentsViewController extends BaseViewController {
       }));
       
       console.log(`[DocumentsViewController] Loaded ${this.allTemplates.length} templates`);
+      return true;
       
     } catch (error) {
       console.error('[DocumentsViewController] Failed to load template data:', error);
       this.allTemplates = [];
+      return false;
     }
   }
 
@@ -781,7 +818,40 @@ class DocumentsViewController extends BaseViewController {
 
   async onLanguageUpdate() {
     super.onLanguageUpdate();
-    await this.onRender();
+  }
+
+  /**
+   * Update header statistics after templates load
+   */
+  updateHeaderStats() {
+    const totalTemplatesElement = this.findElement('.stat-card .stat-number');
+    const completedTemplatesElement = this.findElements('.stat-card .stat-number')[1];
+    
+    if (totalTemplatesElement) {
+      totalTemplatesElement.textContent = this.allTemplates.length;
+    }
+    if (completedTemplatesElement) {
+      completedTemplatesElement.textContent = this.getCompletedTemplatesCount();
+    }
+  }
+
+  /**
+   * Show loading error state
+   */
+  showLoadingError() {
+    const grid = this.findElement('#templatesGrid');
+    const noResults = this.findElement('#noResults');
+    
+    if (grid && noResults) {
+      grid.style.display = 'none';
+      noResults.style.display = 'block';
+      noResults.innerHTML = `
+        <div class="no-results-icon">⚠️</div>
+        <h4>Error al cargar plantillas</h4>
+        <p>No se pudieron cargar las plantillas. Verifica tu conexión o recarga la página.</p>
+        <button class="btn btn-primary" onclick="location.reload()">Recargar Página</button>
+      `;
+    }
   }
 }
 

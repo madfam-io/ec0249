@@ -1,11 +1,11 @@
 /**
- * Typography Styles - Text System and Content Formatting
+ * Typography Styles - Modern Text System and Content Formatting
  * 
  * @description Comprehensive typography system for the EC0249 platform including
- * headings, body text, hero sections, and responsive text scaling. Provides
- * consistent text hierarchy and readability across all screen sizes.
+ * headings, body text, hero sections, and responsive text scaling. Uses modern
+ * design tokens for perfect theme consistency and optimal readability.
  * 
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 
@@ -15,51 +15,51 @@
 
 /* 
  * Foundational heading styles with consistent hierarchy
- * and responsive scaling for optimal readability
+ * and responsive scaling using design tokens
  */
 
-/* Heading System */
+/* Heading System - Theme Perfect */
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
   margin: 0;
   line-height: 1.2;
   font-weight: 600;
-  transition: color var(--transition-normal);
+  transition: color var(--transition-theme);
 }
 
 h1 { 
-  font-size: 2rem; 
-  margin-bottom: 1rem;
+  font-size: var(--font-size-3xl); 
+  margin-bottom: var(--space-4);
   font-weight: 700;
 }
 
 h2 { 
-  font-size: 1.5rem; 
-  margin: 2rem 0 1rem 0;
+  font-size: var(--font-size-2xl); 
+  margin: var(--space-8) 0 var(--space-4) 0;
   font-weight: 600;
 }
 
 h3 { 
-  font-size: 1.25rem; 
-  margin: 1.5rem 0 0.75rem 0;
+  font-size: var(--font-size-xl); 
+  margin: var(--space-6) 0 var(--space-3) 0;
   font-weight: 600;
 }
 
 h4 {
-  font-size: 1.125rem;
-  margin: 1.25rem 0 0.5rem 0;
+  font-size: var(--font-size-lg);
+  margin: var(--space-5) 0 var(--space-2) 0;
   font-weight: 600;
 }
 
 h5 {
-  font-size: 1rem;
-  margin: 1rem 0 0.5rem 0;
+  font-size: var(--font-size-base);
+  margin: var(--space-4) 0 var(--space-2) 0;
   font-weight: 600;
 }
 
 h6 {
-  font-size: 0.875rem;
-  margin: 0.75rem 0 0.5rem 0;
+  font-size: var(--font-size-sm);
+  margin: var(--space-3) 0 var(--space-2) 0;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -70,16 +70,17 @@ h6 {
    ======================================== */
 
 /* 
- * Body text styles for optimal readability
- * and consistent spacing throughout content
+ * Body text styles using design tokens for
+ * optimal readability and theme consistency
  */
 
-/* Paragraph Styles */
+/* Paragraph Styles - Theme Perfect */
 p {
-  color: var(--text-secondary);
-  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-4) 0;
   line-height: 1.6;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
+  transition: color var(--transition-theme);
 }
 
 p:last-child {
@@ -90,6 +91,7 @@ p:last-child {
 strong, b {
   font-weight: 600;
   color: var(--text-primary);
+  transition: color var(--transition-theme);
 }
 
 em, i {
@@ -102,34 +104,36 @@ em, i {
 
 /* 
  * Hero section with prominent typography
- * for landing pages and section headers
+ * using modern design tokens
  */
 
 .hero-section {
   text-align: center;
-  margin-bottom: 3rem;
-  padding: 2rem 0;
+  margin-bottom: var(--space-12);
+  padding: var(--space-8) 0;
 }
 
 .hero-section h1 {
-  font-size: 2.5rem;
+  font-size: var(--font-size-4xl);
   font-weight: 700;
   line-height: 1.1;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
   background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  transition: background var(--transition-theme);
 }
 
 .hero-subtitle {
-  font-size: 1.125rem;
+  font-size: var(--font-size-lg);
   color: var(--text-secondary);
-  margin-top: 0.5rem;
+  margin-top: var(--space-2);
   line-height: 1.5;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  transition: color var(--transition-theme);
 }
 
 /* ========================================
@@ -138,47 +142,52 @@ em, i {
 
 /* 
  * Typography for various content sections
- * including modules, lessons, and documentation
+ * with theme-perfect implementation
  */
 
 /* Module Headers */
 .module-header h1,
 .module-header h2 {
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2);
+  transition: color var(--transition-theme);
 }
 
 .module-description {
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   color: var(--text-secondary);
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
+  transition: color var(--transition-theme);
 }
 
 /* Lesson Content */
 .lesson-title {
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 1rem 0;
+  margin: 0 0 var(--space-4) 0;
   line-height: 1.3;
+  transition: color var(--transition-theme);
 }
 
 .lesson-description {
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   color: var(--text-secondary);
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
+  transition: color var(--transition-theme);
 }
 
 .lesson-objectives {
-  margin: 1.5rem 0;
+  margin: var(--space-6) 0;
 }
 
 .lesson-objectives h3 {
-  font-size: 1.125rem;
+  font-size: var(--font-size-lg);
   color: var(--text-primary);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 var(--space-3) 0;
+  transition: color var(--transition-theme);
 }
 
 .objectives-list {
@@ -189,10 +198,11 @@ em, i {
 
 .objectives-list li {
   position: relative;
-  padding-left: 1.5rem;
-  margin-bottom: 0.5rem;
+  padding-left: var(--space-6);
+  margin-bottom: var(--space-2);
   color: var(--text-secondary);
   line-height: 1.5;
+  transition: color var(--transition-theme);
 }
 
 .objectives-list li::before {
@@ -210,37 +220,41 @@ em, i {
 
 /* 
  * Typography for navigation elements
- * and sidebar content
+ * with perfect theme integration
  */
 
 /* Sidebar Typography */
 .sidebar h3 {
-  margin: 0 0 1rem 0;
+  margin: 0 0 var(--space-4) 0;
   color: var(--text-primary);
-  font-size: 1.125rem;
+  font-size: var(--font-size-lg);
   font-weight: 600;
+  transition: color var(--transition-theme);
 }
 
 .sidebar-nav a {
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   line-height: 1.4;
+  transition: color var(--transition-theme);
 }
 
 /* Navigation Labels */
 .nav-text {
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--text-primary);
+  transition: color var(--transition-theme);
 }
 
 .mobile-nav-section h3 {
-  margin: 0 0 0.75rem 1.5rem;
-  font-size: 0.875rem;
+  margin: 0 0 var(--space-3) var(--space-6);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-secondary);
+  transition: color var(--transition-theme);
 }
 
 /* ========================================
@@ -256,37 +270,41 @@ em, i {
 .card h3,
 .module-card h3,
 .feature-card h3 {
-  font-size: 1.125rem;
+  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 var(--space-3) 0;
   line-height: 1.3;
+  transition: color var(--transition-theme);
 }
 
 .card p,
 .module-card p,
 .feature-card p {
-  font-size: 0.95rem;
+  font-size: var(--font-size-sm);
   line-height: 1.5;
   color: var(--text-secondary);
+  transition: color var(--transition-theme);
 }
 
 /* Progress Text */
 .element-progress,
 .progress-text {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   font-weight: 500;
+  transition: color var(--transition-theme);
 }
 
 /* Status and Metadata Text */
 .status-text,
 .metadata-text {
-  font-size: 0.8rem;
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  font-weight: 400;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  transition: color var(--transition-theme);
 }
 
 /* ========================================
@@ -300,36 +318,40 @@ em, i {
 
 /* Form Labels */
 label {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2);
   display: block;
+  transition: color var(--transition-theme);
 }
 
 /* Input Placeholders */
 input::placeholder,
 textarea::placeholder,
 select::placeholder {
-  color: var(--text-secondary);
-  opacity: 0.7;
+  color: var(--input-placeholder);
+  opacity: 0.8;
+  transition: color var(--transition-theme);
 }
 
 /* Help Text */
 .help-text,
 .form-help {
-  font-size: 0.8rem;
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
   line-height: 1.4;
-  margin-top: 0.25rem;
+  margin-top: var(--space-1);
+  transition: color var(--transition-theme);
 }
 
 /* Error Text */
 .error-text {
-  font-size: 0.875rem;
-  color: var(--error-500);
+  font-size: var(--font-size-sm);
+  color: var(--error-text);
   font-weight: 500;
-  margin-top: 0.25rem;
+  margin-top: var(--space-1);
+  transition: color var(--transition-theme);
 }
 
 /* ========================================
@@ -337,24 +359,27 @@ select::placeholder {
    ======================================== */
 
 /* 
- * Footer text styles and formatting
+ * Footer text styles with theme consistency
  */
 
 .footer {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   line-height: 1.5;
   text-align: center;
+  transition: color var(--transition-theme);
 }
 
 .footer a {
   color: var(--primary-600);
   text-decoration: none;
   font-weight: 500;
+  transition: color var(--transition-theme);
 }
 
 .footer a:hover {
   text-decoration: underline;
+  color: var(--primary-700);
 }
 
 /* ========================================
@@ -363,188 +388,188 @@ select::placeholder {
 
 /* 
  * Mobile-first responsive typography scaling
- * for optimal readability across all devices
+ * using design tokens for consistency
  */
 
 /* Tablet and Mobile Landscape (≤968px) */
 @media (max-width: 968px) {
   /* Typography adjustments */
   h1 {
-    font-size: 1.875rem;
+    font-size: var(--font-size-2xl);
     line-height: 1.2;
   }
   
   h2 {
-    font-size: 1.375rem;
-    margin: 1.5rem 0 1rem;
+    font-size: var(--font-size-xl);
+    margin: var(--space-6) 0 var(--space-4);
   }
   
   h3 {
-    font-size: 1.125rem;
-    margin: 1.25rem 0 0.75rem;
+    font-size: var(--font-size-lg);
+    margin: var(--space-5) 0 var(--space-3);
   }
   
   .hero-section h1 {
-    font-size: 2.25rem;
+    font-size: var(--font-size-3xl);
     line-height: 1.1;
   }
   
   .hero-subtitle {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     line-height: 1.5;
   }
   
   /* Content typography */
   .lesson-title {
-    font-size: 1.375rem;
+    font-size: var(--font-size-xl);
   }
   
   .module-description,
   .lesson-description {
-    font-size: 0.95rem;
+    font-size: var(--font-size-sm);
   }
 }
 
 /* Mobile Portrait (≤768px) */
 @media (max-width: 768px) {
   .hero-section h1 {
-    font-size: 1.75rem;
+    font-size: var(--font-size-2xl);
     line-height: 1.2;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--space-2);
   }
   
   .hero-subtitle {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     line-height: 1.4;
   }
   
   /* Typography mobile optimization */
   h1 {
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
   }
   
   h2 {
-    font-size: 1.25rem;
-    margin: 1.25rem 0 0.75rem;
+    font-size: var(--font-size-lg);
+    margin: var(--space-5) 0 var(--space-3);
   }
   
   h3 {
-    font-size: 1.125rem;
-    margin: 1rem 0 0.5rem;
+    font-size: var(--font-size-lg);
+    margin: var(--space-4) 0 var(--space-2);
   }
   
   /* Compact text for mobile */
   .lesson-title {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
   
   .module-description,
   .lesson-description {
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
     line-height: 1.5;
   }
   
   .card h3,
   .module-card h3,
   .feature-card h3 {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
   
   .card p,
   .module-card p,
   .feature-card p {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
   }
 }
 
 /* Small Mobile (≤640px) */
 @media (max-width: 640px) {
   h1 {
-    font-size: 1.375rem;
+    font-size: var(--font-size-lg);
     line-height: 1.2;
   }
   
   h2 {
-    font-size: 1.125rem;
-    margin: 1rem 0 0.75rem;
+    font-size: var(--font-size-lg);
+    margin: var(--space-4) 0 var(--space-3);
   }
   
   h3 {
-    font-size: 1rem;
-    margin: 0.875rem 0 0.5rem;
+    font-size: var(--font-size-base);
+    margin: var(--space-3) 0 var(--space-2);
   }
   
   .hero-section h1 {
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
     line-height: 1.2;
   }
   
   .hero-subtitle {
-    font-size: 0.95rem;
+    font-size: var(--font-size-sm);
     line-height: 1.4;
   }
   
   /* Ultra-compact for very small screens */
   .lesson-title {
-    font-size: 1.125rem;
+    font-size: var(--font-size-lg);
   }
   
   p {
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
     line-height: 1.5;
   }
   
   .module-description,
   .lesson-description {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
   }
 }
 
 /* Extra Small Mobile (≤480px) */
 @media (max-width: 480px) {
   h1 {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
     line-height: 1.3;
   }
   
   h2 {
-    font-size: 1rem;
-    margin: 0.875rem 0 0.5rem;
+    font-size: var(--font-size-base);
+    margin: var(--space-3) 0 var(--space-2);
   }
   
   h3 {
-    font-size: 0.95rem;
-    margin: 0.75rem 0 0.5rem;
+    font-size: var(--font-size-sm);
+    margin: var(--space-3) 0 var(--space-2);
   }
   
   .hero-section h1 {
-    font-size: 1.375rem;
+    font-size: var(--font-size-lg);
     line-height: 1.2;
   }
   
   .hero-subtitle {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     line-height: 1.4;
   }
   
   /* Minimal typography for smallest screens */
   p {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
   }
   
   .module-description,
   .lesson-description {
-    font-size: 0.8rem;
+    font-size: var(--font-size-xs);
   }
   
   .element-progress,
   .progress-text {
-    font-size: 0.8rem;
+    font-size: var(--font-size-xs);
   }
   
   .help-text,
   .form-help {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
   }
 }
 
@@ -554,7 +579,7 @@ select::placeholder {
 
 /* 
  * Typography enhancements for accessibility
- * including high contrast and large text support
+ * with perfect theme integration
  */
 
 /* High contrast mode typography */
@@ -573,8 +598,8 @@ select::placeholder {
   }
 }
 
-/* Large text preference */
-@media (prefers-reduced-data: reduce) {
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
   .hero-section h1 {
     background: none;
     -webkit-text-fill-color: var(--text-primary);
@@ -612,16 +637,17 @@ select::placeholder {
    ======================================== */
 
 /* 
- * Typography module provides comprehensive text system for EC0249 platform:
+ * Modern typography module with complete theme integration:
  * 
- * - Responsive heading hierarchy (h1-h6)
- * - Optimized body text and paragraph styles
- * - Hero section typography with gradient effects
- * - Content-specific text styles (modules, lessons, cards)
- * - Form and navigation typography
- * - Mobile-first responsive scaling
- * - Accessibility enhancements
- * - Print media optimizations
+ * ✅ Design token-based font sizing system
+ * ✅ Perfect theme consistency across all elements
+ * ✅ Mobile-first responsive scaling
+ * ✅ Enhanced accessibility features
+ * ✅ Theme-aware transitions
+ * ✅ Print-friendly optimizations
+ * ✅ Hero section with gradient text
+ * ✅ Content-specific typography styles
+ * ✅ Form and navigation text optimization
  * 
- * Dependencies: variables.css for CSS custom properties
+ * Dependencies: variables.css for modern design tokens
  */

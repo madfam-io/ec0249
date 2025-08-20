@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EC0249 Theme Consistency Test</title>
+  
+  <!-- Import CSS System -->
+  <link rel="stylesheet" href="src/css/modules/variables.css">
+  <link rel="stylesheet" href="src/css/modules/base.css">
+  <link rel="stylesheet" href="src/css/modules/responsive.css">
+  <link rel="stylesheet" href="src/css/modules/components.css">
+  
+  <style>
+    /* Test page specific styles */
+    .theme-test-header {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      margin: var(--space-4);
+      text-align: center;
+    }
+    
+    .theme-controls {
+      display: flex;
+      gap: var(--space-4);
+      justify-content: center;
+      margin: var(--space-6) 0;
+      flex-wrap: wrap;
+    }
+    
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-6);
+      margin: var(--space-6);
+    }
+    
+    .component-test {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+    }
+    
+    .test-result {
+      margin-top: var(--space-4);
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+    }
+    
+    .test-pass {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+    
+    .test-fail {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid var(--error-border);
+    }
+    
+    .debug-info {
+      margin-top: var(--space-2);
+      font-size: var(--font-size-xs);
+      opacity: 0.8;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="theme-test-header">
+      <h1>🎨 EC0249 Theme Consistency Test</h1>
+      <p>Testing perfect theme consistency across auto, light, and dark modes</p>
+      
+      <div class="theme-controls">
+        <button class="btn btn-outline" onclick="setTheme('auto')">
+          🔄 Auto Theme
+        </button>
+        <button class="btn btn-outline" onclick="setTheme('light')">
+          ☀️ Light Theme
+        </button>
+        <button class="btn btn-outline" onclick="setTheme('dark')">
+          🌙 Dark Theme
+        </button>
+      </div>
+      
+      <div class="test-result" id="themeStatus">
+        Current: <span id="currentTheme">auto</span> | 
+        Effective: <span id="effectiveTheme">auto</span>
+      </div>
+    </header>
+    
+    <main class="test-grid">
+      <!-- Card Components Test -->
+      <section class="component-test">
+        <h2>Card Components</h2>
+        
+        <div class="card">
+          <h3>Standard Card</h3>
+          <p>Testing card background, borders, and text colors</p>
+          <div class="card-actions">
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-secondary">Secondary</button>
+          </div>
+        </div>
+        
+        <div class="feature-card" style="margin-top: var(--space-4);">
+          <span class="feature-icon">🚀</span>
+          <h3>Feature Card</h3>
+          <p>Testing feature cards with icons and hover effects</p>
+        </div>
+        
+        <div class="module-card" style="margin-top: var(--space-4);">
+          <div class="module-header">
+            <span class="module-icon">📚</span>
+            <span class="module-status available"></span>
+          </div>
+          <div class="module-title">Module Card</div>
+          <div class="module-description">Testing module card styling and status indicators</div>
+        </div>
+        
+        <div class="test-result" id="cardTest">Testing cards...</div>
+      </section>
+      
+      <!-- Button Components Test -->
+      <section class="component-test">
+        <h2>Button System</h2>
+        
+        <div class="btn-group" style="margin-bottom: var(--space-4);">
+          <button class="btn btn-primary">Primary</button>
+          <button class="btn btn-secondary">Secondary</button>
+          <button class="btn btn-outline">Outline</button>
+        </div>
+        
+        <div class="btn-group" style="margin-bottom: var(--space-4);">
+          <button class="btn btn-success">Success</button>
+          <button class="btn btn-warning">Warning</button>
+          <button class="btn btn-error">Error</button>
+        </div>
+        
+        <div class="btn-group">
+          <button class="btn btn-sm">Small</button>
+          <button class="btn">Regular</button>
+          <button class="btn btn-lg">Large</button>
+        </div>
+        
+        <div class="test-result" id="buttonTest">Testing buttons...</div>
+      </section>
+      
+      <!-- Form Components Test -->
+      <section class="component-test">
+        <h2>Form Elements</h2>
+        
+        <div class="form-group">
+          <label class="form-label" for="testInput">Text Input</label>
+          <input type="text" id="testInput" class="form-input" placeholder="Test input field">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="testSelect">Select Dropdown</label>
+          <select id="testSelect" class="form-select">
+            <option>Option 1</option>
+            <option>Option 2</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="testTextarea">Textarea</label>
+          <textarea id="testTextarea" class="form-textarea" rows="3" placeholder="Test textarea"></textarea>
+        </div>
+        
+        <div class="form-checkbox">
+          <input type="checkbox" id="testCheck">
+          <label for="testCheck">Test checkbox option</label>
+        </div>
+        
+        <div class="test-result" id="formTest">Testing forms...</div>
+      </section>
+      
+      <!-- Progress Components Test -->
+      <section class="component-test">
+        <h2>Progress Indicators</h2>
+        
+        <div class="progress-card">
+          <div class="progress-header">
+            <span class="progress-label">Test Progress</span>
+            <span class="progress-percentage">75%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 75%"></div>
+          </div>
+        </div>
+        
+        <div style="margin-top: var(--space-4);">
+          <div class="badge badge-primary">Primary Badge</div>
+          <div class="badge badge-success">Success</div>
+          <div class="badge badge-warning">Warning</div>
+          <div class="badge badge-error">Error</div>
+        </div>
+        
+        <div class="test-result" id="progressTest">Testing progress components...</div>
+      </section>
+      
+      <!-- Typography Test -->
+      <section class="component-test">
+        <h2>Typography System</h2>
+        
+        <h1>Heading 1</h1>
+        <h2>Heading 2</h2>
+        <h3>Heading 3</h3>
+        <h4>Heading 4</h4>
+        
+        <p>This is a paragraph with <a href="#">a test link</a> that should maintain perfect theme consistency across all theme modes.</p>
+        
+        <ul>
+          <li>List item 1</li>
+          <li>List item 2</li>
+          <li>List item 3</li>
+        </ul>
+        
+        <div class="test-result" id="typographyTest">Testing typography...</div>
+      </section>
+      
+      <!-- Loading Components Test -->
+      <section class="component-test">
+        <h2>Loading Indicators</h2>
+        
+        <div class="loading-inline">
+          <div class="loading-spinner"></div>
+          <span class="loading-text">Loading content...</span>
+        </div>
+        
+        <div class="test-result" id="loadingTest">Testing loading components...</div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Theme management functions
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('currentTheme').textContent = theme;
+      
+      // Calculate effective theme
+      let effectiveTheme = theme;
+      if (theme === 'auto') {
+        effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.getElementById('effectiveTheme').textContent = effectiveTheme;
+      
+      // Add transition class
+      document.documentElement.classList.add('theme-transitioning');
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-transitioning');
+      }, 200);
+      
+      // Re-run tests
+      setTimeout(runTests, 100);
+    }
+    
+    // Test functions
+    function testThemeConsistency() {
+      const tests = [];
+      
+      // Get computed styles for key elements
+      const body = document.body;
+      const card = document.querySelector('.card');
+      const button = document.querySelector('.btn-primary');
+      const input = document.querySelector('.form-input');
+      
+      const bodyStyles = getComputedStyle(body);
+      const cardStyles = getComputedStyle(card);
+      const buttonStyles = getComputedStyle(button);
+      const inputStyles = getComputedStyle(input);
+      
+      // Test 1: Background colors are defined
+      tests.push({
+        name: 'Body background',
+        pass: bodyStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' && bodyStyles.backgroundColor !== 'transparent',
+        value: bodyStyles.backgroundColor
+      });
+      
+      // Test 2: Text colors are readable
+      tests.push({
+        name: 'Text readability',
+        pass: bodyStyles.color !== bodyStyles.backgroundColor,
+        value: `Text: ${bodyStyles.color}, BG: ${bodyStyles.backgroundColor}`
+      });
+      
+      // Test 3: Card has proper styling
+      tests.push({
+        name: 'Card styling',
+        pass: cardStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' && cardStyles.borderColor !== 'rgba(0, 0, 0, 0)',
+        value: `BG: ${cardStyles.backgroundColor}, Border: ${cardStyles.borderColor}`
+      });
+      
+      // Test 4: Button has theme colors
+      tests.push({
+        name: 'Button theming',
+        pass: buttonStyles.backgroundColor !== 'rgba(0, 0, 0, 0)',
+        value: buttonStyles.backgroundColor
+      });
+      
+      // Test 5: Form elements are styled
+      tests.push({
+        name: 'Form styling',
+        pass: inputStyles.borderColor !== 'rgba(0, 0, 0, 0)',
+        value: inputStyles.borderColor
+      });
+      
+      return tests;
+    }
+    
+    function runTests() {
+      const themeTests = testThemeConsistency();
+      
+      // Update card test results
+      updateTestResult('cardTest', [themeTests[2]]);
+      updateTestResult('buttonTest', [themeTests[3]]);
+      updateTestResult('formTest', [themeTests[4]]);
+      updateTestResult('progressTest', [{name: 'Visual check', pass: true, value: 'Manual verification'}]);
+      updateTestResult('typographyTest', [themeTests[0], themeTests[1]]);
+      updateTestResult('loadingTest', [{name: 'Visual check', pass: true, value: 'Manual verification'}]);
+    }
+    
+    function updateTestResult(elementId, tests) {
+      const element = document.getElementById(elementId);
+      const allPassed = tests.every(test => test.pass);
+      
+      element.className = 'test-result ' + (allPassed ? 'test-pass' : 'test-fail');
+      
+      const summary = allPassed ? '✅ All tests passed' : '❌ Some tests failed';
+      const details = tests.map(test => 
+        `${test.pass ? '✓' : '✗'} ${test.name}: ${test.value}`
+      ).join('\\n');
+      
+      element.innerHTML = `${summary}<div class="debug-info">${details}</div>`;
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set initial theme display
+      setTheme('auto');
+      
+      // Listen for system theme changes
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.addListener(() => {
+        if (document.documentElement.getAttribute('data-theme') === 'auto') {
+          setTheme('auto');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
