@@ -416,7 +416,34 @@ class EC0249App {
           });
         }
       } else {
-        console.log('[App] No section found in URL path, keeping current section:', this.appState.currentSection);
+        // No section in URL - set appropriate default section for the view
+        let defaultSection = null;
+        
+        if (this.appState.currentView === 'modules') {
+          defaultSection = null; // Modules view doesn't need a section by default
+        } else if (this.appState.currentView === 'dashboard') {
+          defaultSection = 'overview';
+        } else if (this.appState.currentView === 'portfolio') {
+          defaultSection = null; // Portfolio will show overview by default
+        } else if (this.appState.currentView === 'assessment') {
+          defaultSection = null; // Assessment view doesn't need a section
+        } else {
+          defaultSection = this.appState.currentSection; // Keep current section for other views
+        }
+        
+        if (defaultSection !== null && defaultSection !== this.appState.currentSection) {
+          console.log(`[App] Setting default section for ${this.appState.currentView} view: ${defaultSection}`);
+          this.appState.currentSection = defaultSection;
+          this.state.dispatch('SET_PROPERTY', {
+            path: 'currentSection',
+            value: defaultSection
+          });
+        } else if (defaultSection === null) {
+          console.log(`[App] No default section needed for ${this.appState.currentView} view`);
+          // Don't change the section - the view will handle its own display
+        } else {
+          console.log('[App] No section found in URL path, keeping current section:', this.appState.currentSection);
+        }
       }
 
       console.log('[App] Route synchronization complete:', {
@@ -910,9 +937,11 @@ class EC0249App {
       console.log(`[App] ViewManager initialized and synced with app state: view=${this.appState.currentView}, section=${this.appState.currentSection}`);
       
       // Show section if we have one (ViewManager already handled the view during its initialization)
-      if (this.appState.currentSection) {
+      if (this.appState.currentSection && this.appState.currentSection !== null) {
         console.log(`[App] Showing section after ViewManager initialization: ${this.appState.currentSection}`);
         await this.viewManager.showSection(this.appState.currentSection);
+      } else {
+        console.log(`[App] No section to show - view ${this.appState.currentView} will handle its own display`);
       }
       
       console.log('[App] ViewManager initialized and synced with route state');

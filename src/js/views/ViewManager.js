@@ -329,8 +329,23 @@ class ViewManager {
     const targetView = this.getSectionView(sectionId);
     console.log(`[ViewManager] Target view for section ${sectionId}: ${targetView}`);
     
-    // Switch to target view if not already there
+    // Guard against switching views when current view is already appropriate
+    // This prevents "overview" section from overriding correct URL-based views
     if (targetView && targetView !== this.currentView) {
+      // Special case: Don't switch to dashboard for "overview" if current view is URL-appropriate
+      if (targetView === 'dashboard' && sectionId === 'overview') {
+        const currentPath = window.location.pathname;
+        // If URL matches current view, don't override with dashboard
+        if ((currentPath.startsWith('/modules') && this.currentView === 'modules') ||
+            (currentPath.startsWith('/assessment') && this.currentView === 'assessment') ||
+            (currentPath.startsWith('/portfolio') && this.currentView === 'portfolio') ||
+            (currentPath.startsWith('/documents') && this.currentView === 'documents') ||
+            (currentPath.startsWith('/progress') && this.currentView === 'progress')) {
+          console.log(`[ViewManager] Skipping dashboard switch for overview - current view ${this.currentView} matches URL ${currentPath}`);
+          return;
+        }
+      }
+      
       console.log(`[ViewManager] Switching from ${this.currentView} to ${targetView} for section ${sectionId}`);
       await this.showView(targetView);
     }
